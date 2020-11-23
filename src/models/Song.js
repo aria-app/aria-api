@@ -16,6 +16,7 @@ module.exports = {
     type Song {
       bpm: Int!
       dateModified: Int!
+      id: ID!
       measureCount: Int!
       name: String!
       userId: ID!
