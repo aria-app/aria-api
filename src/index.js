@@ -23,7 +23,12 @@ const resolvers = {
   },
 };
 
-const server = new ApolloServer({ resolvers, typeDefs });
+const server = new ApolloServer({
+  introspection: true,
+  playground: true,
+  resolvers,
+  typeDefs,
+});
 
 server.listen(process.env.PORT).then(({ url }) => {
   console.log(`🚀  Server ready at ${url}`);
