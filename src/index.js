@@ -14,14 +14,12 @@ const typeDefs = gql`
     songs: [Song]
   }
 
-  type Song {
-    name: String
-  }
+  ${Song.typeDef}
 `;
 
 const resolvers = {
   Query: {
-    songs: () => Song.find({}),
+    songs: () => Song.model.find({}),
   },
 };
 
