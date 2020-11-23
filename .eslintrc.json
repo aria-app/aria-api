@@ -1,10 +1,6 @@
 {
-  "extends": "react-app",
   "plugins": ["simple-import-sort"],
   "rules": {
-    "react/jsx-sort-props": "error",
-    "simple-import-sort/sort": "error",
-    "sort-imports": "off",
-    "import/order": "off"
+    "simple-import-sort/sort": "error"
   }
 }
