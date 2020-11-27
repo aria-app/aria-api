@@ -21,6 +21,10 @@ module.exports = {
     }),
   ),
   typeDef: gql`
+    extend type Query {
+      sequence(id: ID!): Sequence
+    }
+
     type Note {
       id: ID!
       points: [Point]
@@ -37,6 +41,21 @@ module.exports = {
       notes: [Note]
       position: Int!
       trackId: ID!
+    }
+
+    input NoteUpdateInput {
+      points: [PointUpdateInput]
+    }
+
+    input PointUpdateInput {
+      x: Int
+      y: Int
+    }
+
+    input SequenceUpdateInput {
+      measureCount: Int
+      notes: [NoteUpdateInput]
+      position: Int
     }
   `,
 };

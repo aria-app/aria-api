@@ -27,6 +27,10 @@ module.exports = {
     }),
   ),
   typeDef: gql`
+    extend type Query {
+      tracks: [Track]!
+    }
+
     type Track {
       id: ID!
       isMuted: Boolean!
@@ -35,6 +39,14 @@ module.exports = {
       songId: ID!
       voice: Voice!
       volume: Int!
+    }
+
+    input TrackUpdateInput {
+      isMuted: Boolean
+      isSoloing: Boolean
+      sequences: [SequenceUpdateInput]
+      voice: Voice
+      volume: Int
     }
 
     enum Voice {

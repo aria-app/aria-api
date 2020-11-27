@@ -11,6 +11,10 @@ module.exports = {
     }),
   ),
   typeDef: gql`
+    extend type Query {
+      users: [User]!
+    }
+
     type User {
       email: String!
       firstName: String!

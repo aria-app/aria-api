@@ -13,6 +13,28 @@ module.exports = {
     }),
   ),
   typeDef: gql`
+    extend type Query {
+      song(id: ID!): Song
+      songs: [Song]!
+    }
+
+    extend type Mutation {
+      updateSong(id: ID!, updates: SongUpdateInput!): UpdateSongResponse
+    }
+
+    input SongUpdateInput {
+      bpm: Int
+      measureCount: Int
+      name: String
+      tracks: [TrackUpdateInput]
+    }
+
+    type UpdateSongResponse {
+      message: String!
+      song: Song
+      success: Boolean!
+    }
+
     type Song {
       bpm: Int!
       dateModified: String!

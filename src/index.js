@@ -18,11 +18,10 @@ mongoose.connect(process.env.MONGODB_CONNECTION_STRING, {
 
 const typeDefs = gql`
   type Query {
-    sequence(id: ID!): Sequence
-    song(id: ID!): Song
-    songs: [Song]!
-    tracks: [Track]!
-    users: [User]!
+    _empty: String
+  }
+  type Mutation {
+    _empty: String
   }
   ${Sequence.typeDef}
   ${Song.typeDef}
@@ -66,6 +65,28 @@ const resolvers = {
       );
     },
     users: () => User.model.find({}),
+  },
+  Mutation: {
+    updateSong: async (_, { id, updates }) => {
+      try {
+        console.log('updates', updates);
+        const updatedSong = await Song.model.findByIdAndUpdate(id, updates, {
+          new: true,
+        });
+
+        return {
+          message: 'Song was updated successfully.',
+          song: updatedSong,
+          success: true,
+        };
+      } catch (e) {
+        return {
+          message: 'Song could not be updated.',
+          song: null,
+          success: false,
+        };
+      }
+    },
   },
   Note: {
     id: getId,
