@@ -18,10 +18,11 @@ mongoose.connect(process.env.MONGODB_CONNECTION_STRING, {
 
 const typeDefs = gql`
   type Query {
-    sequence: Sequence
-    songs: [Song]
-    tracks: [Track]
-    users: [User]
+    sequence(id: ID!): Sequence
+    song(id: ID!): Song
+    songs: [Song]!
+    tracks: [Track]!
+    users: [User]!
   }
   ${Sequence.typeDef}
   ${Song.typeDef}
@@ -31,11 +32,28 @@ const typeDefs = gql`
 
 const resolvers = {
   Query: {
-    sequence: (id) => Sequence.model.findById(id),
+    sequence: (_, { id }) => Sequence.model.findById(id),
+    song: async (_, { id }) => {
+      const song = await Song.model.findById(id);
+      const songTracks = await Track.model.find({ songId: id });
+      const songTracksWithSequences = Promise.all(
+        map(
+          (track) =>
+            Sequence.model
+              .find({ trackId: track._id })
+              .then((sequences) => ({ ...track.toObject(), sequences })),
+          songTracks,
+        ),
+      );
+
+      return {
+        ...song.toObject(),
+        tracks: songTracksWithSequences,
+      };
+    },
     songs: () => Song.model.find({}),
-    tracks: async () => {
-      const tracks = await Track.model.find({});
-      console.log('tracks', tracks);
+    tracks: async (_, { songId }) => {
+      const tracks = await Track.model.find({ songId });
 
       return Promise.all(
         map(

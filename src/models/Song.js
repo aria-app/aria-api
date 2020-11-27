@@ -6,7 +6,7 @@ module.exports = {
     'Song',
     new Schema({
       bpm: Number,
-      dateModified: Number,
+      dateModified: String,
       measureCount: Number,
       name: String,
       userId: ObjectId,
@@ -15,7 +15,7 @@ module.exports = {
   typeDef: gql`
     type Song {
       bpm: Int!
-      dateModified: Int!
+      dateModified: String!
       id: ID!
       measureCount: Int!
       name: String!
