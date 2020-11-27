@@ -1,6 +1,7 @@
 require('dotenv').config();
-const getOr = require('lodash/fp/getOr');
 const { ApolloServer, gql } = require('apollo-server');
+const getOr = require('lodash/fp/getOr');
+const map = require('lodash/fp/map');
 const mongoose = require('mongoose');
 
 const Sequence = require('./models/Sequence');
@@ -17,7 +18,7 @@ mongoose.connect(process.env.MONGODB_CONNECTION_STRING, {
 
 const typeDefs = gql`
   type Query {
-    sequences: [Sequence]
+    sequence: Sequence
     songs: [Song]
     tracks: [Track]
     users: [User]
@@ -30,10 +31,26 @@ const typeDefs = gql`
 
 const resolvers = {
   Query: {
-    sequences: () => Sequence.model.find({}),
+    sequence: (id) => Sequence.model.findById(id),
     songs: () => Song.model.find({}),
-    tracks: () => Track.model.find({}),
+    tracks: async () => {
+      const tracks = await Track.model.find({});
+      console.log('tracks', tracks);
+
+      return Promise.all(
+        map(
+          (track) =>
+            Sequence.model
+              .find({ trackId: track._id })
+              .then((sequences) => ({ ...track.toObject(), sequences })),
+          tracks,
+        ),
+      );
+    },
     users: () => User.model.find({}),
+  },
+  Note: {
+    id: getId,
   },
   Sequence: {
     id: getId,

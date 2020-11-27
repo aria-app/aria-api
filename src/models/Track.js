@@ -1,6 +1,5 @@
 const { gql } = require('apollo-server');
 const { model, ObjectId, Schema } = require('mongoose');
-const Sequence = require('./Sequence');
 
 module.exports = {
   model: model(
@@ -8,7 +7,6 @@ module.exports = {
     new Schema({
       isMuted: Boolean,
       isSoloing: Boolean,
-      sequences: [Sequence.model.schema],
       songId: ObjectId,
       voice: {
         enum: [
@@ -33,7 +31,7 @@ module.exports = {
       id: ID!
       isMuted: Boolean!
       isSoloing: Boolean!
-      sequences: [Sequence]
+      sequences: [Sequence]!
       songId: ID!
       voice: Voice!
       volume: Int!
