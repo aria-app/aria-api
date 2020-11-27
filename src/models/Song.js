@@ -1,5 +1,6 @@
 const { gql } = require('apollo-server');
 const { model, ObjectId, Schema } = require('mongoose');
+const Track = require('./Track');
 
 module.exports = {
   model: model(
@@ -19,6 +20,7 @@ module.exports = {
       id: ID!
       measureCount: Int!
       name: String!
+      tracks: [Track]
       userId: ID!
     }
   `,
