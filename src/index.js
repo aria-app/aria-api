@@ -41,8 +41,8 @@ const typeDefs = gql`
 const resolvers = {
   Query: {
     sequence: (_, { id }) => Sequence.model.findById(id),
-    song: async (_, { id }, { user }) => {
-      if (!user) {
+    song: async (_, { id }, { currentUser }) => {
+      if (!currentUser) {
         throw new AuthenticationError('You are not authenticated.');
       }
 
@@ -52,7 +52,7 @@ const resolvers = {
         throw new ApolloError('Song was not found', 'NOT_FOUND');
       }
 
-      if (String(user._id) !== String(song.userId)) {
+      if (String(currentUser._id) !== String(song.userId)) {
         throw new ForbiddenError('You are not authorized to view this data.');
       }
 
@@ -72,7 +72,17 @@ const resolvers = {
         tracks: songTracksWithSequences,
       };
     },
-    songs: () => Song.model.find({}),
+    songs: (_, { userId }, { currentUser }) => {
+      if (!currentUser) {
+        throw new AuthenticationError('You are not authenticated.');
+      }
+
+      if (String(currentUser._id) !== String(userId)) {
+        throw new ForbiddenError('You are not authorized to view this data.');
+      }
+
+      return Song.model.find({ userId });
+    },
     tracks: async (_, { songId }) => {
       const tracks = await Track.model.find({ songId });
 
@@ -86,12 +96,12 @@ const resolvers = {
         ),
       );
     },
-    users: (_, { user }) => {
-      if (!user) {
+    users: (_, __, { currentUser }) => {
+      if (!currentUser) {
         throw new AuthenticationError('You are not authenticated.');
       }
 
-      const isAdmin = Admin.model.exists({ userId: user._id });
+      const isAdmin = Admin.model.exists({ userId: currentUser._id });
 
       if (!isAdmin) {
         throw new ForbiddenError('You are not authorized to view this data.');
@@ -137,14 +147,14 @@ const resolvers = {
         token: Buffer.from(email).toString('base64'),
       };
     },
-    updateSong: async (_, { id, updates }, { user }) => {
-      if (!user) {
+    updateSong: async (_, { id, updates }, { currentUser }) => {
+      if (!currentUser) {
         throw new AuthenticationError('You are not authenticated.');
       }
 
       const song = await Song.model.findById(id);
 
-      if (String(user._id) !== String(song.userId)) {
+      if (String(currentUser._id) !== String(song.userId)) {
         throw new ForbiddenError('You are not authorized to view this data.');
       }
 
@@ -188,11 +198,11 @@ const server = new ApolloServer({
     const authorization = (req.headers && req.headers.authorization) || '';
     const email = Buffer.from(authorization, 'base64').toString('ascii');
 
-    if (!isEmail.validate(email)) return { user: null };
+    if (!isEmail.validate(email)) return { currentUser: null };
 
-    const user = await User.model.findOne({ email });
+    const currentUser = await User.model.findOne({ email });
 
-    return { user };
+    return { currentUser };
   },
   introspection: true,
   playground: true,
