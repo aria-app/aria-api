@@ -12,10 +12,11 @@ const getOr = require('lodash/fp/getOr');
 const map = require('lodash/fp/map');
 const mongoose = require('mongoose');
 
-const Sequence = require('./models/Sequence');
+const User = require('./models/User');
+const Admin = require('./models/Admin');
 const Song = require('./models/Song');
 const Track = require('./models/Track');
-const User = require('./models/User');
+const Sequence = require('./models/Sequence');
 
 const getId = getOr(undefined, '_id');
 
@@ -85,7 +86,19 @@ const resolvers = {
         ),
       );
     },
-    users: () => User.model.find({}),
+    users: (_, { user }) => {
+      if (!user) {
+        throw new AuthenticationError('You are not authenticated.');
+      }
+
+      const isAdmin = Admin.model.exists({ userId: user._id });
+
+      if (!isAdmin) {
+        throw new ForbiddenError('You are not authorized to view this data.');
+      }
+
+      return User.model.find({});
+    },
   },
   Mutation: {
     login: async (_, { email }) => {
@@ -111,7 +124,7 @@ const resolvers = {
 
       const previousUser = await User.model.findOne({ email });
 
-      if (!!previousUser) {
+      if (previousUser) {
         throw new ValidationError('User with that email already exists.');
       }
 
@@ -128,29 +141,29 @@ const resolvers = {
       if (!user) {
         throw new AuthenticationError('You are not authenticated.');
       }
-      try {
-        const song = await Song.model.findById(id);
 
-        if (String(user._id) !== String(song.userId)) {
-          throw new ForbiddenError('You are not authorized to view this data.');
-        }
+      const song = await Song.model.findById(id);
 
-        song.set(updates);
+      if (String(user._id) !== String(song.userId)) {
+        throw new ForbiddenError('You are not authorized to view this data.');
+      }
 
-        song.save();
+      song.set(updates);
 
+      if (!song.isModified()) {
         return {
-          message: 'Song was updated successfully.',
-          song,
-          success: true,
-        };
-      } catch (e) {
-        return {
-          message: 'Song could not be updated.',
-          song: null,
+          message: 'Song was not modified.',
           success: false,
         };
       }
+
+      song.save();
+
+      return {
+        message: 'Song was updated successfully.',
+        song,
+        success: true,
+      };
     },
   },
   Note: {
@@ -188,5 +201,6 @@ const server = new ApolloServer({
 });
 
 server.listen(process.env.PORT).then(({ url }) => {
+  // eslint-disable-next-line no-console
   console.log(`🚀  Server ready at ${url}`);
 });

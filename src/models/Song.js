@@ -1,5 +1,5 @@
 const { gql } = require('apollo-server');
-const { model, ObjectId, Schema } = require('mongoose');
+const { model, Schema } = require('mongoose');
 
 module.exports = {
   model: model(
@@ -9,7 +9,7 @@ module.exports = {
       dateModified: String,
       measureCount: Number,
       name: String,
-      userId: ObjectId,
+      userId: { ref: 'User', type: Schema.Types.ObjectId },
     }),
   ),
   typeDef: gql`

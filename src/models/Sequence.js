@@ -1,5 +1,5 @@
 const { gql } = require('apollo-server');
-const { model, ObjectId, Schema } = require('mongoose');
+const { model, Schema } = require('mongoose');
 
 const noteSchema = new Schema({
   points: [
@@ -17,7 +17,7 @@ module.exports = {
       measureCount: Number,
       notes: [noteSchema],
       position: Number,
-      trackId: ObjectId,
+      trackId: { ref: 'Track', type: Schema.Types.ObjectId },
     }),
   ),
   typeDef: gql`
