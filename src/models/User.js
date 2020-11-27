@@ -15,11 +15,26 @@ module.exports = {
       users: [User]!
     }
 
+    extend type Mutation {
+      login(email: String!): LoginResponse
+      register(email: String!): RegisterResponse
+    }
+
+    type LoginResponse {
+      success: Boolean!
+      token: String
+    }
+
+    type RegisterResponse {
+      success: Boolean!
+      token: String
+    }
+
     type User {
       email: String!
-      firstName: String!
+      firstName: String
       id: ID!
-      lastName: String!
+      lastName: String
     }
   `,
 };
