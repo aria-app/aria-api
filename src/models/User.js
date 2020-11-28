@@ -12,6 +12,7 @@ module.exports = {
   ),
   typeDef: gql`
     extend type Query {
+      me: User
       users: [User]!
     }
 

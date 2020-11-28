@@ -40,6 +40,7 @@ const typeDefs = gql`
 
 const resolvers = {
   Query: {
+    me: (_, __, { currentUser }) => currentUser || null,
     sequence: (_, { id }) => Sequence.model.findById(id),
     song: async (_, { id }, { currentUser }) => {
       if (!currentUser) {
