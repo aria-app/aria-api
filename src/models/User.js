@@ -23,6 +23,7 @@ module.exports = {
     type LoginResponse {
       success: Boolean!
       token: String
+      user: User
     }
 
     type RegisterResponse {

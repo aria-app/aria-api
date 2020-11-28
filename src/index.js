@@ -125,6 +125,7 @@ const resolvers = {
       return {
         success: true,
         token: Buffer.from(email).toString('base64'),
+        user,
       };
     },
     register: async (_, { email }) => {
@@ -199,7 +200,6 @@ const server = new ApolloServer({
     const email = Buffer.from(authorization, 'base64').toString('ascii');
 
     if (!isEmail.validate(email)) return { currentUser: null };
-
     const currentUser = await User.model.findOne({ email });
 
     return { currentUser };
