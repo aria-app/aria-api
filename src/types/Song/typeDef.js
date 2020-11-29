@@ -7,10 +7,27 @@ module.exports = gql`
   }
 
   extend type Mutation {
-    updateSong(id: ID!, updates: SongUpdateInput!): UpdateSongResponse
+    createSong(options: CreateSongInput!): CreateSongResponse
+    deleteSong(id: ID!): DeleteSongResponse
+    updateSong(id: ID!, updates: UpdateSongInput!): UpdateSongResponse
   }
 
-  input SongUpdateInput {
+  input CreateSongInput {
+    name: String!
+  }
+
+  type CreateSongResponse {
+    message: String!
+    song: Song
+    success: Boolean!
+  }
+
+  type DeleteSongResponse {
+    message: String!
+    success: Boolean!
+  }
+
+  input UpdateSongInput {
     bpm: Int
     measureCount: Int
     name: String
