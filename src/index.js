@@ -141,7 +141,7 @@ const resolvers = {
         throw new ForbiddenError('You are not authorized to view this data.');
       }
 
-      return User.model.find({});
+      return User.model.find({}).sort({ firstName: 'asc', email: 'asc' });
     },
   },
   Mutation: {
