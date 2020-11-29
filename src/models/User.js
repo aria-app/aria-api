@@ -12,13 +12,21 @@ module.exports = {
   ),
   typeDef: gql`
     extend type Query {
-      me: User
+      me: MeResponse
       users: [User]!
     }
 
     extend type Mutation {
       login(email: String!): LoginResponse
       register(email: String!): RegisterResponse
+    }
+
+    type MeResponse {
+      email: String!
+      firstName: String
+      id: ID!
+      isAdmin: Boolean!
+      lastName: String
     }
 
     type LoginResponse {

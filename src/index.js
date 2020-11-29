@@ -9,7 +9,9 @@ const {
 } = require('apollo-server');
 const isEmail = require('isemail');
 const getOr = require('lodash/fp/getOr');
+const isNil = require('lodash/fp/isNil');
 const map = require('lodash/fp/map');
+const omitBy = require('lodash/fp/omitBy');
 const mongoose = require('mongoose');
 
 const User = require('./models/User');
@@ -40,7 +42,21 @@ const typeDefs = gql`
 
 const resolvers = {
   Query: {
-    me: (_, __, { currentUser }) => currentUser || null,
+    me: (_, __, { currentUser }) => {
+      if (!currentUser) {
+        return null;
+      }
+
+      const isAdmin = Admin.model.exists({ userId: currentUser._id });
+
+      return {
+        email: currentUser.email,
+        firstName: currentUser.firstName,
+        id: currentUser._id,
+        isAdmin: !!isAdmin,
+        lastName: currentUser.lastName,
+      };
+    },
     sequence: (_, { id }) => Sequence.model.findById(id),
     song: async (_, { id }, { currentUser }) => {
       if (!currentUser) {
@@ -78,11 +94,13 @@ const resolvers = {
         throw new AuthenticationError('You are not authenticated.');
       }
 
-      if (String(currentUser._id) !== String(userId)) {
+      const isAdmin = Admin.model.exists({ userId: currentUser._id });
+
+      if (!isAdmin && String(currentUser._id) !== String(userId)) {
         throw new ForbiddenError('You are not authorized to view this data.');
       }
 
-      return Song.model.find({ userId });
+      return Song.model.find(omitBy(isNil, { userId })).sort({ name: 'asc' });
     },
     tracks: async (_, { songId }) => {
       const tracks = await Track.model.find({ songId });
