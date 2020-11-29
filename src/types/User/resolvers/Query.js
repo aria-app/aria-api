@@ -23,7 +23,9 @@ module.exports = {
       throw new AuthenticationError('You are not authenticated.');
     }
 
-    const isCurrentUserAdmin = Admin.model.exists({ userId: currentUser._id });
+    const isCurrentUserAdmin = await Admin.model.exists({
+      userId: currentUser._id,
+    });
 
     if (!isCurrentUserAdmin) {
       throw new ForbiddenError('You are not authorized to view this data.');
