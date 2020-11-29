@@ -15,7 +15,7 @@ module.exports = {
   typeDef: gql`
     extend type Query {
       song(id: ID!): Song
-      songs(userId: ID): [Song]!
+      songs(userId: ID): [SongsResponseItem]!
     }
 
     extend type Mutation {
@@ -42,6 +42,15 @@ module.exports = {
       measureCount: Int!
       name: String!
       tracks: [Track]
+      userId: ID!
+    }
+
+    type SongsResponseItem {
+      dateModified: String!
+      id: ID!
+      measureCount: Int!
+      name: String!
+      trackCount: Int!
       userId: ID!
     }
   `,

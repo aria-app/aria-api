@@ -89,7 +89,7 @@ const resolvers = {
         tracks: songTracksWithSequences,
       };
     },
-    songs: (_, { userId }, { currentUser }) => {
+    songs: async (_, { userId }, { currentUser }) => {
       if (!currentUser) {
         throw new AuthenticationError('You are not authenticated.');
       }
@@ -100,7 +100,22 @@ const resolvers = {
         throw new ForbiddenError('You are not authorized to view this data.');
       }
 
-      return Song.model.find(omitBy(isNil, { userId })).sort({ name: 'asc' });
+      const songs = await Song.model
+        .find(omitBy(isNil, { userId }))
+        .sort({ name: 'asc' });
+
+      return map(async (song) => {
+        const trackCount = await Track.model.count({ songId: song._id });
+
+        return {
+          dateModified: song.dateModified,
+          id: song._id,
+          measureCount: song.measureCount,
+          name: song.name,
+          userId: song.userId,
+          trackCount,
+        };
+      }, songs);
     },
     tracks: async (_, { songId }) => {
       const tracks = await Track.model.find({ songId });
