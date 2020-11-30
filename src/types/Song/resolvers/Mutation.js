@@ -67,6 +67,8 @@ module.exports = {
       };
     }
 
+    song.set({ dateModified: formatISO(new Date()) });
+
     song.save();
 
     return {
