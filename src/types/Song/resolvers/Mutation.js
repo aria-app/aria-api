@@ -1,5 +1,4 @@
 const { AuthenticationError, ForbiddenError } = require('apollo-server');
-const formatISO = require('date-fns/formatISO');
 const model = require('../model');
 
 const DEFAULT_BPM = 120;
@@ -13,7 +12,7 @@ module.exports = {
 
     const song = new model({
       bpm: DEFAULT_BPM,
-      dateModified: formatISO(new Date()),
+      dateModified: new Date(),
       measureCount: DEFAULT_MEASURE_COUNT,
       userId: currentUser._id,
       ...options,
@@ -67,7 +66,7 @@ module.exports = {
       };
     }
 
-    song.set({ dateModified: formatISO(new Date()) });
+    song.set({ dateModified: new Date() });
 
     song.save();
 

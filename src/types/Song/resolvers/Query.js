@@ -6,6 +6,7 @@ const {
 const isNil = require('lodash/fp/isNil');
 const map = require('lodash/fp/map');
 const omitBy = require('lodash/fp/omitBy');
+const orderBy = require('lodash/orderBy');
 const Admin = require('../../Admin');
 const Sequence = require('../../Sequence');
 const Track = require('../../Track');
@@ -44,7 +45,11 @@ module.exports = {
     };
   },
 
-  songs: async (_, { userId }, { currentUser }) => {
+  songs: async (
+    _,
+    { sort = 'name', sortDirection = 'asc', userId },
+    { currentUser },
+  ) => {
     if (!currentUser) {
       throw new AuthenticationError('You are not authenticated.');
     }
@@ -55,21 +60,31 @@ module.exports = {
       throw new ForbiddenError('You are not authorized to view this data.');
     }
 
+    const sortKey = sort === 'trackCount' ? 'name' : sort;
+
     const songs = await model
       .find(omitBy(isNil, { userId }))
-      .sort({ name: 'asc' });
+      .sort({ [sortKey]: sortDirection });
 
-    return map(async (song) => {
-      const trackCount = await Track.model.countDocuments({ songId: song._id });
+    const songsWithTrackCount = await Promise.all(
+      map(async (song) => {
+        const trackCount = await Track.model.countDocuments({
+          songId: song._id,
+        });
 
-      return {
-        dateModified: song.dateModified,
-        id: song._id,
-        measureCount: song.measureCount,
-        name: song.name,
-        userId: song.userId,
-        trackCount,
-      };
-    }, songs);
+        return {
+          dateModified: song.dateModified.toISOString(),
+          id: song._id,
+          measureCount: song.measureCount,
+          name: song.name,
+          userId: song.userId,
+          trackCount,
+        };
+      }, songs),
+    );
+    console.log('songsWithTrackCount', songsWithTrackCount);
+    return sort === 'trackCount'
+      ? orderBy(songsWithTrackCount, 'trackCount', sortDirection)
+      : songsWithTrackCount;
   },
 };
