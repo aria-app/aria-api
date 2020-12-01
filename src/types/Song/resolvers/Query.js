@@ -82,7 +82,7 @@ module.exports = {
         };
       }, songs),
     );
-    console.log('songsWithTrackCount', songsWithTrackCount);
+
     return sort === 'trackCount'
       ? orderBy(songsWithTrackCount, 'trackCount', sortDirection)
       : songsWithTrackCount;
