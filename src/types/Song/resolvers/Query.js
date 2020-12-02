@@ -6,7 +6,6 @@ const {
 const isNil = require('lodash/fp/isNil');
 const map = require('lodash/fp/map');
 const omitBy = require('lodash/fp/omitBy');
-const orderBy = require('lodash/orderBy');
 const Admin = require('../../Admin');
 const Sequence = require('../../Sequence');
 const Track = require('../../Track');
@@ -24,7 +23,9 @@ module.exports = {
       throw new ApolloError('Song was not found', 'NOT_FOUND');
     }
 
-    if (String(currentUser._id) !== String(song.userId)) {
+    const isAdmin = Admin.model.exists({ userId: currentUser._id });
+
+    if (!isAdmin && String(currentUser._id) !== String(song.userId)) {
       throw new ForbiddenError('You are not authorized to view this data.');
     }
 
@@ -47,7 +48,13 @@ module.exports = {
 
   songs: async (
     _,
-    { sort = 'name', sortDirection = 'asc', userId },
+    {
+      limit = Number.MAX_SAFE_INTEGER,
+      page = 1,
+      sort = 'name',
+      sortDirection = 'asc',
+      userId,
+    },
     { currentUser },
   ) => {
     if (!currentUser) {
@@ -60,13 +67,17 @@ module.exports = {
       throw new ForbiddenError('You are not authorized to view this data.');
     }
 
-    const sortKey = sort === 'trackCount' ? 'name' : sort;
+    const songResults = await model.paginate(
+      {},
+      omitBy(isNil, {
+        limit,
+        options: omitBy(isNil, { userId }),
+        page,
+        sort: { [sort]: sortDirection },
+      }),
+    );
 
-    const songs = await model
-      .find(omitBy(isNil, { userId }))
-      .sort({ [sortKey]: sortDirection });
-
-    const songsWithTrackCount = await Promise.all(
+    const songsWithTrackCounts = await Promise.all(
       map(async (song) => {
         const trackCount = await Track.model.countDocuments({
           songId: song._id,
@@ -80,11 +91,17 @@ module.exports = {
           userId: song.userId,
           trackCount,
         };
-      }, songs),
+      }, songResults.docs),
     );
 
-    return sort === 'trackCount'
-      ? orderBy(songsWithTrackCount, 'trackCount', sortDirection)
-      : songsWithTrackCount;
+    return {
+      data: songsWithTrackCounts,
+      meta: {
+        currentPage: songResults.page,
+        itemsPerPage:
+          limit === Number.MAX_SAFE_INTEGER ? songResults.totalDocs : limit,
+        totalItemCount: songResults.totalDocs,
+      },
+    };
   },
 };

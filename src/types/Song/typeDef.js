@@ -3,7 +3,13 @@ const { gql } = require('apollo-server');
 module.exports = gql`
   extend type Query {
     song(id: ID!): Song
-    songs(sort: String, sortDirection: String, userId: ID): [SongsResponseItem]!
+    songs(
+      limit: Int
+      page: Int
+      sort: String
+      sortDirection: String
+      userId: ID
+    ): SongsResponse!
   }
 
   extend type Mutation {
@@ -48,6 +54,11 @@ module.exports = gql`
     name: String!
     tracks: [Track]
     userId: ID!
+  }
+
+  type SongsResponse {
+    data: [SongsResponseItem]
+    meta: PaginationMetadata
   }
 
   type SongsResponseItem {

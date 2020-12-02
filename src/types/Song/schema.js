@@ -1,9 +1,14 @@
 const { Schema } = require('mongoose');
+const mongoosePaginate = require('mongoose-paginate-v2');
 
-module.exports = new Schema({
+const schema = new Schema({
   bpm: Number,
   dateModified: Date,
   measureCount: Number,
   name: String,
   userId: { ref: 'User', type: Schema.Types.ObjectId },
 });
+
+schema.plugin(mongoosePaginate);
+
+module.exports = schema;
