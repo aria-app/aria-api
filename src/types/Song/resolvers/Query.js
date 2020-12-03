@@ -74,7 +74,7 @@ module.exports = {
       {
         ...(limit ? { limit } : {}),
         ...(page ? { page } : {}),
-        ...(sort ? { [sort]: sortDirection } : {}),
+        ...(sort ? { sort: { [sort]: sortDirection } } : {}),
       },
     );
 
