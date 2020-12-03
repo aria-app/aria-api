@@ -6,6 +6,7 @@ module.exports = gql`
     songs(
       limit: Int
       page: Int
+      search: String
       sort: String
       sortDirection: String
       userId: ID

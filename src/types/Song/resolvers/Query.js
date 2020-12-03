@@ -3,9 +3,7 @@ const {
   AuthenticationError,
   ForbiddenError,
 } = require('apollo-server');
-const isNil = require('lodash/fp/isNil');
 const map = require('lodash/fp/map');
-const omitBy = require('lodash/fp/omitBy');
 const Admin = require('../../Admin');
 const Sequence = require('../../Sequence');
 const Track = require('../../Track');
@@ -51,6 +49,7 @@ module.exports = {
     {
       limit = Number.MAX_SAFE_INTEGER,
       page = 1,
+      search,
       sort = 'name',
       sortDirection = 'asc',
       userId,
@@ -68,13 +67,15 @@ module.exports = {
     }
 
     const songResults = await model.paginate(
-      {},
-      omitBy(isNil, {
-        limit,
-        options: omitBy(isNil, { userId }),
-        page,
-        sort: { [sort]: sortDirection },
-      }),
+      {
+        ...(search ? { name: new RegExp(search, 'i') } : {}),
+        ...(userId ? { userId } : {}),
+      },
+      {
+        ...(limit ? { limit } : {}),
+        ...(page ? { page } : {}),
+        ...(sort ? { [sort]: sortDirection } : {}),
+      },
     );
 
     const songsWithTrackCounts = await Promise.all(
