@@ -22,7 +22,7 @@ module.exports = gql`
   }
 
   type User {
-    email: String!
+    email: String
     firstName: String
     id: ID!
     isAdmin: Boolean!
