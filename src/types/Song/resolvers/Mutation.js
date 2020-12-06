@@ -18,7 +18,7 @@ module.exports = {
       ...options,
     });
 
-    song.save();
+    await song.save();
 
     return {
       message: 'Song was created successfully.',

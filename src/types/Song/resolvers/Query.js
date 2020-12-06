@@ -21,7 +21,7 @@ module.exports = {
       throw new ApolloError('Song was not found', 'NOT_FOUND');
     }
 
-    const isAdmin = Admin.model.exists({ userId: currentUser._id });
+    const isAdmin = await Admin.model.exists({ userId: currentUser._id });
 
     if (!isAdmin && String(currentUser._id) !== String(song.userId)) {
       throw new ForbiddenError('You are not authorized to view this data.');
@@ -60,16 +60,16 @@ module.exports = {
       throw new AuthenticationError('You are not authenticated.');
     }
 
-    const isAdmin = Admin.model.exists({ userId: currentUser._id });
+    const isAdmin = await Admin.model.exists({ userId: currentUser._id });
 
-    if (!isAdmin && String(currentUser._id) !== String(userId)) {
+    if (!isAdmin && userId && String(currentUser._id) !== String(userId)) {
       throw new ForbiddenError('You are not authorized to view this data.');
     }
 
     const songResults = await model.paginate(
       {
         ...(search ? { name: new RegExp(search, 'i') } : {}),
-        ...(userId ? { userId } : {}),
+        ...(userId || !isAdmin ? { userId: userId || currentUser._id } : {}),
       },
       {
         ...(limit ? { limit } : {}),

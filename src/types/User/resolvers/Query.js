@@ -5,18 +5,18 @@ const Admin = require('../../Admin');
 const model = require('../model');
 
 module.exports = {
-  me: async (_, __, { currentUser }) => {
-    if (!currentUser) {
-      return null;
-    }
+  // me: async (_, __, { currentUser }) => {
+  //   if (!currentUser) {
+  //     return null;
+  //   }
 
-    const isAdmin = await Admin.model.exists({ userId: currentUser._id });
+  //   const isAdmin = await Admin.model.exists({ userId: currentUser._id });
 
-    return {
-      ...currentUser.toObject(),
-      isAdmin,
-    };
-  },
+  //   return {
+  //     ...currentUser.toObject(),
+  //     isAdmin,
+  //   };
+  // },
 
   users: async (_, __, { currentUser }) => {
     if (!currentUser) {

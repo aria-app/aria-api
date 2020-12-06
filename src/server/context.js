@@ -11,12 +11,8 @@ module.exports = async function context({ req, ...rest }) {
     if (authHeader) {
       const token = authHeader.split(' ')[1];
       const payload = await verifyToken(token);
-      console.log(payload);
       isAuthenticated = !!(payload && payload.sub);
-
-      currentUser =
-        payload &&
-        (await User.helpers.findOrCreateUser({ auth0Id: payload.sub }));
+      currentUser = payload && (await User.model.findById(payload.sub));
     }
   } catch (error) {
     // eslint-disable-next-line no-console

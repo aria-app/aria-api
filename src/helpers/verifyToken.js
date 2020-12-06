@@ -1,35 +1,21 @@
 const jwt = require('jsonwebtoken');
-const jwksClient = require('jwks-rsa');
 
-const verifyToken = async (bearerToken) => {
-  const client = jwksClient({
-    jwksUri: `${process.env.AUTH_ISSUER}.well-known/jwks.json`,
-  });
-
+module.exports = function verifyToken(token) {
   return new Promise((resolve, reject) => {
     jwt.verify(
-      bearerToken,
-      (header, callback) => {
-        client.getSigningKey(header.kid, (error, key) => {
-          const signingKey = key.publicKey || key.rsaPublicKey;
-
-          callback(null, signingKey);
-        });
-      },
+      token,
+      process.env.JWT_SECRET,
       {
-        algorithms: ['RS256'],
-        audience: process.env.AUTH_AUDIENCE,
-        issuer: process.env.AUTH_ISSUER,
+        audience: process.env.AUDIENCE,
+        issuer: process.env.ISSUER,
       },
-      (error, decoded) => {
-        if (error) {
-          reject(error);
+      (err, payload) => {
+        if (err) {
+          reject(err);
         } else {
-          resolve(decoded);
+          resolve(payload);
         }
       },
     );
   });
 };
-
-module.exports = verifyToken;
