@@ -13,7 +13,7 @@ const Admin = require('../../Admin');
 const model = require('../model');
 
 module.exports = {
-  login: async (_, { email, password }) => {
+  login: async (_, { email, password }, { res }) => {
     if (!isEmail.validate(email)) {
       throw new ValidationError('Email format invalid.');
     }
@@ -47,6 +47,10 @@ module.exports = {
       const decodedToken = jwtDecode(token);
       const expiresAt = decodedToken.exp;
 
+      res.cookie('token', token, {
+        httpOnly: true,
+      });
+
       return {
         expiresAt,
         success: true,
@@ -61,7 +65,7 @@ module.exports = {
     }
   },
 
-  register: async (_, { email, firstName, lastName, password }) => {
+  register: async (_, { email, firstName, lastName, password }, { res }) => {
     const formattedEmail = email.toLowerCase();
 
     if (!isEmail.validate(formattedEmail)) {
@@ -97,6 +101,10 @@ module.exports = {
       const token = await createToken(userInfo);
       const decodedToken = jwtDecode(token);
       const expiresAt = decodedToken.exp;
+
+      res.cookie('token', token, {
+        httpOnly: true,
+      });
 
       return {
         expiresAt,
