@@ -7,6 +7,7 @@ module.exports = gql`
 
   extend type Mutation {
     login(email: String!, password: String!): LoginResponse
+    logout: LogoutResponse
     register(
       email: String!
       firstName: String!
@@ -20,6 +21,10 @@ module.exports = gql`
     success: Boolean!
     token: String
     user: User
+  }
+
+  type LogoutResponse {
+    success: Boolean!
   }
 
   type RegisterResponse {

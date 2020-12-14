@@ -65,6 +65,14 @@ module.exports = {
     }
   },
 
+  logout: async (_, __, { res }) => {
+    res.clearCookie('token');
+
+    return {
+      success: true,
+    };
+  },
+
   register: async (_, { email, firstName, lastName, password }, { res }) => {
     const formattedEmail = email.toLowerCase();
 
