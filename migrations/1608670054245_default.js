@@ -13,6 +13,7 @@ exports.up = (pgm) => {
     email: {
       notNull: true,
       type: 'varchar(255)',
+      unique: true,
     },
     first_name: {
       notNull: true,

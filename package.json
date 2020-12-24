@@ -8,6 +8,7 @@
     "lint": "eslint --cache --fix src/**/*.js && prettier --write src/**/*.js",
     "migrate-down": "node-pg-migrate down --no-reject-unauthorized",
     "migrate-up": "node-pg-migrate up --no-reject-unauthorized",
+    "seed": "node seeders/default.js",
     "start": "node src/index.js"
   },
   "repository": {

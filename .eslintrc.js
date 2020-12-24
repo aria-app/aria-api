@@ -11,6 +11,7 @@ module.exports = {
     node: true,
   },
   rules: {
+    camelcase: 0,
     'new-cap': 0,
     'no-console': 1,
     'no-underscore-dangle': 0,
