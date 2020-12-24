@@ -8,8 +8,11 @@ module.exports = async function context({ req, ...rest }) {
   let currentUser = null;
   try {
     const cookies = req.headers.cookie ? cookie.parse(req.headers.cookie) : {};
-    const authHeader = req.headers && req.headers.authorization;
-    const token = cookies.token || authHeader.slice(7) || '';
+    const authHeader =
+      req.headers && req.headers.authorization
+        ? req.headers.authorization.slice(7)
+        : '';
+    const token = cookies.token || authHeader || '';
 
     if (token) {
       const payload = await verifyToken(token);
