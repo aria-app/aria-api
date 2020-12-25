@@ -28,6 +28,15 @@ exports.up = (pgm) => {
       type: 'varchar(255)',
     },
   });
+  pgm.createTable('admins', {
+    id: 'id',
+    user_id: {
+      notNull: true,
+      onDelete: 'cascade',
+      references: '"users"',
+      type: 'integer',
+    },
+  });
   pgm.createTable('songs', {
     id: 'id',
     bpm: {

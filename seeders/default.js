@@ -1,5 +1,5 @@
 const hashPassword = require('../src/helpers/hashPassword');
-const verifyPassword = require('../src/helpers/verifyPassword');
+const Admin = require('../src/types/Admin');
 const Song = require('../src/types/Song');
 const User = require('../src/types/User');
 
@@ -30,6 +30,10 @@ const SEEDED_USER_PASSWORD =
       })
       .then((res) => res.rows);
 
+    await Admin.pgModel.create({
+      user_id: adminUser.id,
+    });
+
     await Song.pgModel.create({
       bpm: DEFAULT_BPM,
       date_modified: new Date(),
@@ -46,10 +50,17 @@ const SEEDED_USER_PASSWORD =
       user_id: normalUser.id,
     });
 
-    const songs = await Song.pgModel.findAll();
+    // Create Voices
+    // Create Tracks
+    // Create Sequences
+    // Create Notes
+
     const users = await User.pgModel.findAll();
+    const admins = await Admin.pgModel.findAll();
+    const songs = await Song.pgModel.findAll();
 
     console.log('Users', users.rows);
+    console.log('Admins', admins.rows);
     console.log('Songs', songs.rows);
 
     process.exit(0);
