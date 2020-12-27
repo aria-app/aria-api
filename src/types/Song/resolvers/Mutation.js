@@ -1,4 +1,9 @@
-const { AuthenticationError, ForbiddenError } = require('apollo-server');
+const {
+  AuthenticationError,
+  ForbiddenError,
+  UserInputError,
+} = require('apollo-server');
+const isEqual = require('lodash/fp/isEqual');
 const model = require('../model');
 
 const DEFAULT_BPM = 120;
@@ -50,13 +55,32 @@ module.exports = {
 
     const song = await model.findOneById(id);
 
-    if (String(currentUser.id) !== String(song.user_id)) {
+    if (currentUser.id !== song.user_id) {
       throw new ForbiddenError('You are not authorized to view this data.');
     }
 
+    if (
+      isEqual(
+        {
+          bpm: updates.bpm,
+          measure_count: updates.measureCount,
+          name: updates.name,
+        },
+        {
+          bpm: song.bpm,
+          measure_count: song.measure_count,
+          name: song.name,
+        },
+      )
+    ) {
+      throw new UserInputError('No changes submitted');
+    }
+
     const updatedSong = await model.update(id, {
-      ...updates,
+      bpm: updates.bpm,
       date_modified: new Date(),
+      measure_count: updates.measureCount,
+      name: updates.name,
     });
 
     return {

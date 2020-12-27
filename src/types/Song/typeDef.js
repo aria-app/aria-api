@@ -55,6 +55,7 @@ module.exports = gql`
     name: String!
     tracks: [Track]
     userId: ID!
+    user: User!
   }
 
   type SongsResponse {
