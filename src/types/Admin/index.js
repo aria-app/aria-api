@@ -1,5 +1,5 @@
-const pgModel = require('./pgModel');
+const model = require('./model');
 
 module.exports = {
-  pgModel,
+  model,
 };

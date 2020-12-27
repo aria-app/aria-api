@@ -9,7 +9,7 @@ const jwtDecode = require('jwt-decode');
 const createToken = require('../../../helpers/createToken');
 const hashPassword = require('../../../helpers/hashPassword');
 const verifyPassword = require('../../../helpers/verifyPassword');
-const pgModel = require('../pgModel');
+const model = require('../model');
 
 module.exports = {
   login: async (_, { email, password }, { res }) => {
@@ -17,7 +17,7 @@ module.exports = {
       throw new ValidationError('Email format invalid.');
     }
 
-    const user = await pgModel.findOneByEmail(email);
+    const user = await model.findOneByEmail(email);
 
     if (!user) {
       throw new ForbiddenError('Email or password is incorrect.');
@@ -74,7 +74,7 @@ module.exports = {
       throw new ValidationError('Email format invalid.');
     }
 
-    const isExistingUser = await pgModel.findOneByEmail(formattedEmail);
+    const isExistingUser = await model.findOneByEmail(formattedEmail);
 
     if (isExistingUser) {
       throw new ValidationError('User with that email already exists.');
@@ -83,7 +83,7 @@ module.exports = {
     try {
       const hashedPassword = await hashPassword(password);
 
-      const newUser = await pgModel.create({
+      const newUser = await model.create({
         email: formattedEmail,
         first_name: firstName,
         last_name: lastName,

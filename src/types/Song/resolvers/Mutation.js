@@ -1,5 +1,5 @@
 const { AuthenticationError, ForbiddenError } = require('apollo-server');
-const pgModel = require('../pgModel');
+const model = require('../model');
 
 const DEFAULT_BPM = 120;
 const DEFAULT_MEASURE_COUNT = 4;
@@ -10,7 +10,7 @@ module.exports = {
       throw new AuthenticationError('You are not authenticated.');
     }
 
-    const newSong = await pgModel.create({
+    const newSong = await model.create({
       bpm: DEFAULT_BPM,
       measure_count: DEFAULT_MEASURE_COUNT,
       user_id: currentUser.id,
@@ -29,13 +29,13 @@ module.exports = {
       throw new AuthenticationError('You are not authenticated.');
     }
 
-    const song = await pgModel.findOneById(id);
+    const song = await model.findOneById(id);
 
     if (String(currentUser.id) !== String(song.user_id)) {
       throw new ForbiddenError('You are not authorized to view this data.');
     }
 
-    await pgModel.delete(id);
+    await model.delete(id);
 
     return {
       message: 'Song was deleted successfully.',
@@ -48,13 +48,13 @@ module.exports = {
       throw new AuthenticationError('You are not authenticated.');
     }
 
-    const song = await pgModel.findOneById(id);
+    const song = await model.findOneById(id);
 
     if (String(currentUser.id) !== String(song.user_id)) {
       throw new ForbiddenError('You are not authorized to view this data.');
     }
 
-    const updatedSong = await pgModel.update(id, {
+    const updatedSong = await model.update(id, {
       ...updates,
       date_modified: new Date(),
     });

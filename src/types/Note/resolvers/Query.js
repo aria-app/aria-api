@@ -1,5 +1,5 @@
-const pgModel = require('../pgModel');
+const model = require('../model');
 
 module.exports = {
-  note: (_, { id }) => pgModel.findOneById(id),
+  note: (_, { id }) => model.findOneById(id),
 };

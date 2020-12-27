@@ -1,7 +1,7 @@
 const { AuthenticationError, ForbiddenError } = require('apollo-server');
 
 const Admin = require('../../Admin');
-const pgModel = require('../pgModel');
+const model = require('../model');
 
 module.exports = {
   me: async (_, __, { currentUser }) => {
@@ -13,7 +13,7 @@ module.exports = {
       throw new AuthenticationError('You are not authenticated.');
     }
 
-    const isCurrentUserAdmin = !!(await Admin.pgModel.findOneByUserId(
+    const isCurrentUserAdmin = !!(await Admin.model.findOneByUserId(
       currentUser.id,
     ));
 
@@ -21,6 +21,6 @@ module.exports = {
       throw new ForbiddenError('You are not authorized to view this data.');
     }
 
-    return pgModel.find();
+    return model.find();
   },
 };

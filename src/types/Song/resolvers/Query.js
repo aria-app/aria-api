@@ -4,7 +4,7 @@ const {
   ForbiddenError,
 } = require('apollo-server');
 const Admin = require('../../Admin');
-const pgModel = require('../pgModel');
+const model = require('../model');
 
 module.exports = {
   song: async (_, { id }, { currentUser }) => {
@@ -12,13 +12,13 @@ module.exports = {
       throw new AuthenticationError('You are not authenticated.');
     }
 
-    const song = await pgModel.findOneById(id);
+    const song = await model.findOneById(id);
 
     if (!song) {
       throw new ApolloError('Song was not found', 'NOT_FOUND');
     }
 
-    const isAdmin = !!(await Admin.pgModel.findOneByUserId(currentUser.id));
+    const isAdmin = !!(await Admin.model.findOneByUserId(currentUser.id));
 
     if (!isAdmin && String(currentUser.id) !== String(song.user_id)) {
       throw new ForbiddenError('You are not authorized to view this data.');
@@ -43,20 +43,20 @@ module.exports = {
       throw new AuthenticationError('You are not authenticated.');
     }
 
-    const isAdmin = !!(await Admin.pgModel.findOneByUserId(currentUser.id));
+    const isAdmin = !!(await Admin.model.findOneByUserId(currentUser.id));
 
     if (!isAdmin && userId && String(currentUser.id) !== String(userId)) {
       throw new ForbiddenError('You are not authorized to view this data.');
     }
 
-    const allSongs = await pgModel.find({
+    const allSongs = await model.find({
       search,
       sort,
       sortDirection,
       userId: !isAdmin || userId ? userId || currentUser.id : undefined,
     });
 
-    const songsPage = await pgModel.find({
+    const songsPage = await model.find({
       search,
       limit,
       offset: page - 1,

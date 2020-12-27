@@ -1,9 +1,9 @@
-const pgModel = require('./pgModel');
+const model = require('./model');
 const resolvers = require('./resolvers');
 const typeDef = require('./typeDef');
 
 module.exports = {
-  pgModel,
+  model,
   resolvers,
   typeDef,
 };

@@ -20,25 +20,25 @@ const SEEDED_USER_PASSWORD =
   try {
     const password = await hashPassword(SEEDED_USER_PASSWORD);
 
-    const adminUser = await User.pgModel.create({
+    const adminUser = await User.model.create({
       email: 'admin@ariaapp.io',
       first_name: 'Alexander',
       last_name: 'Admin',
       password,
     });
 
-    const normalUser = await User.pgModel.create({
+    const normalUser = await User.model.create({
       email: 'user@ariaapp.io',
       first_name: 'Yorick',
       last_name: 'User',
       password,
     });
 
-    await Admin.pgModel.create({
+    await Admin.model.create({
       user_id: adminUser.id,
     });
 
-    const adminUserSong = await Song.pgModel.create({
+    const adminUserSong = await Song.model.create({
       bpm: DEFAULT_BPM,
       date_modified: new Date(),
       measure_count: DEFAULT_MEASURE_COUNT,
@@ -46,7 +46,7 @@ const SEEDED_USER_PASSWORD =
       user_id: adminUser.id,
     });
 
-    await Song.pgModel.create({
+    await Song.model.create({
       bpm: DEFAULT_BPM,
       date_modified: new Date(),
       measure_count: DEFAULT_MEASURE_COUNT + 10,
@@ -54,7 +54,7 @@ const SEEDED_USER_PASSWORD =
       user_id: adminUser.id,
     });
 
-    await Song.pgModel.create({
+    await Song.model.create({
       bpm: DEFAULT_BPM,
       date_modified: new Date(),
       measure_count: DEFAULT_MEASURE_COUNT,
@@ -62,7 +62,7 @@ const SEEDED_USER_PASSWORD =
       user_id: adminUser.id,
     });
 
-    const normalUserSong = await Song.pgModel.create({
+    const normalUserSong = await Song.model.create({
       bpm: DEFAULT_BPM,
       date_modified: new Date(),
       measure_count: DEFAULT_MEASURE_COUNT,
@@ -72,33 +72,33 @@ const SEEDED_USER_PASSWORD =
 
     await Promise.all(
       defaultVoices.map(async (defaultVoice) => {
-        await Voice.pgModel.create(defaultVoice);
+        await Voice.model.create(defaultVoice);
       }),
     );
 
-    const adminUserTrack = await Track.pgModel.create({
+    const adminUserTrack = await Track.model.create({
       song_id: adminUserSong.id,
       voice_id: DEFAULT_VOICE_ID,
     });
 
-    const normalUserTrack = await Track.pgModel.create({
+    const normalUserTrack = await Track.model.create({
       song_id: normalUserSong.id,
       voice_id: DEFAULT_VOICE_ID,
     });
 
-    const adminUserSequence = await Sequence.pgModel.create({
+    const adminUserSequence = await Sequence.model.create({
       measure_count: 1,
       position: 0,
       track_id: adminUserTrack.id,
     });
 
-    const normalUserSequence = await Sequence.pgModel.create({
+    const normalUserSequence = await Sequence.model.create({
       measure_count: 1,
       position: 0,
       track_id: normalUserTrack.id,
     });
 
-    await Note.pgModel.create({
+    await Note.model.create({
       points: JSON.stringify([
         { x: 0, y: 24 },
         { x: 3, y: 24 },
@@ -106,7 +106,7 @@ const SEEDED_USER_PASSWORD =
       sequence_id: adminUserSequence.id,
     });
 
-    await Note.pgModel.create({
+    await Note.model.create({
       points: JSON.stringify([
         { x: 0, y: 28 },
         { x: 3, y: 28 },
@@ -114,6 +114,8 @@ const SEEDED_USER_PASSWORD =
       sequence_id: normalUserSequence.id,
     });
 
+    // eslint-disable-next-line no-console
+    console.log('Seeding complete!');
     process.exit(0);
   } catch (e) {
     // eslint-disable-next-line no-console
