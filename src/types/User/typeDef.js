@@ -3,6 +3,7 @@ const { gql } = require('apollo-server');
 module.exports = gql`
   extend type Query {
     me: User
+    user(id: ID!): User
     users(
       limit: Int
       page: Int
@@ -13,6 +14,7 @@ module.exports = gql`
   }
 
   extend type Mutation {
+    deleteUser(id: ID!): DeleteUserResponse
     login(email: String!, password: String!): LoginResponse
     logout: LogoutResponse
     register(
@@ -21,6 +23,12 @@ module.exports = gql`
       lastName: String!
       password: String!
     ): RegisterResponse
+    updateUser(id: ID!, updates: UpdateUserInput!): UpdateUserResponse
+  }
+
+  type DeleteUserResponse {
+    message: String!
+    success: Boolean!
   }
 
   type LoginResponse {
@@ -38,6 +46,18 @@ module.exports = gql`
     expiresAt: Int
     success: Boolean!
     token: String
+    user: User
+  }
+
+  input UpdateUserInput {
+    email: String
+    firstName: String
+    lastName: String
+  }
+
+  type UpdateUserResponse {
+    message: String!
+    success: Boolean!
     user: User
   }
 
