@@ -1,3 +1,4 @@
+const snakeCase = require('lodash/fp/snakeCase');
 const getCreateQuery = require('../../helpers/getCreateQuery');
 const withTransaction = require('../../helpers/withTransaction');
 
@@ -11,15 +12,21 @@ module.exports = {
   find({
     limit = 'ALL',
     offset = 0,
+    search = '',
     sort = 'first_name',
     sortDirection = 'asc',
   } = {}) {
     const query = `
       SELECT *
       FROM users
-      ORDER BY ${sort} ${sortDirection.toUpperCase()}
+      ${
+        search
+          ? `WHERE first_name ILIKE '%${search}%' OR last_name ILIKE '%${search}%'`
+          : ''
+      }
+      ORDER BY ${snakeCase(sort)} ${sortDirection.toUpperCase()}
       LIMIT ${limit}
-      OFFSET ${offset};
+      OFFSET ${limit === 'ALL' ? 0 : offset * limit};
     `;
     return withTransaction((client) => client.query(query)).then(
       (res) => res.rows,

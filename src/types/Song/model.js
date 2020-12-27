@@ -1,3 +1,4 @@
+const snakeCase = require('lodash/fp/snakeCase');
 const getCreateQuery = require('../../helpers/getCreateQuery');
 const getUpdateQuery = require('../../helpers/getUpdateQuery');
 const withTransaction = require('../../helpers/withTransaction');
@@ -49,7 +50,7 @@ module.exports = {
             }`
           : `${search ? `WHERE name ILIKE '%${search}%'` : ''}`
       }
-      ORDER BY ${sort} ${sortDirection.toUpperCase()}
+      ORDER BY ${snakeCase(sort)} ${sortDirection.toUpperCase()}
       LIMIT ${limit}
       OFFSET ${limit === 'ALL' ? 0 : offset * limit};
     `;

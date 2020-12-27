@@ -8,7 +8,17 @@ module.exports = {
     return currentUser;
   },
 
-  users: async (_, __, { currentUser }) => {
+  users: async (
+    _,
+    {
+      limit = 'ALL',
+      page = 1,
+      search = '',
+      sort = 'firstName',
+      sortDirection = 'asc',
+    },
+    { currentUser },
+  ) => {
     if (!currentUser) {
       throw new AuthenticationError('You are not authenticated.');
     }
@@ -21,6 +31,27 @@ module.exports = {
       throw new ForbiddenError('You are not authorized to view this data.');
     }
 
-    return model.find();
+    const allUsers = await model.find({
+      search,
+      sort,
+      sortDirection,
+    });
+
+    const usersPage = await model.find({
+      limit,
+      offset: page - 1,
+      search,
+      sort,
+      sortDirection,
+    });
+
+    return {
+      data: usersPage,
+      meta: {
+        currentPage: page,
+        itemsPerPage: limit === 'ALL' ? allUsers.length : limit,
+        totalItemCount: allUsers.length,
+      },
+    };
   },
 };
