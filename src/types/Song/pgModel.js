@@ -31,23 +31,27 @@ module.exports = {
     );
   },
 
-  findByUserId(
-    user_id,
-    {
-      limit = 'ALL',
-      offset = 0,
-      search = '',
-      sort = 'name',
-      sortDirection = 'asc',
-    } = {},
-  ) {
+  find({
+    limit = 'ALL',
+    offset = 0,
+    search = '',
+    sort = 'name',
+    sortDirection = 'asc',
+    userId,
+  } = {}) {
     const query = `
       SELECT *
       FROM songs
-      WHERE user_id = ${user_id}${search ? ` AND name ILIKE '%${search}%'` : ''}
+      ${
+        userId
+          ? `WHERE user_id = ${userId}${
+              search ? ` AND name ILIKE '%${search}%'` : ''
+            }`
+          : `${search ? `WHERE name ILIKE '%${search}%'` : ''}`
+      }
       ORDER BY ${sort} ${sortDirection.toUpperCase()}
       LIMIT ${limit}
-      OFFSET ${offset};
+      OFFSET ${limit === 'ALL' ? 0 : offset * limit};
     `;
     return withTransaction((client) => client.query(query)).then(
       (res) => res.rows,

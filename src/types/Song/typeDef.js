@@ -48,6 +48,7 @@ module.exports = gql`
 
   type Song {
     bpm: Int!
+    dateCreated: String!
     dateModified: String!
     id: ID!
     measureCount: Int!
@@ -62,6 +63,7 @@ module.exports = gql`
   }
 
   type SongsResponseItem {
+    dateCreated: String!
     dateModified: String!
     id: ID!
     measureCount: Int!

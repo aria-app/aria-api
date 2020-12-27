@@ -4,6 +4,7 @@ module.exports = {
   dateCreated: (song) => song.date_created.toISOString(),
   dateModified: (song) => song.date_modified.toISOString(),
   measureCount: (song) => song.measure_count,
-  tracks: (song) => Track.pgModel.findBySongId(song.id),
+  trackCount: (song) =>
+    Track.pgModel.findBySongId(song.id).then((tracks) => tracks.length),
   userId: (song) => song.user_id,
 };

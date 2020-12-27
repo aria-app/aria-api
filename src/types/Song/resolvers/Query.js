@@ -3,11 +3,8 @@ const {
   AuthenticationError,
   ForbiddenError,
 } = require('apollo-server');
-const map = require('lodash/fp/map');
 const Admin = require('../../Admin');
-const Sequence = require('../../Sequence');
-const Track = require('../../Track');
-const model = require('../model');
+const pgModel = require('../pgModel');
 
 module.exports = {
   song: async (_, { id }, { currentUser }) => {
@@ -15,39 +12,25 @@ module.exports = {
       throw new AuthenticationError('You are not authenticated.');
     }
 
-    const song = await model.findById(id);
+    const song = await pgModel.findOneById(id);
 
     if (!song) {
       throw new ApolloError('Song was not found', 'NOT_FOUND');
     }
 
-    const isAdmin = await Admin.model.exists({ userId: currentUser._id });
+    const isAdmin = !!(await Admin.pgModel.findOneByUserId(currentUser.id));
 
-    if (!isAdmin && String(currentUser._id) !== String(song.userId)) {
+    if (!isAdmin && String(currentUser.id) !== String(song.user_id)) {
       throw new ForbiddenError('You are not authorized to view this data.');
     }
 
-    const songTracks = await Track.model.find({ songId: song._id });
-    const songTracksWithSequences = Promise.all(
-      map(
-        (track) =>
-          Sequence.model
-            .find({ trackId: track._id })
-            .then((sequences) => ({ ...track.toObject(), sequences })),
-        songTracks,
-      ),
-    );
-
-    return {
-      ...song.toObject(),
-      tracks: songTracksWithSequences,
-    };
+    return song;
   },
 
   songs: async (
     _,
     {
-      limit = Number.MAX_SAFE_INTEGER,
+      limit = 'ALL',
       page = 1,
       search,
       sort = 'name',
@@ -60,48 +43,34 @@ module.exports = {
       throw new AuthenticationError('You are not authenticated.');
     }
 
-    const isAdmin = await Admin.model.exists({ userId: currentUser._id });
+    const isAdmin = !!(await Admin.pgModel.findOneByUserId(currentUser.id));
 
-    if (!isAdmin && userId && String(currentUser._id) !== String(userId)) {
+    if (!isAdmin && userId && String(currentUser.id) !== String(userId)) {
       throw new ForbiddenError('You are not authorized to view this data.');
     }
 
-    const songResults = await model.paginate(
-      {
-        ...(search ? { name: new RegExp(search, 'i') } : {}),
-        ...(userId || !isAdmin ? { userId: userId || currentUser._id } : {}),
-      },
-      {
-        ...(limit ? { limit } : {}),
-        ...(page ? { page } : {}),
-        ...(sort ? { sort: { [sort]: sortDirection } } : {}),
-      },
-    );
+    const allSongs = await pgModel.find({
+      search,
+      sort,
+      sortDirection,
+      userId: !isAdmin || userId ? userId || currentUser.id : undefined,
+    });
 
-    const songsWithTrackCounts = await Promise.all(
-      map(async (song) => {
-        const trackCount = await Track.model.countDocuments({
-          songId: song._id,
-        });
-
-        return {
-          dateModified: song.dateModified.toISOString(),
-          id: song._id,
-          measureCount: song.measureCount,
-          name: song.name,
-          userId: song.userId,
-          trackCount,
-        };
-      }, songResults.docs),
-    );
+    const songsPage = await pgModel.find({
+      search,
+      limit,
+      offset: page - 1,
+      sort,
+      sortDirection,
+      userId: !isAdmin || userId ? userId || currentUser.id : undefined,
+    });
 
     return {
-      data: songsWithTrackCounts,
+      data: songsPage,
       meta: {
-        currentPage: songResults.page,
-        itemsPerPage:
-          limit === Number.MAX_SAFE_INTEGER ? songResults.totalDocs : limit,
-        totalItemCount: songResults.totalDocs,
+        currentPage: page,
+        itemsPerPage: limit === 'ALL' ? allSongs.length : limit,
+        totalItemCount: allSongs.length,
       },
     };
   },

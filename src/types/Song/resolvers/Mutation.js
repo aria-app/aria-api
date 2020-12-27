@@ -1,5 +1,5 @@
 const { AuthenticationError, ForbiddenError } = require('apollo-server');
-const model = require('../model');
+const pgModel = require('../pgModel');
 
 const DEFAULT_BPM = 120;
 const DEFAULT_MEASURE_COUNT = 4;
@@ -10,19 +10,16 @@ module.exports = {
       throw new AuthenticationError('You are not authenticated.');
     }
 
-    const song = new model({
+    const newSong = await pgModel.create({
       bpm: DEFAULT_BPM,
-      dateModified: new Date(),
-      measureCount: DEFAULT_MEASURE_COUNT,
-      userId: currentUser._id,
+      measure_count: DEFAULT_MEASURE_COUNT,
+      user_id: currentUser.id,
       ...options,
     });
 
-    await song.save();
-
     return {
       message: 'Song was created successfully.',
-      song,
+      song: newSong,
       success: true,
     };
   },
@@ -32,13 +29,13 @@ module.exports = {
       throw new AuthenticationError('You are not authenticated.');
     }
 
-    const song = await model.findById(id);
+    const song = await pgModel.findOneById(id);
 
-    if (String(currentUser._id) !== String(song.userId)) {
+    if (String(currentUser.id) !== String(song.user_id)) {
       throw new ForbiddenError('You are not authorized to view this data.');
     }
 
-    await model.findByIdAndDelete(id);
+    await pgModel.delete(id);
 
     return {
       message: 'Song was deleted successfully.',
@@ -51,28 +48,20 @@ module.exports = {
       throw new AuthenticationError('You are not authenticated.');
     }
 
-    const song = await model.findById(id);
+    const song = await pgModel.findOneById(id);
 
-    if (String(currentUser._id) !== String(song.userId)) {
+    if (String(currentUser.id) !== String(song.user_id)) {
       throw new ForbiddenError('You are not authorized to view this data.');
     }
 
-    song.set(updates);
-
-    if (!song.isModified()) {
-      return {
-        message: 'Song was not modified.',
-        success: false,
-      };
-    }
-
-    song.set({ dateModified: new Date() });
-
-    song.save();
+    const updatedSong = await pgModel.update(id, {
+      ...updates,
+      date_modified: new Date(),
+    });
 
     return {
       message: 'Song was updated successfully.',
-      song,
+      song: updatedSong,
       success: true,
     };
   },

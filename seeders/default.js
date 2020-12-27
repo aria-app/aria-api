@@ -114,14 +114,6 @@ const SEEDED_USER_PASSWORD =
       sequence_id: normalUserSequence.id,
     });
 
-    console.log(
-      'admin songs',
-      await Song.pgModel.findByUserId(adminUser.id, {
-        sort: 'measure_count',
-        sortDirection: 'desc',
-      }),
-    );
-
     process.exit(0);
   } catch (e) {
     // eslint-disable-next-line no-console
