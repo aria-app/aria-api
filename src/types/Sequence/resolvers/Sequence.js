@@ -1,3 +1,4 @@
 module.exports = {
-  id: (sequence) => sequence._id,
+  measureCount: (sequence) => sequence.measure_count,
+  trackId: (sequence) => sequence.track_id,
 };

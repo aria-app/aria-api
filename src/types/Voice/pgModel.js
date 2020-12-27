@@ -11,4 +11,16 @@ module.exports = {
   findAll() {
     return withTransaction((client) => client.query('SELECT * FROM voices;'));
   },
+
+  findOneById(id) {
+    const query = `
+      SELECT *
+      FROM voices
+      WHERE id = ${id}
+      LIMIT 1;
+    `;
+    return withTransaction((client) => client.query(query)).then(
+      (res) => res.rows[0],
+    );
+  },
 };

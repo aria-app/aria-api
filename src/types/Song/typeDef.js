@@ -38,7 +38,6 @@ module.exports = gql`
     bpm: Int
     measureCount: Int
     name: String
-    tracks: [TrackUpdateInput]
   }
 
   type UpdateSongResponse {

@@ -8,6 +8,17 @@ module.exports = {
     ).then((res) => res.rows[0]);
   },
 
+  findByTrackId(track_id) {
+    const query = `
+      SELECT *
+      FROM sequences
+      WHERE track_id = ${track_id};
+    `;
+    return withTransaction((client) => client.query(query)).then(
+      (res) => res.rows,
+    );
+  },
+
   findOneById(id) {
     const query = `
       SELECT *
@@ -17,17 +28,6 @@ module.exports = {
     `;
     return withTransaction((client) => client.query(query)).then(
       (res) => res.rows[0],
-    );
-  },
-
-  findByTrackId(track_id) {
-    const query = `
-      SELECT *
-      FROM sequences
-      WHERE track_id = ${track_id};
-    `;
-    return withTransaction((client) => client.query(query)).then(
-      (res) => res.rows,
     );
   },
 };

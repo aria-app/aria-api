@@ -18,4 +18,16 @@ module.exports = {
       (res) => res.rows,
     );
   },
+
+  findOneById(id) {
+    const query = `
+      SELECT *
+      FROM tracks
+      WHERE id = ${id}
+      LIMIT 1;
+    `;
+    return withTransaction((client) => client.query(query)).then(
+      (res) => res.rows[0],
+    );
+  },
 };
