@@ -1,16 +1,10 @@
+const getCreateQuery = require('../../helpers/getCreateQuery');
 const withTransaction = require('../../helpers/withTransaction');
 
 module.exports = {
-  create({ user_id }) {
+  create(values) {
     return withTransaction((client) =>
-      client.query(
-        `
-        INSERT INTO admins(user_id)
-        VALUES($1)
-        RETURNING id;
-      `,
-        [user_id],
-      ),
+      client.query(getCreateQuery('admins', values), Object.values(values)),
     );
   },
 

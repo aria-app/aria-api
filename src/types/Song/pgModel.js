@@ -1,16 +1,10 @@
+const getCreateQuery = require('../../helpers/getCreateQuery');
 const withTransaction = require('../../helpers/withTransaction');
 
 module.exports = {
-  create({ bpm, date_modified, measure_count, name, user_id }) {
+  create(values) {
     return withTransaction((client) =>
-      client.query(
-        `
-        INSERT INTO songs(bpm, date_modified, measure_count, name, user_id)
-        VALUES($1, $2, $3, $4, $5)
-        RETURNING id;
-      `,
-        [bpm, date_modified, measure_count, name, user_id],
-      ),
+      client.query(getCreateQuery('songs', values), Object.values(values)),
     );
   },
 

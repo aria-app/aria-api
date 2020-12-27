@@ -74,6 +74,10 @@ exports.up = (pgm) => {
       notNull: true,
       type: 'varchar(255)',
     },
+    tone_oscillator_type: {
+      notNull: true,
+      type: 'varchar(255)',
+    },
   });
   pgm.createTable('tracks', {
     id: 'id',
@@ -100,24 +104,16 @@ exports.up = (pgm) => {
       type: 'integer',
     },
     volume: {
+      default: -10,
       notNull: true,
       type: 'smallint',
     },
   });
   pgm.createTable('sequences', {
     id: 'id',
-    bpm: {
-      notNull: true,
-      type: 'smallint',
-    },
     measure_count: {
       notNull: true,
       type: 'smallint',
-    },
-    notes: {
-      default: '[]',
-      notNull: true,
-      type: 'json',
     },
     position: {
       notNull: true,
@@ -130,6 +126,21 @@ exports.up = (pgm) => {
       type: 'integer',
     },
   });
+  pgm.createTable('notes', {
+    id: 'id',
+    points: {
+      default: '[]',
+      notNull: true,
+      type: 'json',
+    },
+    sequence_id: {
+      notNull: true,
+      onDelete: 'cascade',
+      references: '"sequences"',
+      type: 'integer',
+    },
+  });
+  pgm.createIndex('notes', 'sequence_id');
   pgm.createIndex('sequences', 'track_id');
   pgm.createIndex('songs', 'user_id');
   pgm.createIndex('tracks', 'song_id');

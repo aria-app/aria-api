@@ -4,11 +4,11 @@ const withTransaction = require('../../helpers/withTransaction');
 module.exports = {
   create(values) {
     return withTransaction((client) =>
-      client.query(getCreateQuery('users', values), Object.values(values)),
+      client.query(getCreateQuery('tracks', values), Object.values(values)),
     );
   },
 
   findAll() {
-    return withTransaction((client) => client.query('SELECT * FROM users;'));
+    return withTransaction((client) => client.query('SELECT * FROM tracks;'));
   },
 };
