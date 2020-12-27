@@ -75,8 +75,7 @@ const SEEDED_USER_PASSWORD =
       })
       .then((res) => res.rows[0]);
 
-    // const normalUserTrack = await Track.pgModel
-    await Track.pgModel
+    const normalUserTrack = await Track.pgModel
       .create({
         song_id: normalUserSong.id,
         voice_id: DEFAULT_VOICE_ID,
@@ -91,6 +90,14 @@ const SEEDED_USER_PASSWORD =
       })
       .then((res) => res.rows[0]);
 
+    const normalUserSequence = await Sequence.pgModel
+      .create({
+        measure_count: 1,
+        position: 0,
+        track_id: normalUserTrack.id,
+      })
+      .then((res) => res.rows[0]);
+
     await Note.pgModel.create({
       points: JSON.stringify([
         { x: 0, y: 24 },
@@ -99,8 +106,13 @@ const SEEDED_USER_PASSWORD =
       sequence_id: adminUserSequence.id,
     });
 
-    // Create Sequences
-    // Create Notes
+    await Note.pgModel.create({
+      points: JSON.stringify([
+        { x: 0, y: 28 },
+        { x: 3, y: 28 },
+      ]),
+      sequence_id: normalUserSequence.id,
+    });
 
     const results = {
       users: await User.pgModel.findAll().then((res) => res.rows),
