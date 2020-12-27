@@ -20,47 +20,55 @@ const SEEDED_USER_PASSWORD =
   try {
     const password = await hashPassword(SEEDED_USER_PASSWORD);
 
-    const adminUser = await User.pgModel
-      .create({
-        email: 'admin@ariaapp.io',
-        first_name: 'Alexander',
-        last_name: 'Admin',
-        password,
-      })
-      .then((res) => res.rows[0]);
+    const adminUser = await User.pgModel.create({
+      email: 'admin@ariaapp.io',
+      first_name: 'Alexander',
+      last_name: 'Admin',
+      password,
+    });
 
-    const normalUser = await User.pgModel
-      .create({
-        email: 'user@ariaapp.io',
-        first_name: 'Yorick',
-        last_name: 'User',
-        password,
-      })
-      .then((res) => res.rows[0]);
+    const normalUser = await User.pgModel.create({
+      email: 'user@ariaapp.io',
+      first_name: 'Yorick',
+      last_name: 'User',
+      password,
+    });
 
     await Admin.pgModel.create({
       user_id: adminUser.id,
     });
 
-    const adminUserSong = await Song.pgModel
-      .create({
-        bpm: DEFAULT_BPM,
-        date_modified: new Date(),
-        measure_count: DEFAULT_MEASURE_COUNT,
-        name: 'Admin Arpeggio',
-        user_id: adminUser.id,
-      })
-      .then((res) => res.rows[0]);
+    const adminUserSong = await Song.pgModel.create({
+      bpm: DEFAULT_BPM,
+      date_modified: new Date(),
+      measure_count: DEFAULT_MEASURE_COUNT,
+      name: 'Admin Arpeggio',
+      user_id: adminUser.id,
+    });
 
-    const normalUserSong = await Song.pgModel
-      .create({
-        bpm: DEFAULT_BPM,
-        date_modified: new Date(),
-        measure_count: DEFAULT_MEASURE_COUNT,
-        name: 'Normal Nocturne',
-        user_id: normalUser.id,
-      })
-      .then((res) => res.rows[0]);
+    await Song.pgModel.create({
+      bpm: DEFAULT_BPM,
+      date_modified: new Date(),
+      measure_count: DEFAULT_MEASURE_COUNT + 10,
+      name: 'Second Song',
+      user_id: adminUser.id,
+    });
+
+    await Song.pgModel.create({
+      bpm: DEFAULT_BPM,
+      date_modified: new Date(),
+      measure_count: DEFAULT_MEASURE_COUNT,
+      name: 'Third Song',
+      user_id: adminUser.id,
+    });
+
+    const normalUserSong = await Song.pgModel.create({
+      bpm: DEFAULT_BPM,
+      date_modified: new Date(),
+      measure_count: DEFAULT_MEASURE_COUNT,
+      name: 'Normal Nocturne',
+      user_id: normalUser.id,
+    });
 
     await Promise.all(
       defaultVoices.map(async (defaultVoice) => {
@@ -68,35 +76,27 @@ const SEEDED_USER_PASSWORD =
       }),
     );
 
-    const adminUserTrack = await Track.pgModel
-      .create({
-        song_id: adminUserSong.id,
-        voice_id: DEFAULT_VOICE_ID,
-      })
-      .then((res) => res.rows[0]);
+    const adminUserTrack = await Track.pgModel.create({
+      song_id: adminUserSong.id,
+      voice_id: DEFAULT_VOICE_ID,
+    });
 
-    const normalUserTrack = await Track.pgModel
-      .create({
-        song_id: normalUserSong.id,
-        voice_id: DEFAULT_VOICE_ID,
-      })
-      .then((res) => res.rows[0]);
+    const normalUserTrack = await Track.pgModel.create({
+      song_id: normalUserSong.id,
+      voice_id: DEFAULT_VOICE_ID,
+    });
 
-    const adminUserSequence = await Sequence.pgModel
-      .create({
-        measure_count: 1,
-        position: 0,
-        track_id: adminUserTrack.id,
-      })
-      .then((res) => res.rows[0]);
+    const adminUserSequence = await Sequence.pgModel.create({
+      measure_count: 1,
+      position: 0,
+      track_id: adminUserTrack.id,
+    });
 
-    const normalUserSequence = await Sequence.pgModel
-      .create({
-        measure_count: 1,
-        position: 0,
-        track_id: normalUserTrack.id,
-      })
-      .then((res) => res.rows[0]);
+    const normalUserSequence = await Sequence.pgModel.create({
+      measure_count: 1,
+      position: 0,
+      track_id: normalUserTrack.id,
+    });
 
     await Note.pgModel.create({
       points: JSON.stringify([
@@ -114,17 +114,13 @@ const SEEDED_USER_PASSWORD =
       sequence_id: normalUserSequence.id,
     });
 
-    const results = {
-      users: await User.pgModel.findAll().then((res) => res.rows),
-      admins: await Admin.pgModel.findAll().then((res) => res.rows),
-      songs: await Song.pgModel.findAll().then((res) => res.rows),
-      tracks: await Track.pgModel.findAll().then((res) => res.rows),
-      sequences: await Sequence.pgModel.findAll().then((res) => res.rows),
-      notes: await Note.pgModel.findAll().then((res) => res.rows),
-      voices: await Voice.pgModel.findAll().then((res) => res.rows),
-    };
-
-    console.log('Results', results);
+    console.log(
+      'admin songs',
+      await Song.pgModel.findByUserId(adminUser.id, {
+        sort: 'measure_count',
+        sortDirection: 'desc',
+      }),
+    );
 
     process.exit(0);
   } catch (e) {

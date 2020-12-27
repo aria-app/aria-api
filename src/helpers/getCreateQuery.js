@@ -4,6 +4,6 @@ module.exports = function getCreateQuery(tableName, values) {
   return `
     INSERT INTO ${tableName}(${keys.join(', ')})
     VALUES(${valuePlaceholders})
-    RETURNING id;
+    RETURNING *;
   `;
 };

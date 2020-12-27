@@ -5,10 +5,17 @@ module.exports = {
   create(values) {
     return withTransaction((client) =>
       client.query(getCreateQuery('tracks', values), Object.values(values)),
-    );
+    ).then((res) => res.rows[0]);
   },
 
-  findAll() {
-    return withTransaction((client) => client.query('SELECT * FROM tracks;'));
+  findBySongId(song_id) {
+    const query = `
+      SELECT *
+      FROM tracks
+      WHERE song_id = ${song_id};
+    `;
+    return withTransaction((client) => client.query(query)).then(
+      (res) => res.rows,
+    );
   },
 };
