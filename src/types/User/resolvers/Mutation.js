@@ -9,8 +9,7 @@ const jwtDecode = require('jwt-decode');
 const createToken = require('../../../helpers/createToken');
 const hashPassword = require('../../../helpers/hashPassword');
 const verifyPassword = require('../../../helpers/verifyPassword');
-const Admin = require('../../Admin');
-const model = require('../model');
+const pgModel = require('../pgModel');
 
 module.exports = {
   login: async (_, { email, password }, { res }) => {
@@ -18,7 +17,7 @@ module.exports = {
       throw new ValidationError('Email format invalid.');
     }
 
-    const user = await model.findOne({ email }).lean();
+    const user = await pgModel.findOneByEmail(email);
 
     if (!user) {
       throw new ForbiddenError('Email or password is incorrect.');
@@ -33,14 +32,9 @@ module.exports = {
     }
 
     try {
-      const isAdmin = await Admin.model.exists({ userId: user._id });
-
       const userInfo = {
-        _id: user._id,
         email: user.email,
-        firstName: user.firstName,
-        isAdmin,
-        lastName: user.lastName,
+        id: user.id,
       };
 
       const token = await createToken(userInfo);
@@ -55,7 +49,7 @@ module.exports = {
         expiresAt,
         success: true,
         token,
-        user: userInfo,
+        user,
       };
     } catch (e) {
       // eslint-disable-next-line no-console
@@ -80,7 +74,7 @@ module.exports = {
       throw new ValidationError('Email format invalid.');
     }
 
-    const isExistingUser = await model.exists({ email: formattedEmail });
+    const isExistingUser = await pgModel.findOneByEmail(formattedEmail);
 
     if (isExistingUser) {
       throw new ValidationError('User with that email already exists.');
@@ -89,21 +83,16 @@ module.exports = {
     try {
       const hashedPassword = await hashPassword(password);
 
-      const newUser = new model({
+      const newUser = await pgModel.create({
         email: formattedEmail,
-        firstName,
-        lastName,
+        first_name: firstName,
+        last_name: lastName,
         password: hashedPassword,
       });
 
-      await newUser.save();
-
       const userInfo = {
-        _id: newUser._id,
+        id: newUser.id,
         email: newUser.email,
-        firstName: newUser.firstName,
-        isAdmin: false,
-        lastName: newUser.lastName,
       };
 
       const token = await createToken(userInfo);
@@ -118,7 +107,7 @@ module.exports = {
         expiresAt,
         success: true,
         token,
-        user: userInfo,
+        user: newUser,
       };
     } catch (e) {
       // eslint-disable-next-line no-console

@@ -8,10 +8,16 @@ module.exports = {
     ).then((res) => res.rows[0]);
   },
 
-  find({ limit = 'ALL', offset = 0 }) {
+  find({
+    limit = 'ALL',
+    offset = 0,
+    sort = 'first_name',
+    sortDirection = 'asc',
+  } = {}) {
     const query = `
       SELECT *
       FROM users
+      ORDER BY ${sort} ${sortDirection.toUpperCase()}
       LIMIT ${limit}
       OFFSET ${offset};
     `;
@@ -24,7 +30,7 @@ module.exports = {
     const query = `
       SELECT *
       FROM users
-      WHERE email = ${email}
+      WHERE email = '${email}'
       LIMIT 1;
     `;
     return withTransaction((client) => client.query(query)).then(

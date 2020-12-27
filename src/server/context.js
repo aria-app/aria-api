@@ -17,7 +17,8 @@ module.exports = async function context({ req, ...rest }) {
     if (token) {
       const payload = await verifyToken(token);
       isAuthenticated = !!(payload && payload.sub);
-      currentUser = payload && (await User.model.findById(payload.sub));
+      currentUser =
+        payload && payload.sub && (await User.pgModel.findOneById(payload.sub));
     }
   } catch (error) {
     // eslint-disable-next-line no-console

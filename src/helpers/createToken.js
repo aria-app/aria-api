@@ -7,7 +7,7 @@ module.exports = function createToken(payload) {
         aud: process.env.AUDIENCE,
         email: payload.email,
         iss: process.env.ISSUER,
-        sub: payload._id,
+        sub: payload.id,
       },
       process.env.JWT_SECRET,
       {

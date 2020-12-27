@@ -1,24 +1,11 @@
 const { AuthenticationError, ForbiddenError } = require('apollo-server');
-const map = require('lodash/fp/map');
 
 const Admin = require('../../Admin');
-const model = require('../model');
+const pgModel = require('../pgModel');
 
 module.exports = {
   me: async (_, __, { currentUser }) => {
-    if (!currentUser) {
-      return null;
-    }
-
-    const isAdmin = await Admin.model.exists({ userId: currentUser._id });
-
-    return {
-      _id: currentUser._id,
-      email: currentUser.email,
-      firstName: currentUser.firstName,
-      isAdmin,
-      lastName: currentUser.lastName,
-    };
+    return currentUser;
   },
 
   users: async (_, __, { currentUser }) => {
@@ -26,23 +13,14 @@ module.exports = {
       throw new AuthenticationError('You are not authenticated.');
     }
 
-    const isCurrentUserAdmin = await Admin.model.exists({
-      userId: currentUser._id,
-    });
+    const isCurrentUserAdmin = !!(await Admin.pgModel.findOneByUserId(
+      currentUser.id,
+    ));
 
     if (!isCurrentUserAdmin) {
       throw new ForbiddenError('You are not authorized to view this data.');
     }
 
-    const users = await model.find({}).sort({ firstName: 'asc', email: 'asc' });
-
-    return map(async (user) => {
-      const isAdmin = await Admin.model.exists({ userId: user._id });
-
-      return {
-        ...user.toObject(),
-        isAdmin,
-      };
-    }, users);
+    return pgModel.find();
   },
 };
