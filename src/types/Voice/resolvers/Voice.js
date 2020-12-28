@@ -1,3 +1,3 @@
 module.exports = {
-  toneOscillatorType: (note) => note.tone_oscillator_type,
+  toneOscillatorType: (voice) => voice.tone_oscillator_type,
 };

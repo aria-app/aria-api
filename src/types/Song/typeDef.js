@@ -53,23 +53,13 @@ module.exports = gql`
     id: ID!
     measureCount: Int!
     name: String!
-    tracks: [Track]
-    userId: ID!
+    trackCount: Int!
+    tracks: [Track]!
     user: User!
   }
 
   type SongsResponse {
-    data: [SongsResponseItem]
+    data: [Song]
     meta: PaginationMetadata
-  }
-
-  type SongsResponseItem {
-    dateCreated: String!
-    dateModified: String!
-    id: ID!
-    measureCount: Int!
-    name: String!
-    trackCount: Int!
-    userId: ID!
   }
 `;

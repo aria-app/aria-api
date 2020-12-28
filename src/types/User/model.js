@@ -4,6 +4,21 @@ const getUpdateQuery = require('../../helpers/getUpdateQuery');
 const withTransaction = require('../../helpers/withTransaction');
 
 module.exports = {
+  count({ search = '' } = {}) {
+    const query = `
+      SELECT COUNT(*)
+      FROM users
+      ${
+        search
+          ? `WHERE first_name ILIKE '%${search}%' OR last_name ILIKE '%${search}%'`
+          : ''
+      };
+    `;
+    return withTransaction((client) => client.query(query)).then(
+      (res) => res.rows[0].count,
+    );
+  },
+
   create(values) {
     return withTransaction((client) =>
       client.query(getCreateQuery('users', values), Object.values(values)),

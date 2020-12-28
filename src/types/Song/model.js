@@ -4,6 +4,23 @@ const getUpdateQuery = require('../../helpers/getUpdateQuery');
 const withTransaction = require('../../helpers/withTransaction');
 
 module.exports = {
+  count({ search = '', userId } = {}) {
+    const query = `
+      SELECT COUNT(*)
+      FROM songs
+      ${
+        userId
+          ? `WHERE user_id = ${userId}${
+              search ? ` AND name ILIKE '%${search}%'` : ''
+            }`
+          : `${search ? `WHERE name ILIKE '%${search}%'` : ''}`
+      };
+    `;
+    return withTransaction((client) => client.query(query)).then(
+      (res) => res.rows[0].count,
+    );
+  },
+
   create(values) {
     return withTransaction((client) =>
       client.query(getCreateQuery('songs', values), Object.values(values)),

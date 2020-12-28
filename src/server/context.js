@@ -1,7 +1,6 @@
 const cookie = require('cookie');
 const verifyToken = require('../helpers/verifyToken');
-
-const User = require('../types/User');
+const models = require('./models');
 
 module.exports = async function context({ req, ...rest }) {
   let isAuthenticated = false;
@@ -18,12 +17,12 @@ module.exports = async function context({ req, ...rest }) {
       const payload = await verifyToken(token);
       isAuthenticated = !!(payload && payload.sub);
       currentUser =
-        payload && payload.sub && (await User.model.findOneById(payload.sub));
+        payload && payload.sub && (await models.User.findOneById(payload.sub));
     }
   } catch (error) {
     // eslint-disable-next-line no-console
     console.error(error);
   }
 
-  return { ...rest, req, currentUser, isAuthenticated };
+  return { ...rest, req, currentUser, isAuthenticated, models };
 };

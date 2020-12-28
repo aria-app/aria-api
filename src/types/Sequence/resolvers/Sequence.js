@@ -1,4 +1,7 @@
 module.exports = {
   measureCount: (sequence) => sequence.measure_count,
-  trackId: (sequence) => sequence.track_id,
+  notes: (sequence, args, { models }) =>
+    models.Note.findBySequenceId(sequence.id),
+  track: (sequence, args, { models }) =>
+    models.Track.findOneById(sequence.track_id),
 };

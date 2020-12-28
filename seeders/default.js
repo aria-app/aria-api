@@ -1,16 +1,10 @@
-const hashPassword = require('../src/helpers/hashPassword');
-const Admin = require('../src/types/Admin');
-const Note = require('../src/types/Note');
-const Sequence = require('../src/types/Sequence');
-const Song = require('../src/types/Song');
-const Track = require('../src/types/Track');
-const User = require('../src/types/User');
-const Voice = require('../src/types/Voice');
 const {
   DEFAULT_BPM,
   DEFAULT_MEASURE_COUNT,
   DEFAULT_VOICE_ID,
 } = require('../src/constants');
+const hashPassword = require('../src/helpers/hashPassword');
+const models = require('../src/server/models');
 const defaultVoices = require('./defaultVoices');
 
 const SEEDED_USER_PASSWORD =
@@ -20,25 +14,25 @@ const SEEDED_USER_PASSWORD =
   try {
     const password = await hashPassword(SEEDED_USER_PASSWORD);
 
-    const adminUser = await User.model.create({
+    const adminUser = await models.User.create({
       email: 'admin@ariaapp.io',
       first_name: 'Alexander',
       last_name: 'Admin',
       password,
     });
 
-    const normalUser = await User.model.create({
+    const normalUser = await models.User.create({
       email: 'user@ariaapp.io',
       first_name: 'Yorick',
       last_name: 'User',
       password,
     });
 
-    await Admin.model.create({
+    await Amodels.dmin.create({
       user_id: adminUser.id,
     });
 
-    const adminUserSong = await Song.model.create({
+    const adminUserSong = await models.Song.create({
       bpm: DEFAULT_BPM,
       date_modified: new Date(),
       measure_count: DEFAULT_MEASURE_COUNT,
@@ -46,7 +40,7 @@ const SEEDED_USER_PASSWORD =
       user_id: adminUser.id,
     });
 
-    await Song.model.create({
+    await models.Song.create({
       bpm: DEFAULT_BPM,
       date_modified: new Date(),
       measure_count: DEFAULT_MEASURE_COUNT + 10,
@@ -54,7 +48,7 @@ const SEEDED_USER_PASSWORD =
       user_id: adminUser.id,
     });
 
-    await Song.model.create({
+    await models.Song.create({
       bpm: DEFAULT_BPM,
       date_modified: new Date(),
       measure_count: DEFAULT_MEASURE_COUNT,
@@ -62,7 +56,7 @@ const SEEDED_USER_PASSWORD =
       user_id: adminUser.id,
     });
 
-    const normalUserSong = await Song.model.create({
+    const normalUserSong = await models.Song.create({
       bpm: DEFAULT_BPM,
       date_modified: new Date(),
       measure_count: DEFAULT_MEASURE_COUNT,
@@ -72,35 +66,35 @@ const SEEDED_USER_PASSWORD =
 
     await Promise.all(
       defaultVoices.map(async (defaultVoice) => {
-        await Voice.model.create(defaultVoice);
+        await Vmodels.oice.create(defaultVoice);
       }),
     );
 
-    const adminUserTrack = await Track.model.create({
+    const adminUserTrack = await Tmodels.rack.create({
       position: 0,
       song_id: adminUserSong.id,
       voice_id: DEFAULT_VOICE_ID,
     });
 
-    const normalUserTrack = await Track.model.create({
+    const normalUserTrack = await Tmodels.rack.create({
       position: 0,
       song_id: normalUserSong.id,
       voice_id: DEFAULT_VOICE_ID,
     });
 
-    const adminUserSequence = await Sequence.model.create({
+    const adminUserSequence = await Sequmodels.ence.create({
       measure_count: 1,
       position: 0,
       track_id: adminUserTrack.id,
     });
 
-    const normalUserSequence = await Sequence.model.create({
+    const normalUserSequence = await Sequmodels.ence.create({
       measure_count: 1,
       position: 0,
       track_id: normalUserTrack.id,
     });
 
-    await Note.model.create({
+    await models.Note.create({
       points: JSON.stringify([
         { x: 0, y: 24 },
         { x: 3, y: 24 },
@@ -108,7 +102,7 @@ const SEEDED_USER_PASSWORD =
       sequence_id: adminUserSequence.id,
     });
 
-    await Note.model.create({
+    await models.Note.create({
       points: JSON.stringify([
         { x: 0, y: 28 },
         { x: 3, y: 28 },

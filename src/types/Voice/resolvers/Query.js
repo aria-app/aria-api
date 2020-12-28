@@ -1,5 +1,3 @@
-const model = require('../model');
-
 module.exports = {
-  voice: (_, { id }) => model.findOneById(id),
+  voice: (_, { id }, { models }) => models.Voice.findOneById(id),
 };

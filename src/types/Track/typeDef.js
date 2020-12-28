@@ -12,7 +12,7 @@ module.exports = gql`
     isSoloing: Boolean!
     position: Int!
     sequences: [Sequence]!
-    songId: ID!
+    song: Song!
     voice: Voice!
     volume: Int!
   }

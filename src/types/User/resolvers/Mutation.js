@@ -12,16 +12,14 @@ const isEqual = require('lodash/fp/isEqual');
 const createToken = require('../../../helpers/createToken');
 const hashPassword = require('../../../helpers/hashPassword');
 const verifyPassword = require('../../../helpers/verifyPassword');
-const Admin = require('../../Admin');
-const model = require('../model');
 
 module.exports = {
-  deleteUser: async (_, { id }, { currentUser }) => {
+  deleteUser: async (_, { id }, { currentUser, models }) => {
     if (!currentUser) {
       throw new AuthenticationError('You are not authenticated.');
     }
 
-    const user = await model.findOneById(id);
+    const user = await models.User.findOneById(id);
 
     if (String(currentUser.id) !== String(user.id)) {
       throw new ForbiddenError(
@@ -29,7 +27,7 @@ module.exports = {
       );
     }
 
-    await model.delete(id);
+    await models.User.delete(id);
 
     return {
       message: 'User was deleted successfully.',
@@ -37,12 +35,12 @@ module.exports = {
     };
   },
 
-  login: async (_, { email, password }, { res }) => {
+  login: async (_, { email, password }, { models, res }) => {
     if (!isEmail.validate(email)) {
       throw new ValidationError('Email format invalid.');
     }
 
-    const user = await model.findOneByEmail(email);
+    const user = await models.User.findOneByEmail(email);
 
     if (!user) {
       throw new ForbiddenError('Email or password is incorrect.');
@@ -92,14 +90,20 @@ module.exports = {
     };
   },
 
-  register: async (_, { email, firstName, lastName, password }, { res }) => {
+  register: async (
+    _,
+    { email, firstName, lastName, password },
+    { models, res },
+  ) => {
     const formattedEmail = email.toLowerCase();
 
     if (!isEmail.validate(formattedEmail)) {
       throw new ValidationError('Email format invalid.');
     }
 
-    const isExistingUserEmail = await model.findOneByEmail(formattedEmail);
+    const isExistingUserEmail = await models.User.findOneByEmail(
+      formattedEmail,
+    );
 
     if (isExistingUserEmail) {
       throw new ValidationError('User with that email already exists.');
@@ -108,7 +112,7 @@ module.exports = {
     try {
       const hashedPassword = await hashPassword(password);
 
-      const newUser = await model.create({
+      const newUser = await models.User.create({
         email: formattedEmail,
         first_name: firstName,
         last_name: lastName,
@@ -142,16 +146,16 @@ module.exports = {
     }
   },
 
-  updateUser: async (_, { id, updates }, { currentUser }) => {
+  updateUser: async (_, { id, updates }, { currentUser, models }) => {
     if (!currentUser) {
       throw new AuthenticationError('You are not authenticated.');
     }
 
-    const isCurrentUserAdmin = !!(await Admin.model.findOneByUserId(
+    const isCurrentUserAdmin = !!(await models.Admin.findOneByUserId(
       currentUser.id,
     ));
 
-    const user = await model.findOneById(id);
+    const user = await models.User.findOneById(id);
 
     if (!isCurrentUserAdmin && currentUser.id !== user.id) {
       throw new ForbiddenError(
@@ -181,14 +185,16 @@ module.exports = {
     }
 
     if (updates.email !== user.email) {
-      const isExistingUserEmail = await model.findOneByEmail(updates.email);
+      const isExistingUserEmail = await models.User.findOneByEmail(
+        updates.email,
+      );
 
       if (isExistingUserEmail) {
         throw new ValidationError('User with that email already exists.');
       }
     }
 
-    const updatedUser = await model.update(id, {
+    const updatedUser = await models.User.update(id, {
       email: updates.email,
       first_name: updates.firstName,
       last_name: updates.lastName,

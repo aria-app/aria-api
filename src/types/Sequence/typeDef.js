@@ -8,8 +8,9 @@ module.exports = gql`
   type Sequence {
     id: ID!
     measureCount: Int!
+    notes: [Note]!
     position: Int!
-    trackId: ID!
+    track: Track!
   }
 
   input SequenceUpdateInput {

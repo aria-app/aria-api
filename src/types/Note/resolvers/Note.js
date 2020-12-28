@@ -1,3 +1,4 @@
 module.exports = {
-  sequenceId: (note) => note.sequence_id,
+  sequence: (note, args, { models }) =>
+    models.Sequence.findOneById(note.sequence_id),
 };

@@ -4,18 +4,17 @@ const {
   UserInputError,
 } = require('apollo-server');
 const isEqual = require('lodash/fp/isEqual');
-const model = require('../model');
 
 const DEFAULT_BPM = 120;
 const DEFAULT_MEASURE_COUNT = 4;
 
 module.exports = {
-  createSong: async (_, { options }, { currentUser }) => {
+  createSong: async (_, { options }, { currentUser, models }) => {
     if (!currentUser) {
       throw new AuthenticationError('You are not authenticated.');
     }
 
-    const newSong = await model.create({
+    const newSong = await models.Song.create({
       bpm: DEFAULT_BPM,
       measure_count: DEFAULT_MEASURE_COUNT,
       user_id: currentUser.id,
@@ -29,18 +28,18 @@ module.exports = {
     };
   },
 
-  deleteSong: async (_, { id }, { currentUser }) => {
+  deleteSong: async (_, { id }, { currentUser, models }) => {
     if (!currentUser) {
       throw new AuthenticationError('You are not authenticated.');
     }
 
-    const song = await model.findOneById(id);
+    const song = await models.Song.findOneById(id);
 
     if (String(currentUser.id) !== String(song.user_id)) {
       throw new ForbiddenError('You are not authorized to view this data.');
     }
 
-    await model.delete(id);
+    await models.Song.delete(id);
 
     return {
       message: 'Song was deleted successfully.',
@@ -48,12 +47,12 @@ module.exports = {
     };
   },
 
-  updateSong: async (_, { id, updates }, { currentUser }) => {
+  updateSong: async (_, { id, updates }, { currentUser, models }) => {
     if (!currentUser) {
       throw new AuthenticationError('You are not authenticated.');
     }
 
-    const song = await model.findOneById(id);
+    const song = await models.Song.findOneById(id);
 
     if (currentUser.id !== song.user_id) {
       throw new ForbiddenError('You are not authorized to view this data.');
@@ -76,7 +75,7 @@ module.exports = {
       throw new UserInputError('No changes submitted');
     }
 
-    const updatedSong = await model.update(id, {
+    const updatedSong = await models.Song.update(id, {
       bpm: updates.bpm,
       date_modified: new Date(),
       measure_count: updates.measureCount,

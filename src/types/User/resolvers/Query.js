@@ -1,19 +1,16 @@
 const { AuthenticationError, ForbiddenError } = require('apollo-server');
 
-const Admin = require('../../Admin');
-const model = require('../model');
-
 module.exports = {
   me: async (_, __, { currentUser }) => {
     return currentUser;
   },
 
-  user: async (_, { id }, { currentUser }) => {
+  user: async (_, { id }, { currentUser, models }) => {
     if (!currentUser) {
       throw new AuthenticationError('You are not authenticated.');
     }
 
-    const isCurrentUserAdmin = !!(await Admin.model.findOneByUserId(
+    const isCurrentUserAdmin = !!(await models.Admin.findOneByUserId(
       currentUser.id,
     ));
 
@@ -21,7 +18,7 @@ module.exports = {
       throw new ForbiddenError('You are not authorized to view this data.');
     }
 
-    return model.findOneById(id);
+    return models.User.findOneById(id);
   },
 
   users: async (
@@ -33,13 +30,13 @@ module.exports = {
       sort = 'firstName',
       sortDirection = 'asc',
     },
-    { currentUser },
+    { currentUser, models },
   ) => {
     if (!currentUser) {
       throw new AuthenticationError('You are not authenticated.');
     }
 
-    const isCurrentUserAdmin = !!(await Admin.model.findOneByUserId(
+    const isCurrentUserAdmin = !!(await models.Admin.findOneByUserId(
       currentUser.id,
     ));
 
@@ -47,13 +44,7 @@ module.exports = {
       throw new ForbiddenError('You are not authorized to view this data.');
     }
 
-    const allUsers = await model.find({
-      search,
-      sort,
-      sortDirection,
-    });
-
-    const usersPage = await model.find({
+    const usersPage = await models.User.find({
       limit,
       offset: page - 1,
       search,
@@ -61,12 +52,16 @@ module.exports = {
       sortDirection,
     });
 
+    const totalItemCount = await models.User.count({
+      search,
+    });
+
     return {
       data: usersPage,
       meta: {
         currentPage: page,
-        itemsPerPage: limit === 'ALL' ? allUsers.length : limit,
-        totalItemCount: allUsers.length,
+        itemsPerPage: limit === 'ALL' ? totalItemCount : limit,
+        totalItemCount,
       },
     };
   },

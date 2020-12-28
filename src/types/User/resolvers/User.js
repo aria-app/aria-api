@@ -1,7 +1,6 @@
-const Admin = require('../../Admin');
-
 module.exports = {
   firstName: (user) => user.first_name,
-  isAdmin: async (user) => !!(await Admin.model.findOneByUserId(user.id)),
+  isAdmin: (user, args, { models }) =>
+    models.Admin.findOneByUserId(user.id).then((admin) => !!admin),
   lastName: (user) => user.last_name,
 };

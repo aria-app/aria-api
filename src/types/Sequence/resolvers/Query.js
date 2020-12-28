@@ -1,5 +1,3 @@
-const model = require('../model');
-
 module.exports = {
-  sequence: (_, { id }) => model.findOneById(id),
+  sequence: (_, { id }, { models }) => models.Sequence.findOneById(id),
 };
