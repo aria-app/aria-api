@@ -35,39 +35,48 @@ exports.up = (pgm) => {
       onDelete: 'cascade',
       references: '"users"',
       type: 'integer',
+      unique: true,
     },
   });
-  pgm.createTable('songs', {
-    id: 'id',
-    bpm: {
-      notNull: true,
-      type: 'smallint',
+  pgm.createTable(
+    'songs',
+    {
+      id: 'id',
+      bpm: {
+        notNull: true,
+        type: 'smallint',
+      },
+      date_created: {
+        default: pgm.func('current_timestamp'),
+        notNull: true,
+        type: 'timestamp',
+      },
+      date_modified: {
+        default: pgm.func('current_timestamp'),
+        notNull: true,
+        type: 'timestamp',
+      },
+      measure_count: {
+        notNull: true,
+        type: 'smallint',
+      },
+      name: {
+        notNull: true,
+        type: 'varchar(255)',
+      },
+      user_id: {
+        notNull: true,
+        onDelete: 'cascade',
+        references: '"users"',
+        type: 'integer',
+      },
     },
-    date_created: {
-      default: pgm.func('current_timestamp'),
-      notNull: true,
-      type: 'timestamp',
+    {
+      constraints: {
+        unique: [['name', 'user_id']],
+      },
     },
-    date_modified: {
-      default: pgm.func('current_timestamp'),
-      notNull: true,
-      type: 'timestamp',
-    },
-    measure_count: {
-      notNull: true,
-      type: 'smallint',
-    },
-    name: {
-      notNull: true,
-      type: 'varchar(255)',
-    },
-    user_id: {
-      notNull: true,
-      onDelete: 'cascade',
-      references: '"users"',
-      type: 'integer',
-    },
-  });
+  );
   pgm.createTable('voices', {
     id: 'id',
     name: {
@@ -79,53 +88,73 @@ exports.up = (pgm) => {
       type: 'varchar(255)',
     },
   });
-  pgm.createTable('tracks', {
-    id: 'id',
-    is_muted: {
-      default: false,
-      notNull: true,
-      type: 'boolean',
+  pgm.createTable(
+    'tracks',
+    {
+      id: 'id',
+      is_muted: {
+        default: false,
+        notNull: true,
+        type: 'boolean',
+      },
+      is_soloing: {
+        default: false,
+        notNull: true,
+        type: 'boolean',
+      },
+      position: {
+        notNull: true,
+        type: 'smallint',
+      },
+      song_id: {
+        notNull: true,
+        onDelete: 'cascade',
+        references: '"songs"',
+        type: 'integer',
+      },
+      voice_id: {
+        notNull: true,
+        onDelete: 'restrict',
+        references: '"voices"',
+        type: 'integer',
+      },
+      volume: {
+        default: -10,
+        notNull: true,
+        type: 'smallint',
+      },
     },
-    is_soloing: {
-      default: false,
-      notNull: true,
-      type: 'boolean',
+    {
+      constraints: {
+        unique: [['position', 'song_id']],
+      },
     },
-    song_id: {
-      notNull: true,
-      onDelete: 'cascade',
-      references: '"songs"',
-      type: 'integer',
+  );
+  pgm.createTable(
+    'sequences',
+    {
+      id: 'id',
+      measure_count: {
+        notNull: true,
+        type: 'smallint',
+      },
+      position: {
+        notNull: true,
+        type: 'smallint',
+      },
+      track_id: {
+        notNull: true,
+        onDelete: 'cascade',
+        references: '"tracks"',
+        type: 'integer',
+      },
     },
-    voice_id: {
-      notNull: true,
-      onDelete: 'restrict',
-      references: '"voices"',
-      type: 'integer',
+    {
+      constraints: {
+        unique: [['position', 'track_id']],
+      },
     },
-    volume: {
-      default: -10,
-      notNull: true,
-      type: 'smallint',
-    },
-  });
-  pgm.createTable('sequences', {
-    id: 'id',
-    measure_count: {
-      notNull: true,
-      type: 'smallint',
-    },
-    position: {
-      notNull: true,
-      type: 'smallint',
-    },
-    track_id: {
-      notNull: true,
-      onDelete: 'cascade',
-      references: '"tracks"',
-      type: 'integer',
-    },
-  });
+  );
   pgm.createTable('notes', {
     id: 'id',
     points: {

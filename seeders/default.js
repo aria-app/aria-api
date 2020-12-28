@@ -77,11 +77,13 @@ const SEEDED_USER_PASSWORD =
     );
 
     const adminUserTrack = await Track.model.create({
+      position: 0,
       song_id: adminUserSong.id,
       voice_id: DEFAULT_VOICE_ID,
     });
 
     const normalUserTrack = await Track.model.create({
+      position: 0,
       song_id: normalUserSong.id,
       voice_id: DEFAULT_VOICE_ID,
     });

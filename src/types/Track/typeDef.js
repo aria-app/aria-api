@@ -10,6 +10,7 @@ module.exports = gql`
     id: ID!
     isMuted: Boolean!
     isSoloing: Boolean!
+    position: Int!
     sequences: [Sequence]!
     songId: ID!
     voice: Voice!
@@ -19,6 +20,7 @@ module.exports = gql`
   input TrackUpdateInput {
     isMuted: Boolean
     isSoloing: Boolean
+    position: Int
     volume: Int
   }
 `;
