@@ -42,7 +42,7 @@ module.exports = gql`
 
   type UpdateSongResponse {
     message: String!
-    song: Song
+    song: Song!
     success: Boolean!
   }
 

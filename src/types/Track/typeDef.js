@@ -1,9 +1,19 @@
 const { gql } = require('apollo-server');
 
 module.exports = gql`
+  extend type Mutation {
+    deleteTrack(id: ID!): DeleteTrackResponse
+    updateTrack(input: UpdateTrackInput!): UpdateTrackResponse
+  }
+
   extend type Query {
     track(id: ID!): Track
     tracks(songId: ID!): [Track]!
+  }
+
+  type DeleteTrackResponse {
+    message: String!
+    success: Boolean!
   }
 
   type Track {
@@ -17,10 +27,15 @@ module.exports = gql`
     volume: Int!
   }
 
-  input TrackUpdateInput {
-    isMuted: Boolean
-    isSoloing: Boolean
-    position: Int
-    volume: Int
+  input UpdateTrackInput {
+    id: ID!
+    voiceId: ID
+    volume: String
+  }
+
+  type UpdateTrackResponse {
+    message: String!
+    success: Boolean!
+    track: Track!
   }
 `;
