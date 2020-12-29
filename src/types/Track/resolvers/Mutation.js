@@ -58,6 +58,7 @@ module.exports = {
     ) {
       throw new UserInputError('No changes submitted');
     }
+
     const updatedTrack = await models.Track.update(id, {
       ...(voiceId ? { voice_id: voiceId } : {}),
       volume,

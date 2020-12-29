@@ -1,4 +1,5 @@
 const getCreateQuery = require('../../helpers/getCreateQuery');
+const getUpdateQuery = require('../../helpers/getUpdateQuery');
 const withTransaction = require('../../helpers/withTransaction');
 
 module.exports = {
@@ -29,5 +30,14 @@ module.exports = {
     return withTransaction((client) => client.query(query)).then(
       (res) => res.rows[0],
     );
+  },
+
+  update(id, updates) {
+    return withTransaction((client) =>
+      client.query(
+        getUpdateQuery('notes', id, updates),
+        Object.values(updates),
+      ),
+    ).then((res) => res.rows[0]);
   },
 };

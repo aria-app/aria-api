@@ -52,7 +52,7 @@ module.exports = {
           measure_count: measureCount,
         },
         {
-          measureCount: track.measureCount,
+          measureCount: sequence.measureCount,
         },
       )
     ) {
