@@ -30,7 +30,7 @@ module.exports = gql`
   input UpdateTrackInput {
     id: ID!
     voiceId: ID
-    volume: String
+    volume: Int
   }
 
   type UpdateTrackResponse {

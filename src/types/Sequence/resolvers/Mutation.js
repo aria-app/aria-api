@@ -6,12 +6,13 @@ const {
 const isEqual = require('lodash/fp/isEqual');
 
 module.exports = {
-  deleteTrack: async (_, { id }, { currentUser, models }) => {
+  deleteSequence: async (_, { id }, { currentUser, models }) => {
     if (!currentUser) {
       throw new AuthenticationError('You are not authenticated.');
     }
 
-    const track = await models.Track.findOneById(id);
+    const sequence = await models.Sequence.findOneById(id);
+    const track = await models.Track.findOneById(sequence.track_id);
     const song = await models.Song.findOneById(track.song_id);
 
     if (currentUser.id !== song.user_id) {
@@ -20,22 +21,23 @@ module.exports = {
       );
     }
 
-    await models.Track.delete(id);
+    await models.Sequence.delete(id);
 
     return {
-      message: 'Track was deleted successfully.',
+      message: 'Sequence was deleted successfully.',
       success: true,
     };
   },
 
-  updateTrack: async (_, { input }, { currentUser, models }) => {
-    const { id, voiceId, volume } = input;
+  updateSequence: async (_, { input }, { currentUser, models }) => {
+    const { id, measureCount } = input;
 
     if (!currentUser) {
       throw new AuthenticationError('You are not authenticated.');
     }
 
-    const track = await models.Track.findOneById(id);
+    const sequence = await models.Sequence.findOneById(id);
+    const track = await models.Track.findOneById(sequence.track_id);
     const song = await models.Song.findOneById(track.song_id);
 
     if (currentUser.id !== song.user_id) {
@@ -47,25 +49,23 @@ module.exports = {
     if (
       isEqual(
         {
-          voice_id: voiceId,
-          volume,
+          measure_count: measureCount,
         },
         {
-          voice_id: track.voice_id,
-          volume: track.volume,
+          measureCount: track.measureCount,
         },
       )
     ) {
       throw new UserInputError('No changes submitted');
     }
-    const updatedTrack = await models.Track.update(id, {
-      ...(voiceId ? { voice_id: voiceId } : {}),
-      volume,
+
+    const updatedSequence = await models.Sequence.update(id, {
+      measure_count: measureCount,
     });
 
     return {
-      message: 'Track was updated successfully.',
-      track: updatedTrack,
+      message: 'Sequence was updated successfully.',
+      sequence: updatedSequence,
       success: true,
     };
   },

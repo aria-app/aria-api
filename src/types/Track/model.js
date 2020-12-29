@@ -1,4 +1,5 @@
 const getCreateQuery = require('../../helpers/getCreateQuery');
+const getUpdateQuery = require('../../helpers/getUpdateQuery');
 const withTransaction = require('../../helpers/withTransaction');
 
 module.exports = {
@@ -6,6 +7,16 @@ module.exports = {
     return withTransaction((client) =>
       client.query(getCreateQuery('tracks', values), Object.values(values)),
     ).then((res) => res.rows[0]);
+  },
+
+  delete(id) {
+    const query = `
+      DELETE FROM tracks
+      WHERE id = ${id};
+    `;
+    return withTransaction((client) => client.query(query)).then(
+      (res) => res.rows[0],
+    );
   },
 
   findBySongId(song_id) {
@@ -29,5 +40,14 @@ module.exports = {
     return withTransaction((client) => client.query(query)).then(
       (res) => res.rows[0],
     );
+  },
+
+  update(id, updates) {
+    return withTransaction((client) =>
+      client.query(
+        getUpdateQuery('tracks', id, updates),
+        Object.values(updates),
+      ),
+    ).then((res) => res.rows[0]);
   },
 };
