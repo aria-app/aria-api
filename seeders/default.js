@@ -28,7 +28,7 @@ const SEEDED_USER_PASSWORD =
       password,
     });
 
-    await Amodels.dmin.create({
+    await models.Admin.create({
       user_id: adminUser.id,
     });
 
@@ -66,49 +66,66 @@ const SEEDED_USER_PASSWORD =
 
     await Promise.all(
       defaultVoices.map(async (defaultVoice) => {
-        await Vmodels.oice.create(defaultVoice);
+        await models.Voice.create(defaultVoice);
       }),
     );
 
-    const adminUserTrack = await Tmodels.rack.create({
+    const adminUserTrack = await models.Track.create({
       position: 0,
       song_id: adminUserSong.id,
       voice_id: DEFAULT_VOICE_ID,
     });
 
-    const normalUserTrack = await Tmodels.rack.create({
+    const normalUserTrack = await models.Track.create({
       position: 0,
       song_id: normalUserSong.id,
       voice_id: DEFAULT_VOICE_ID,
     });
 
-    const adminUserSequence = await Sequmodels.ence.create({
+    const adminUserSequence = await models.Sequence.create({
       measure_count: 1,
       position: 0,
       track_id: adminUserTrack.id,
     });
 
-    const normalUserSequence = await Sequmodels.ence.create({
+    const normalUserSequence = await models.Sequence.create({
       measure_count: 1,
       position: 0,
       track_id: normalUserTrack.id,
     });
 
-    await models.Note.create({
-      points: JSON.stringify([
+    const notePointSets = [
+      [
         { x: 0, y: 24 },
         { x: 3, y: 24 },
-      ]),
-      sequence_id: adminUserSequence.id,
-    });
+      ],
+      [
+        { x: 4, y: 26 },
+        { x: 7, y: 26 },
+      ],
+      [
+        { x: 4, y: 28 },
+        { x: 7, y: 28 },
+      ],
+    ];
 
-    await models.Note.create({
-      points: JSON.stringify([
-        { x: 0, y: 28 },
-        { x: 3, y: 28 },
-      ]),
-      sequence_id: normalUserSequence.id,
-    });
+    await Promise.all(
+      notePointSets.map((notePointSet) =>
+        models.Note.create({
+          points: JSON.stringify(notePointSet),
+          sequence_id: adminUserSequence.id,
+        }),
+      ),
+    );
+
+    await Promise.all(
+      notePointSets.map((notePointSet) =>
+        models.Note.create({
+          points: JSON.stringify(notePointSet),
+          sequence_id: normalUserSequence.id,
+        }),
+      ),
+    );
 
     // eslint-disable-next-line no-console
     console.log('Seeding complete!');

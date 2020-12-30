@@ -9,6 +9,16 @@ module.exports = {
     ).then((res) => res.rows[0]);
   },
 
+  delete(id) {
+    const query = `
+      DELETE FROM notes
+      WHERE id = ${id};
+    `;
+    return withTransaction((client) => client.query(query)).then(
+      (res) => res.rows[0],
+    );
+  },
+
   findBySequenceId(sequence_id) {
     const query = `
       SELECT *
@@ -32,12 +42,18 @@ module.exports = {
     );
   },
 
-  update(id, updates) {
-    return withTransaction((client) =>
-      client.query(
-        getUpdateQuery('notes', id, updates),
-        Object.values(updates),
-      ),
-    ).then((res) => res.rows[0]);
+  updateMany(updateSets) {
+    return withTransaction((client) => {
+      return Promise.all(
+        updateSets.map((updateSet) =>
+          client
+            .query(
+              getUpdateQuery('notes', updateSet.id, updateSet.updates),
+              Object.values(updateSet.updates),
+            )
+            .then((res) => res.rows[0]),
+        ),
+      );
+    });
   },
 };
