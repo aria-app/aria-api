@@ -23,7 +23,7 @@ module.exports = gql`
       lastName: String!
       password: String!
     ): RegisterResponse
-    updateUser(id: ID!, updates: UpdateUserInput!): UpdateUserResponse
+    updateUser(input: UpdateUserInput!): UpdateUserResponse
   }
 
   type DeleteUserResponse {
@@ -52,6 +52,7 @@ module.exports = gql`
   input UpdateUserInput {
     email: String
     firstName: String
+    id: ID!
     lastName: String
   }
 

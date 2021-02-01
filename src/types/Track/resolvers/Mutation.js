@@ -5,6 +5,7 @@ const {
 } = require('apollo-server');
 const isEqual = require('lodash/fp/isEqual');
 const isNil = require('lodash/fp/isNil');
+const omitBy = require('lodash/fp/omitBy');
 
 module.exports = {
   deleteTrack: async (_, { id }, { currentUser, models }) => {
@@ -30,13 +31,11 @@ module.exports = {
   },
 
   updateTrack: async (_, { input }, { currentUser, models }) => {
-    const { id, voiceId, volume } = input;
-
     if (!currentUser) {
       throw new AuthenticationError('You are not authenticated.');
     }
 
-    const track = await models.Track.findOneById(id);
+    const track = await models.Track.findOneById(input.id);
     const song = await models.Song.findOneById(track.song_id);
 
     if (currentUser.id !== song.user_id) {
@@ -48,8 +47,8 @@ module.exports = {
     if (
       isEqual(
         {
-          voice_id: voiceId,
-          volume,
+          voice_id: input.voiceId,
+          volume: input.volume,
         },
         {
           voice_id: track.voice_id,
@@ -60,10 +59,13 @@ module.exports = {
       throw new UserInputError('No changes submitted');
     }
 
-    const updatedTrack = await models.Track.update(id, {
-      ...(!isNil(voiceId) ? { voice_id: voiceId } : {}),
-      volume,
-    });
+    const updatedTrack = await models.Track.update(
+      input.id,
+      omitBy(isNil, {
+        voice_id: input.voiceId,
+        volume: input.volume,
+      }),
+    );
 
     return {
       message: 'Track was updated successfully.',

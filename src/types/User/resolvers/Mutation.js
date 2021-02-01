@@ -8,6 +8,8 @@ const {
 const isEmail = require('isemail');
 const jwtDecode = require('jwt-decode');
 const isEqual = require('lodash/fp/isEqual');
+const isNil = require('lodash/fp/isNil');
+const omitBy = require('lodash/fp/omitBy');
 
 const createToken = require('../../../helpers/createToken');
 const hashPassword = require('../../../helpers/hashPassword');
@@ -146,7 +148,7 @@ module.exports = {
     }
   },
 
-  updateUser: async (_, { id, updates }, { currentUser, models }) => {
+  updateUser: async (_, { input }, { currentUser, models }) => {
     if (!currentUser) {
       throw new AuthenticationError('You are not authenticated.');
     }
@@ -155,7 +157,7 @@ module.exports = {
       currentUser.id,
     ));
 
-    const user = await models.User.findOneById(id);
+    const user = await models.User.findOneById(input.id);
 
     if (!isCurrentUserAdmin && currentUser.id !== user.id) {
       throw new ForbiddenError(
@@ -166,9 +168,9 @@ module.exports = {
     if (
       isEqual(
         {
-          email: updates.email,
-          first_name: updates.firstName,
-          last_name: updates.lastName,
+          email: input.email,
+          first_name: input.firstName,
+          last_name: input.lastName,
         },
         {
           email: user.email,
@@ -180,25 +182,26 @@ module.exports = {
       throw new UserInputError('No changes submitted');
     }
 
-    if (!isEmail.validate(updates.email)) {
+    if (!isEmail.validate(input.email)) {
       throw new ValidationError('Email format invalid.');
     }
 
-    if (updates.email !== user.email) {
-      const isExistingUserEmail = await models.User.findOneByEmail(
-        updates.email,
-      );
+    if (input.email !== user.email) {
+      const isExistingUserEmail = await models.User.findOneByEmail(input.email);
 
       if (isExistingUserEmail) {
         throw new ValidationError('User with that email already exists.');
       }
     }
 
-    const updatedUser = await models.User.update(id, {
-      email: updates.email,
-      first_name: updates.firstName,
-      last_name: updates.lastName,
-    });
+    const updatedUser = await models.User.update(
+      input.id,
+      omitBy(isNil, {
+        email: input.email,
+        first_name: input.firstName,
+        last_name: input.lastName,
+      }),
+    );
 
     return {
       message: 'User was updated successfully.',

@@ -4,6 +4,8 @@ const {
   UserInputError,
 } = require('apollo-server');
 const isEqual = require('lodash/fp/isEqual');
+const isNil = require('lodash/fp/isNil');
+const omitBy = require('lodash/fp/omitBy');
 
 const DEFAULT_BPM = 120;
 const DEFAULT_MEASURE_COUNT = 4;
@@ -75,12 +77,15 @@ module.exports = {
       throw new UserInputError('No changes submitted');
     }
 
-    const updatedSong = await models.Song.update(input.id, {
-      bpm: input.bpm,
-      date_modified: new Date(),
-      measure_count: input.measureCount,
-      name: input.name,
-    });
+    const updatedSong = await models.Song.update(
+      input.id,
+      omitBy(isNil, {
+        bpm: input.bpm,
+        date_modified: new Date(),
+        measure_count: input.measureCount,
+        name: input.name,
+      }),
+    );
 
     return {
       message: 'Song was updated successfully.',
