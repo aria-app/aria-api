@@ -30,8 +30,6 @@ module.exports = {
   },
 
   updateSequence: async (_, { input }, { currentUser, models }) => {
-    const { id, measureCount } = input;
-
     if (!currentUser) {
       throw new AuthenticationError('You are not authenticated.');
     }
@@ -49,18 +47,21 @@ module.exports = {
     if (
       isEqual(
         {
-          measure_count: measureCount,
+          measure_count: input.measureCount,
+          position: input.position,
         },
         {
           measureCount: sequence.measureCount,
+          position: sequence.position,
         },
       )
     ) {
       throw new UserInputError('No changes submitted');
     }
 
-    const updatedSequence = await models.Sequence.update(id, {
-      measure_count: measureCount,
+    const updatedSequence = await models.Sequence.update(input.id, {
+      measure_count: input.measureCount,
+      position: input.position,
     });
 
     return {

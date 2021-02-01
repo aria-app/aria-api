@@ -26,6 +26,7 @@ module.exports = gql`
   input UpdateSequenceInput {
     id: ID!
     measureCount: Int
+    position: Int
   }
 
   type UpdateSequenceResponse {

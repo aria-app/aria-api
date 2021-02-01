@@ -16,7 +16,7 @@ module.exports = gql`
   extend type Mutation {
     createSong(options: CreateSongInput!): CreateSongResponse
     deleteSong(id: ID!): DeleteSongResponse
-    updateSong(id: ID!, updates: UpdateSongInput!): UpdateSongResponse
+    updateSong(input: UpdateSongInput!): UpdateSongResponse
   }
 
   input CreateSongInput {
@@ -36,6 +36,7 @@ module.exports = gql`
 
   input UpdateSongInput {
     bpm: Int
+    id: ID!
     measureCount: Int
     name: String
   }

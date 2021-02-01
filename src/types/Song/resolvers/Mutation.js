@@ -47,12 +47,12 @@ module.exports = {
     };
   },
 
-  updateSong: async (_, { id, updates }, { currentUser, models }) => {
+  updateSong: async (_, { input }, { currentUser, models }) => {
     if (!currentUser) {
       throw new AuthenticationError('You are not authenticated.');
     }
 
-    const song = await models.Song.findOneById(id);
+    const song = await models.Song.findOneById(input.id);
 
     if (currentUser.id !== song.user_id) {
       throw new ForbiddenError('You are not authorized to view this data.');
@@ -61,9 +61,9 @@ module.exports = {
     if (
       isEqual(
         {
-          bpm: updates.bpm,
-          measure_count: updates.measureCount,
-          name: updates.name,
+          bpm: input.bpm,
+          measure_count: input.measureCount,
+          name: input.name,
         },
         {
           bpm: song.bpm,
@@ -75,11 +75,11 @@ module.exports = {
       throw new UserInputError('No changes submitted');
     }
 
-    const updatedSong = await models.Song.update(id, {
-      bpm: updates.bpm,
+    const updatedSong = await models.Song.update(input.id, {
+      bpm: input.bpm,
       date_modified: new Date(),
-      measure_count: updates.measureCount,
-      name: updates.name,
+      measure_count: input.measureCount,
+      name: input.name,
     });
 
     return {

@@ -20,8 +20,10 @@ module.exports = async function context({ req, ...rest }) {
         payload && payload.sub && (await models.User.findOneById(payload.sub));
     }
   } catch (error) {
-    // eslint-disable-next-line no-console
-    console.error(error);
+    if (!['jwt expired'].includes(error.message)) {
+      // eslint-disable-next-line no-console
+      console.error(error);
+    }
   }
 
   return { ...rest, req, currentUser, isAuthenticated, models };

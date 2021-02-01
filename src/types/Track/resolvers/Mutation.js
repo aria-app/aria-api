@@ -4,6 +4,7 @@ const {
   UserInputError,
 } = require('apollo-server');
 const isEqual = require('lodash/fp/isEqual');
+const isNil = require('lodash/fp/isNil');
 
 module.exports = {
   deleteTrack: async (_, { id }, { currentUser, models }) => {
@@ -60,7 +61,7 @@ module.exports = {
     }
 
     const updatedTrack = await models.Track.update(id, {
-      ...(voiceId ? { voice_id: voiceId } : {}),
+      ...(!isNil(voiceId) ? { voice_id: voiceId } : {}),
       volume,
     });
 
