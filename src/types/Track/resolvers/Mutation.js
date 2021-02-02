@@ -5,9 +5,41 @@ const {
 } = require('apollo-server');
 const isEqual = require('lodash/fp/isEqual');
 const isNil = require('lodash/fp/isNil');
+const max = require('lodash/fp/max');
 const omitBy = require('lodash/fp/omitBy');
 
+const { DEFAULT_VOICE_ID } = require('../../../constants');
+
 module.exports = {
+  createTrack: async (_, { input }, { currentUser, models }) => {
+    if (!currentUser) {
+      throw new AuthenticationError('You are not authenticated.');
+    }
+
+    const song = await models.Song.findOneById(input.songId);
+
+    if (currentUser.id !== song.user_id) {
+      throw new ForbiddenError(
+        'You are not authorized to perform this action.',
+      );
+    }
+
+    const otherTracks = await models.Track.findBySongId(input.songId);
+    const prevMaxPosition = max(otherTracks.map((track) => track.position));
+
+    const newTrack = await models.Track.create({
+      position: prevMaxPosition + 1,
+      song_id: input.songId,
+      voice_id: DEFAULT_VOICE_ID,
+    });
+
+    return {
+      message: 'Track was created successfully.',
+      track: newTrack,
+      success: true,
+    };
+  },
+
   deleteTrack: async (_, { id }, { currentUser, models }) => {
     if (!currentUser) {
       throw new AuthenticationError('You are not authenticated.');

@@ -2,6 +2,7 @@ const { gql } = require('apollo-server');
 
 module.exports = gql`
   extend type Mutation {
+    createTrack(input: CreateTrackInput!): CreateTrackResponse
     deleteTrack(id: ID!): DeleteTrackResponse
     updateTrack(input: UpdateTrackInput!): UpdateTrackResponse
   }
@@ -9,6 +10,16 @@ module.exports = gql`
   extend type Query {
     track(id: ID!): Track
     tracks(songId: ID!): [Track]!
+  }
+
+  input CreateTrackInput {
+    songId: ID!
+  }
+
+  type CreateTrackResponse {
+    message: String!
+    success: Boolean!
+    track: Track
   }
 
   type DeleteTrackResponse {

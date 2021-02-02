@@ -18,7 +18,7 @@ module.exports = gql`
 
   type CreateSequenceResponse {
     message: String!
-    song: Sequence
+    sequence: Sequence
     success: Boolean!
   }
 
