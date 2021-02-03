@@ -35,8 +35,8 @@ module.exports = {
 
     return {
       message: 'Track was created successfully.',
-      track: newTrack,
       success: true,
+      track: newTrack,
     };
   },
 

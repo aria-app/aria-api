@@ -6,8 +6,9 @@ module.exports = {
     'eslint:recommended',
     'prettier',
   ],
-  plugins: ['prettier'],
+  plugins: ['jest', 'prettier'],
   env: {
+    'jest/globals': true,
     node: true,
   },
   rules: {
