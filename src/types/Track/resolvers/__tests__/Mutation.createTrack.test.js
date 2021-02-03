@@ -1,8 +1,6 @@
-const Mutation = require('../Mutation');
+const { ForbiddenError } = require('apollo-server');
 
-const args = {
-  input: { songId: 1234 },
-};
+const Mutation = require('../Mutation');
 
 const context = {
   currentUser: { id: 1 },
@@ -15,6 +13,10 @@ const context = {
     },
     Track: {
       create: jest.fn(),
+      findOneById: jest.fn().mockReturnValue({
+        id: 999,
+        song_id: 1234,
+      }),
       findBySongId: jest.fn().mockReturnValue([
         {
           id: 1,
@@ -40,7 +42,13 @@ describe('createTrack resolver', () => {
       id: 999,
     }));
 
-    const result = await Mutation.createTrack(null, args, context);
+    const result = await Mutation.createTrack(
+      null,
+      {
+        input: { songId: 1234 },
+      },
+      context,
+    );
 
     expect(result).toEqual({
       message: 'Track was created successfully.',
@@ -55,12 +63,40 @@ describe('createTrack resolver', () => {
   });
 
   it('should call Track.create with correct parameters', async () => {
-    await Mutation.createTrack(null, args, context);
+    await Mutation.createTrack(
+      null,
+      {
+        input: { songId: 1234 },
+      },
+      context,
+    );
 
     expect(context.models.Track.create).toHaveBeenCalledWith({
       position: 3,
       song_id: 1234,
       voice_id: 9,
     });
+  });
+
+  it('should throw error when current user does not own song containing track', async () => {
+    expect.assertions(2);
+
+    context.models.Song.findOneById.mockReturnValue({
+      id: 1234,
+      user_id: 2,
+    });
+
+    try {
+      await Mutation.createTrack(
+        null,
+        {
+          input: { songId: 1234 },
+        },
+        context,
+      );
+    } catch (e) {
+      expect(e instanceof ForbiddenError).toBe(true);
+      expect(e.message).toBe('You are not authorized to perform this action.');
+    }
   });
 });
