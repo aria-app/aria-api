@@ -130,31 +130,23 @@ exports.up = (pgm) => {
       },
     },
   );
-  pgm.createTable(
-    'sequences',
-    {
-      id: 'id',
-      measure_count: {
-        notNull: true,
-        type: 'smallint',
-      },
-      position: {
-        notNull: true,
-        type: 'smallint',
-      },
-      track_id: {
-        notNull: true,
-        onDelete: 'cascade',
-        references: '"tracks"',
-        type: 'integer',
-      },
+  pgm.createTable('sequences', {
+    id: 'id',
+    measure_count: {
+      notNull: true,
+      type: 'smallint',
     },
-    {
-      constraints: {
-        unique: [['position', 'track_id']],
-      },
+    position: {
+      notNull: true,
+      type: 'smallint',
     },
-  );
+    track_id: {
+      notNull: true,
+      onDelete: 'cascade',
+      references: '"tracks"',
+      type: 'integer',
+    },
+  });
   pgm.createTable('notes', {
     id: 'id',
     points: {

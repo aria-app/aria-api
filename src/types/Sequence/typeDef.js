@@ -8,6 +8,7 @@ module.exports = gql`
   extend type Mutation {
     createSequence(input: CreateSequenceInput!): CreateSequenceResponse
     deleteSequence(id: ID!): DeleteSequenceResponse
+    duplicateSequence(id: ID!): DuplicateSequenceResponse
     updateSequence(input: UpdateSequenceInput!): UpdateSequenceResponse
   }
 
@@ -24,6 +25,12 @@ module.exports = gql`
 
   type DeleteSequenceResponse {
     message: String!
+    success: Boolean!
+  }
+
+  type DuplicateSequenceResponse {
+    message: String!
+    sequence: Sequence
     success: Boolean!
   }
 
