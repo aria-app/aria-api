@@ -25,7 +25,8 @@ module.exports = {
     }
 
     const otherTracks = await models.Track.findBySongId(input.songId);
-    const prevMaxPosition = max(otherTracks.map((track) => track.position));
+    const prevMaxPosition =
+      max(otherTracks.map((track) => track.position)) || 0;
 
     const newTrack = await models.Track.create({
       position: prevMaxPosition + 1,

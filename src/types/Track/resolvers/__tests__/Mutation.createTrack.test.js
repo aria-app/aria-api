@@ -78,6 +78,24 @@ describe('createTrack resolver', () => {
     });
   });
 
+  it('should handle no previous tracks', async () => {
+    context.models.Track.findBySongId.mockReturnValue([]);
+
+    await Mutation.createTrack(
+      null,
+      {
+        input: { songId: 1234 },
+      },
+      context,
+    );
+
+    expect(context.models.Track.create).toHaveBeenCalledWith({
+      position: 1,
+      song_id: 1234,
+      voice_id: 9,
+    });
+  });
+
   it('should throw error when current user does not own song containing track', async () => {
     expect.assertions(2);
 
