@@ -13,21 +13,14 @@ module.exports = function getModel({ withTransaction }) {
     },
 
     delete(id) {
-      const query = `
-      DELETE FROM sequences
-      WHERE id = ${id};
-    `;
+      const query = `DELETE FROM sequences WHERE id = ${id};`;
       return withTransaction((client) => client.query(query)).then(
         (res) => res.rows[0],
       );
     },
 
     findByTrackId(track_id) {
-      const query = `
-      SELECT *
-      FROM sequences
-      WHERE track_id = ${track_id};
-    `;
+      const query = `SELECT * FROM sequences WHERE track_id = ${track_id};`;
       return withTransaction((client) => client.query(query)).then(
         (res) => res.rows,
       );

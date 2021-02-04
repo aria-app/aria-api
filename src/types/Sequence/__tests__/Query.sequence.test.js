@@ -22,16 +22,42 @@ const GET_SEQUENCE = gql`
   }
 `;
 
+const songUnderTest = {
+  notes: [{ id: 1 }],
+  sequences: [
+    {
+      id: 1,
+      measure_count: 1,
+      position: 0,
+      track_id: 1,
+    },
+  ],
+  tracks: [
+    {
+      id: 1,
+      is_muted: false,
+      is_soloing: false,
+      position: 0,
+      song_id: 1,
+      voice_id: 9,
+      volume: -10,
+    },
+  ],
+};
+
 describe('Query.sequence', () => {
   beforeEach(() => {
     db.client.query.mockReset();
+
+    const { notes, sequences, tracks } = songUnderTest;
+
+    db.client.query
+      .mockReturnValueOnce({ rows: [sequences[0]] })
+      .mockReturnValueOnce({ rows: [notes[0]] })
+      .mockReturnValueOnce({ rows: [tracks[0]] });
   });
 
   it('should invoke correct query', async () => {
-    db.client.query.mockReturnValue({
-      rows: [{ id: 1, measure_count: 1, position: 0, track_id: 2 }],
-    });
-
     const { query } = createTestClient(server);
 
     await query({
@@ -49,22 +75,11 @@ describe('Query.sequence', () => {
       'SELECT * FROM notes WHERE sequence_id = 1;',
     );
     expect(db.client.query.mock.calls[2][0]).toBe(
-      'SELECT * FROM tracks WHERE id = 2 LIMIT 1;',
+      'SELECT * FROM tracks WHERE id = 1 LIMIT 1;',
     );
   });
 
   it('should return correct response', async () => {
-    db.client.query
-      .mockReturnValueOnce({
-        rows: [{ id: 1, measure_count: 1, position: 0, track_id: 2 }],
-      })
-      .mockReturnValueOnce({
-        rows: [{ id: 3 }, { id: 4 }],
-      })
-      .mockReturnValueOnce({
-        rows: [{ id: 2 }],
-      });
-
     const { query } = createTestClient(server);
 
     const result = await query({
@@ -78,11 +93,9 @@ describe('Query.sequence', () => {
     expect(result.data.sequence).toEqual({
       id: '1',
       measureCount: 1,
-      notes: [{ id: '3' }, { id: '4' }],
+      notes: [{ id: '1' }],
       position: 0,
-      track: {
-        id: '2',
-      },
+      track: { id: '1' },
     });
   });
 });
