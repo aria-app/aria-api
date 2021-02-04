@@ -3,14 +3,17 @@ const {
   DEFAULT_MEASURE_COUNT,
   DEFAULT_VOICE_ID,
 } = require('../src/constants');
+const db = require('../src/db');
+const getModels = require('../src/getServer/getModels');
 const hashPassword = require('../src/helpers/hashPassword');
-const models = require('../src/server/models');
 const defaultVoices = require('./defaultVoices');
 
 const SEEDED_USER_PASSWORD =
   'ByeqFjmsA0CcRSYHFo3qxG2HTQkPuSOv8zMpuNtuPGNJrAwFki4XwLWFEnboSZZ';
 
 (async () => {
+  const models = getModels(db);
+
   try {
     const password = await hashPassword(SEEDED_USER_PASSWORD);
 
