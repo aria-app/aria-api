@@ -34,12 +34,7 @@ module.exports = function getModel({ withTransaction }) {
     },
 
     findOneById(id) {
-      const query = `
-      SELECT *
-      FROM sequences
-      WHERE id = ${id}
-      LIMIT 1;
-    `;
+      const query = `SELECT * FROM sequences WHERE id = ${id} LIMIT 1;`;
       return withTransaction((client) => client.query(query)).then(
         (res) => res.rows[0],
       );

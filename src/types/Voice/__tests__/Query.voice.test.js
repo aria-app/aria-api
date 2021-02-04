@@ -16,7 +16,7 @@ const GET_VOICE = gql`
   }
 `;
 
-describe('voice Query', () => {
+describe('Query.voice', () => {
   beforeEach(() => {
     db.client.query.mockReset();
   });
@@ -31,7 +31,8 @@ describe('voice Query', () => {
       },
     });
 
-    expect(db.client.query).toHaveBeenCalledWith(
+    expect(db.client.query).toHaveBeenCalledTimes(1);
+    expect(db.client.query.mock.calls[0][0]).toBe(
       'SELECT * FROM voices WHERE id = 1 LIMIT 1;',
     );
   });
@@ -50,6 +51,7 @@ describe('voice Query', () => {
       },
     });
 
+    expect(result.errors).not.toBeDefined();
     expect(result.data.voice).toEqual({
       id: '1',
       name: 'foo',

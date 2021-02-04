@@ -20,11 +20,7 @@ module.exports = function getModel({ withTransaction }) {
     },
 
     findBySequenceId(sequence_id) {
-      const query = `
-      SELECT *
-      FROM notes
-      WHERE sequence_id = ${sequence_id};
-    `;
+      const query = `SELECT * FROM notes WHERE sequence_id = ${sequence_id};`;
       return withTransaction((client) => client.query(query)).then(
         (res) => res.rows,
       );
