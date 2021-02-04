@@ -6,12 +6,14 @@ const Track = require('../types/Track');
 const User = require('../types/User');
 const Voice = require('../types/Voice');
 
-module.exports = {
-  Admin: Admin.model,
-  Note: Note.model,
-  Sequence: Sequence.model,
-  Song: Song.model,
-  Voice: Voice.model,
-  Track: Track.model,
-  User: User.model,
+module.exports = function getModels(db) {
+  return {
+    Admin: Admin.getModel(db),
+    Note: Note.getModel(db),
+    Sequence: Sequence.getModel(db),
+    Song: Song.getModel(db),
+    Voice: Voice.getModel(db),
+    Track: Track.getModel(db),
+    User: User.getModel(db),
+  };
 };

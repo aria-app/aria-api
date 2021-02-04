@@ -1,6 +1,9 @@
 require('dotenv').config();
 
-const server = require('./server');
+const db = require('./db');
+const getServer = require('./getServer');
+
+const server = getServer({ db });
 
 server.listen(process.env.PORT).then(({ url }) => {
   // eslint-disable-next-line no-console

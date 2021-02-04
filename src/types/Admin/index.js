@@ -1,5 +1,5 @@
-const model = require('./model');
+const getModel = require('./getModel');
 
 module.exports = {
-  model,
+  getModel,
 };

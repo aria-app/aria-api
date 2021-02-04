@@ -1,9 +1,9 @@
-const model = require('./model');
+const getModel = require('./getModel');
 const resolvers = require('./resolvers');
 const typeDef = require('./typeDef');
 
 module.exports = {
-  model,
+  getModel,
   resolvers,
   typeDef,
 };
