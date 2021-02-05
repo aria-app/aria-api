@@ -1,6 +1,33 @@
 const { AuthenticationError, ForbiddenError } = require('apollo-server');
 
 module.exports = {
+  createNote: async (_, { input }, { currentUser, models }) => {
+    if (!currentUser) {
+      throw new AuthenticationError('You are not authenticated.');
+    }
+
+    const sequence = await models.Sequence.findOneById(input.sequenceId);
+    const track = await models.Track.findOneById(sequence.track_id);
+    const song = await models.Song.findOneById(track.song_id);
+
+    if (currentUser.id !== song.user_id) {
+      throw new ForbiddenError(
+        'Logged in user does not have permission to edit this song.',
+      );
+    }
+
+    const newNote = await models.Note.create({
+      points: JSON.stringify(input.points),
+      sequence_id: input.sequenceId,
+    });
+
+    return {
+      message: 'Note was created successfully.',
+      note: newNote,
+      success: true,
+    };
+  },
+
   updateNotesPoints: async (_, { input }, { currentUser, models }) => {
     const { notes } = input;
 
@@ -16,7 +43,7 @@ module.exports = {
 
       if (currentUser.id !== song.user_id) {
         throw new ForbiddenError(
-          'You are not authorized to perform this action.',
+          'Logged in user does not have permission to edit this song.',
         );
       }
     });

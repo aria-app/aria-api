@@ -20,7 +20,7 @@ module.exports = {
 
     if (currentUser.id !== song.user_id) {
       throw new ForbiddenError(
-        'You are not authorized to perform this action.',
+        'Logged in user does not have permission to edit this song.',
       );
     }
 
@@ -51,7 +51,7 @@ module.exports = {
 
     if (currentUser.id !== song.user_id) {
       throw new ForbiddenError(
-        'You are not authorized to perform this action.',
+        'Logged in user does not have permission to edit this song.',
       );
     }
 
@@ -73,7 +73,7 @@ module.exports = {
 
     if (currentUser.id !== song.user_id) {
       throw new ForbiddenError(
-        'You are not authorized to perform this action.',
+        'Logged in user does not have permission to edit this song.',
       );
     }
 

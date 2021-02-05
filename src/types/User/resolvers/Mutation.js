@@ -25,7 +25,7 @@ module.exports = {
 
     if (String(currentUser.id) !== String(user.id)) {
       throw new ForbiddenError(
-        'You are not authorized to perform this action.',
+        'Logged in user does not have permission to manage this user.',
       );
     }
 
@@ -161,7 +161,7 @@ module.exports = {
 
     if (!isCurrentUserAdmin && currentUser.id !== user.id) {
       throw new ForbiddenError(
-        'You are not authorized to perform this action.',
+        'Logged in user does not have permission to manage this user.',
       );
     }
 

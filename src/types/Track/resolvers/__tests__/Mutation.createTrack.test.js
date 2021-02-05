@@ -114,7 +114,9 @@ describe('createTrack resolver', () => {
       );
     } catch (e) {
       expect(e instanceof ForbiddenError).toBe(true);
-      expect(e.message).toBe('You are not authorized to perform this action.');
+      expect(e.message).toBe(
+        'Logged in user does not have permission to edit this song.',
+      );
     }
   });
 });
