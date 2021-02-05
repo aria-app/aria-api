@@ -30,7 +30,10 @@ const songUnderTest = {
   notes: [
     {
       id: 1,
-      points: '[{"x":4,"y":38},{"x":5,"y":38}]',
+      points: [
+        { x: 4, y: 38 },
+        { x: 5, y: 38 },
+      ],
       sequence_id: 1,
     },
   ],
@@ -70,7 +73,10 @@ describe('Mutation.createNote', () => {
         rows: [
           {
             id: 2,
-            points: '[{"x":6,"y":38},{"x":7,"y":38}]',
+            points: [
+              { x: 6, y: 38 },
+              { x: 7, y: 38 },
+            ],
             sequence_id: 1,
           },
         ],
