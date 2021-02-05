@@ -3,7 +3,6 @@ const { gql } = require('apollo-server');
 module.exports = gql`
   extend type Query {
     sequence(id: ID!): Sequence
-    songSequences(songId: ID!): [Sequence]!
   }
 
   extend type Mutation {
