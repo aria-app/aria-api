@@ -4,6 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "ci": "yarn run lint && yarn test --coverage && npx codecov",
     "dev": "nodemon --watch src src/index.js",
     "lint": "eslint --cache --fix src/**/*.js && prettier --write src/**/*.js",
     "migrate-down": "node-pg-migrate down --no-reject-unauthorized",
