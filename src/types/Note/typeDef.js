@@ -4,7 +4,7 @@ module.exports = gql`
   extend type Mutation {
     createNote(input: CreateNoteInput!): CreateNoteResponse
     deleteNotes(ids: [ID]!): DeleteNotesResponse
-    updateNotesPoints(input: UpdateNotesPointsInput!): UpdateNotesPointsResponse
+    updateNotes(input: UpdateNotesInput!): UpdateNotesResponse
   }
 
   input CreateNoteInput {
@@ -39,21 +39,22 @@ module.exports = gql`
     y: Int!
   }
 
-  input UpdateNotesPointsInput {
-    notes: [UpdateNotesPointsInputNote]!
+  input UpdateNotesInput {
+    notes: [UpdateNotesInputNote]!
   }
 
-  input UpdateNotesPointsInputNote {
+  input UpdateNotesInputNote {
     id: ID!
-    points: [UpdateNotesPointsInputNotePoint]!
+    points: [UpdateNotesInputNotePoint]!
+    sequenceId: ID!
   }
 
-  input UpdateNotesPointsInputNotePoint {
+  input UpdateNotesInputNotePoint {
     x: Int!
     y: Int!
   }
 
-  type UpdateNotesPointsResponse {
+  type UpdateNotesResponse {
     message: String!
     notes: [Note]!
     success: Boolean!

@@ -52,28 +52,25 @@ module.exports = {
     };
   },
 
-  updateNotesPoints: async (_, { input }, { currentUser, models }) => {
-    const { notes } = input;
-
+  updateNotes: async (_, { input }, { currentUser, models }) => {
     if (!currentUser) {
       throw new AuthenticationError('You are not authenticated.');
     }
 
-    notes.forEach(async ({ id }) => {
-      const note = await models.Note.findOneById(id);
-      const sequence = await models.Sequence.findOneById(note.sequence_id);
-      const track = await models.Track.findOneById(sequence.track_id);
-      const song = await models.Song.findOneById(track.song_id);
+    const sequence = await models.Sequence.findOneById(
+      input.notes[0].sequenceId,
+    );
+    const track = await models.Track.findOneById(sequence.track_id);
+    const song = await models.Song.findOneById(track.song_id);
 
-      if (currentUser.id !== song.user_id) {
-        throw new ForbiddenError(
-          'Logged in user does not have permission to edit this song.',
-        );
-      }
-    });
+    if (currentUser.id !== song.user_id) {
+      throw new ForbiddenError(
+        'Logged in user does not have permission to edit this song.',
+      );
+    }
 
     const updatedNotes = await models.Note.updateMany(
-      notes.map((note) => ({
+      input.notes.map((note) => ({
         id: note.id,
         updates: {
           points: JSON.stringify(note.points),
