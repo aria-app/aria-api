@@ -68,8 +68,8 @@ const SEEDED_USER_PASSWORD =
     });
 
     await Promise.all(
-      defaultVoices.map(async (defaultVoice) => {
-        await models.Voice.create(defaultVoice);
+      defaultVoices.map(async (defaultVoice, index) => {
+        await models.Voice.create({ ...defaultVoice, id: index + 1 });
       }),
     );
 

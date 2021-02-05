@@ -9,7 +9,9 @@ module.exports = function getModel({ withTransaction }) {
     },
 
     findAll() {
-      return withTransaction((client) => client.query('SELECT * FROM voices;'));
+      return withTransaction((client) =>
+        client.query('SELECT * FROM voices;'),
+      ).then((res) => res.rows);
     },
 
     findOneById(id) {

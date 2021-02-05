@@ -20,7 +20,7 @@ module.exports = function getModel({ withTransaction }) {
     },
 
     findBySongId(song_id) {
-      const query = `SELECT * FROM tracks WHERE song_id = ${song_id};`;
+      const query = `SELECT * FROM tracks WHERE song_id = ${song_id} ORDER BY position;`;
       return withTransaction((client) => client.query(query)).then(
         (res) => res.rows,
       );
