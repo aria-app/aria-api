@@ -1,5 +1,6 @@
 const getCreateQuery = require('../../helpers/getCreateQuery');
 const getDeleteManyQuery = require('../../helpers/getDeleteManyQuery');
+const getFindManyQuery = require('../../helpers/getFindManyQuery');
 const getUpdateQuery = require('../../helpers/getUpdateQuery');
 
 module.exports = function getModel({ withTransaction }) {
@@ -13,7 +14,7 @@ module.exports = function getModel({ withTransaction }) {
     deleteMany(ids) {
       return withTransaction((client) =>
         client.query(getDeleteManyQuery('notes', ids), ids),
-      ).then((res) => res.rows[0]);
+      ).then((res) => res.rows);
     },
 
     findBySequenceId(sequence_id) {
@@ -28,6 +29,12 @@ module.exports = function getModel({ withTransaction }) {
       return withTransaction((client) => client.query(query)).then(
         (res) => res.rows[0],
       );
+    },
+
+    findMany(ids) {
+      return withTransaction((client) =>
+        client.query(getFindManyQuery('notes', ids), ids),
+      ).then((res) => res.rows);
     },
 
     updateMany(updateSets) {
