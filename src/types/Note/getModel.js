@@ -1,4 +1,5 @@
 const getCreateQuery = require('../../helpers/getCreateQuery');
+const getDeleteManyQuery = require('../../helpers/getDeleteManyQuery');
 const getUpdateQuery = require('../../helpers/getUpdateQuery');
 
 module.exports = function getModel({ withTransaction }) {
@@ -9,14 +10,10 @@ module.exports = function getModel({ withTransaction }) {
       ).then((res) => res.rows[0]);
     },
 
-    delete(id) {
-      const query = `
-      DELETE FROM notes
-      WHERE id = ${id};
-    `;
-      return withTransaction((client) => client.query(query)).then(
-        (res) => res.rows[0],
-      );
+    deleteMany(ids) {
+      return withTransaction((client) =>
+        client.query(getDeleteManyQuery('notes', ids), ids),
+      ).then((res) => res.rows[0]);
     },
 
     findBySequenceId(sequence_id) {
@@ -27,12 +24,7 @@ module.exports = function getModel({ withTransaction }) {
     },
 
     findOneById(id) {
-      const query = `
-      SELECT *
-      FROM notes
-      WHERE id = ${id}
-      LIMIT 1;
-    `;
+      const query = `SELECT * FROM notes WHERE id = ${id} LIMIT 1;`;
       return withTransaction((client) => client.query(query)).then(
         (res) => res.rows[0],
       );

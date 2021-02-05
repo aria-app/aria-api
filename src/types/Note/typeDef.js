@@ -3,6 +3,7 @@ const { gql } = require('apollo-server');
 module.exports = gql`
   extend type Mutation {
     createNote(input: CreateNoteInput!): CreateNoteResponse
+    deleteNotes(ids: [ID]!): DeleteNotesResponse
     updateNotesPoints(input: UpdateNotesPointsInput!): UpdateNotesPointsResponse
   }
 
@@ -19,6 +20,11 @@ module.exports = gql`
   type CreateNoteResponse {
     message: String!
     note: Note!
+    success: Boolean!
+  }
+
+  type DeleteNotesResponse {
+    message: String!
     success: Boolean!
   }
 
