@@ -1,21 +1,22 @@
 const cookie = require('cookie');
 const verifyToken = require('../helpers/verifyToken');
 
-module.exports = function getContext({ models, skipAuth }) {
+module.exports = function getContext({ models, prisma, skipAuth }) {
   return async ({ req, ...rest }) => {
     if (skipAuth) {
       return {
         ...rest,
-        req,
         currentUser: {
-          date_created: '2021-02-04 16:44:50.667491',
+          createdAt: '2021-02-04 16:44:50.667491',
           email: 'admin@ariaapp.io',
-          first_name: 'Alexander',
+          firstName: 'Alexander',
           id: 1,
-          last_name: 'Admin',
+          lastName: 'Admin',
         },
         isAuthenticated: true,
         models,
+        prisma,
+        req,
       };
     }
     let isAuthenticated = false;
@@ -36,7 +37,11 @@ module.exports = function getContext({ models, skipAuth }) {
         currentUser =
           payload &&
           payload.sub &&
-          (await models.User.findOneById(payload.sub));
+          (await prisma.user.findUnique({
+            where: {
+              id: payload.sub,
+            },
+          }));
       }
     } catch (error) {
       if (!['jwt expired'].includes(error.message)) {
@@ -45,6 +50,6 @@ module.exports = function getContext({ models, skipAuth }) {
       }
     }
 
-    return { ...rest, req, currentUser, isAuthenticated, models };
+    return { ...rest, currentUser, isAuthenticated, models, prisma, req };
   };
 };
