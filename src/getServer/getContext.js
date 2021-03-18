@@ -12,6 +12,7 @@ module.exports = function getContext({ models, prisma, skipAuth }) {
           firstName: 'Alexander',
           id: 1,
           lastName: 'Admin',
+          role: 'ADMIN',
         },
         isAuthenticated: true,
         models,

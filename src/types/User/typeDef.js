@@ -49,6 +49,11 @@ module.exports = gql`
     user: User
   }
 
+  enum Role {
+    ADMIN
+    USER
+  }
+
   input UpdateUserInput {
     email: String
     firstName: String
@@ -66,8 +71,8 @@ module.exports = gql`
     email: String!
     firstName: String!
     id: ID!
-    isAdmin: Boolean!
     lastName: String!
+    role: Role!
   }
 
   type UsersResponse {
