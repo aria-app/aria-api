@@ -40,7 +40,7 @@ CREATE TABLE "Track" (
     "isSoloing" BOOLEAN NOT NULL DEFAULT false,
     "position" INTEGER NOT NULL,
     "songId" INTEGER,
-    "voiceId" INTEGER NOT NULL DEFAULT 0,
+    "voiceId" INTEGER NOT NULL DEFAULT 1,
     "volume" INTEGER NOT NULL DEFAULT 0,
 
     PRIMARY KEY ("id")

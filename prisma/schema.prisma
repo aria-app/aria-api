@@ -52,7 +52,7 @@ model Track {
   song      Song?      @relation(fields: [songId], references: [id])
   songId    Int?
   voice     Voice      @relation(fields: [voiceId], references: [id])
-  voiceId   Int        @default(0)
+  voiceId   Int        @default(1)
   volume    Int        @default(0)
 
   @@unique([position, songId])

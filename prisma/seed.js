@@ -1,10 +1,6 @@
 const { PrismaClient } = require('@prisma/client');
 
-const {
-  DEFAULT_BPM,
-  DEFAULT_MEASURE_COUNT,
-  DEFAULT_VOICE_ID,
-} = require('../src/constants');
+const { DEFAULT_BPM, DEFAULT_MEASURE_COUNT } = require('../src/constants');
 const hashPassword = require('../src/helpers/hashPassword');
 const defaultVoices = require('./defaultVoices');
 
@@ -15,156 +11,96 @@ const SEEDED_USER_PASSWORD =
 async function main() {
   const password = await hashPassword(SEEDED_USER_PASSWORD);
 
-  const adminUser = await prisma.user.upsert({
-    create: {
+  const adminUser = await prisma.user.create({
+    data: {
       email: 'admin@ariaapp.io',
       firstName: 'Alexander',
       lastName: 'Admin',
       password,
       role: 'ADMIN',
     },
-    update: {},
-    where: { email: 'admin@ariaapp.io' },
   });
 
-  const normalUser = await prisma.user.upsert({
-    create: {
+  const normalUser = await prisma.user.create({
+    data: {
       email: 'user@ariaapp.io',
       firstName: 'Yorick',
       lastName: 'User',
       password,
     },
-    update: {},
-    where: { email: 'user@ariaapp.io' },
   });
 
-  const adminUserSong = await prisma.song.upsert({
-    create: {
+  const adminUserSong = await prisma.song.create({
+    data: {
       bpm: DEFAULT_BPM,
       measureCount: DEFAULT_MEASURE_COUNT,
       name: 'Admin Arpeggio',
       userId: adminUser.id,
     },
-    update: {},
-    where: {
-      name_userId: {
-        name: 'Admin Arpeggio',
-        userId: adminUser.id,
-      },
-    },
   });
 
-  await prisma.song.upsert({
-    create: {
+  await prisma.song.create({
+    data: {
       bpm: DEFAULT_BPM,
       measureCount: DEFAULT_MEASURE_COUNT + 10,
       name: 'Second Song',
       userId: adminUser.id,
     },
-    update: {},
-    where: {
-      name_userId: {
-        name: 'Second Song',
-        userId: adminUser.id,
-      },
-    },
   });
 
-  await prisma.song.upsert({
-    create: {
+  await prisma.song.create({
+    data: {
       bpm: DEFAULT_BPM,
       measureCount: DEFAULT_MEASURE_COUNT,
       name: 'Third Song',
       userId: adminUser.id,
     },
-    update: {},
-    where: {
-      name_userId: {
-        name: 'Third Song',
-        userId: adminUser.id,
-      },
-    },
   });
 
-  const normalUserSong = await prisma.song.upsert({
-    create: {
+  const normalUserSong = await prisma.song.create({
+    data: {
       bpm: DEFAULT_BPM,
       measureCount: DEFAULT_MEASURE_COUNT,
       name: 'Normal Nocturne',
       userId: normalUser.id,
     },
-    update: {},
-    where: {
-      name_userId: {
-        name: 'Normal Nocturne',
-        userId: normalUser.id,
-      },
-    },
   });
 
   const voices = await Promise.all(
-    defaultVoices.map((defaultVoice, index) =>
-      prisma.voice.upsert({
-        create: { ...defaultVoice, id: index + 1 },
-        update: {},
-        where: { id: index + 1 },
+    defaultVoices.map((defaultVoice) =>
+      prisma.voice.create({
+        data: defaultVoice,
       }),
     ),
   );
 
-  const adminUserTrack = await prisma.track.upsert({
-    create: {
+  const adminUserTrack = await prisma.track.create({
+    data: {
       position: 0,
       songId: adminUserSong.id,
-      voiceId: DEFAULT_VOICE_ID,
-    },
-    update: {},
-    where: {
-      position_songId: {
-        position: 0,
-        songId: adminUserSong.id,
-      },
     },
   });
 
-  const normalUserTrack = await prisma.track.upsert({
-    create: {
+  const normalUserTrack = await prisma.track.create({
+    data: {
       position: 0,
       songId: normalUserSong.id,
-      voiceId: DEFAULT_VOICE_ID,
-    },
-    update: {},
-    where: {
-      position_songId: {
-        position: 0,
-        songId: normalUserSong.id,
-      },
     },
   });
 
-  const adminUserSequence = await prisma.sequence.upsert({
-    create: {
-      id: 1,
+  const adminUserSequence = await prisma.sequence.create({
+    data: {
       measureCount: 1,
       position: 0,
       trackId: adminUserTrack.id,
     },
-    update: {},
-    where: {
-      id: 1,
-    },
   });
 
-  const normalUserSequence = await prisma.sequence.upsert({
-    create: {
-      id: 2,
+  const normalUserSequence = await prisma.sequence.create({
+    data: {
       measureCount: 1,
       position: 0,
       trackId: normalUserTrack.id,
-    },
-    update: {},
-    where: {
-      id: 2,
     },
   });
 
@@ -184,32 +120,22 @@ async function main() {
   ];
 
   const adminUserNotes = await Promise.all(
-    notePointSets.map((notePointSet, index) =>
-      prisma.note.upsert({
-        create: {
-          id: index,
+    notePointSets.map((notePointSet) =>
+      prisma.note.create({
+        data: {
           points: notePointSet,
           sequenceId: adminUserSequence.id,
-        },
-        update: {},
-        where: {
-          id: index,
         },
       }),
     ),
   );
 
   const normalUserNotes = await Promise.all(
-    notePointSets.map((notePointSet, index) =>
-      prisma.note.upsert({
-        create: {
-          id: index + 3,
+    notePointSets.map((notePointSet) =>
+      prisma.note.create({
+        data: {
           points: notePointSet,
           sequenceId: normalUserSequence.id,
-        },
-        update: {},
-        where: {
-          id: index + 3,
         },
       }),
     ),
