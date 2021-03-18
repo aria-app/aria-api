@@ -1,4 +1,3 @@
-const Admin = require('../types/Admin');
 const Note = require('../types/Note');
 const Sequence = require('../types/Sequence');
 const Song = require('../types/Song');
@@ -7,7 +6,6 @@ const User = require('../types/User');
 
 module.exports = function getModels(db) {
   return {
-    Admin: Admin.getModel(db),
     Note: Note.getModel(db),
     Sequence: Sequence.getModel(db),
     Song: Song.getModel(db),
