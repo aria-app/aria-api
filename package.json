@@ -9,7 +9,7 @@
     "lint": "eslint --cache --fix src/**/*.js && prettier --write src/**/*.js",
     "reset": "prisma migrate reset && prisma generate",
     "start": "node src/index.js",
-    "test": "jest"
+    "test": "jest --passWithNoTests"
   },
   "repository": {
     "type": "git",
