@@ -56,6 +56,10 @@ module.exports = {
         : undefined;
 
     const songsPage = await prisma.song.findMany({
+      include: {
+        tracks: true,
+        user: true,
+      },
       orderBy: {
         [sort]: sortDirection,
       },
