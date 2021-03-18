@@ -188,7 +188,7 @@ async function main() {
       prisma.note.upsert({
         create: {
           id: index,
-          points: JSON.stringify(notePointSet),
+          points: notePointSet,
           sequenceId: adminUserSequence.id,
         },
         update: {},
@@ -204,7 +204,7 @@ async function main() {
       prisma.note.upsert({
         create: {
           id: index + 3,
-          points: JSON.stringify(notePointSet),
+          points: notePointSet,
           sequenceId: normalUserSequence.id,
         },
         update: {},

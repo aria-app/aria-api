@@ -13,7 +13,33 @@ module.exports = {
 
     const song = await prisma.song.findUnique({
       include: {
-        tracks: true,
+        tracks: {
+          include: {
+            sequences: {
+              include: {
+                notes: {
+                  include: {
+                    sequence: {
+                      select: {
+                        id: true,
+                      },
+                    },
+                  },
+                },
+                track: {
+                  select: {
+                    id: true,
+                  },
+                },
+              },
+            },
+            song: {
+              select: {
+                id: true,
+              },
+            },
+          },
+        },
         user: true,
       },
       where: { id: parseInt(id, 10) },
@@ -57,7 +83,6 @@ module.exports = {
 
     const songsPage = await prisma.song.findMany({
       include: {
-        tracks: true,
         user: true,
       },
       orderBy: {

@@ -2,7 +2,15 @@ module.exports = {
   track: (_, { id }, { prisma }) =>
     prisma.track.findUnique({
       include: {
-        sequences: true,
+        sequences: {
+          include: {
+            track: {
+              select: {
+                id: true,
+              },
+            },
+          },
+        },
         song: true,
         voice: true,
       },
@@ -13,7 +21,15 @@ module.exports = {
   tracks: (_, { songId }, { prisma }) =>
     prisma.track.findMany({
       include: {
-        sequences: true,
+        sequences: {
+          include: {
+            track: {
+              select: {
+                id: true,
+              },
+            },
+          },
+        },
         song: true,
         voice: true,
       },
