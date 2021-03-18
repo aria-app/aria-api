@@ -5,7 +5,7 @@ CREATE TYPE "Role" AS ENUM ('ADMIN', 'USER');
 CREATE TABLE "Note" (
     "id" SERIAL NOT NULL,
     "points" JSONB NOT NULL DEFAULT E'[]',
-    "sequenceId" INTEGER NOT NULL,
+    "sequenceId" INTEGER,
 
     PRIMARY KEY ("id")
 );
@@ -15,7 +15,7 @@ CREATE TABLE "Sequence" (
     "id" SERIAL NOT NULL,
     "measureCount" INTEGER NOT NULL,
     "position" INTEGER NOT NULL,
-    "trackId" INTEGER NOT NULL,
+    "trackId" INTEGER,
 
     PRIMARY KEY ("id")
 );
@@ -28,7 +28,7 @@ CREATE TABLE "Song" (
     "measureCount" INTEGER NOT NULL,
     "name" TEXT NOT NULL,
     "updatedAt" TIMESTAMP(3) NOT NULL,
-    "userId" INTEGER NOT NULL,
+    "userId" INTEGER,
 
     PRIMARY KEY ("id")
 );
@@ -39,8 +39,8 @@ CREATE TABLE "Track" (
     "isMuted" BOOLEAN NOT NULL DEFAULT false,
     "isSoloing" BOOLEAN NOT NULL DEFAULT false,
     "position" INTEGER NOT NULL,
-    "songId" INTEGER NOT NULL,
-    "voiceId" INTEGER NOT NULL,
+    "songId" INTEGER,
+    "voiceId" INTEGER NOT NULL DEFAULT 0,
     "volume" INTEGER NOT NULL DEFAULT 0,
 
     PRIMARY KEY ("id")
@@ -90,4 +90,4 @@ ALTER TABLE "Song" ADD FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE 
 ALTER TABLE "Track" ADD FOREIGN KEY ("songId") REFERENCES "Song"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Track" ADD FOREIGN KEY ("voiceId") REFERENCES "Voice"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "Track" ADD FOREIGN KEY ("voiceId") REFERENCES "Voice"("id") ON DELETE SET DEFAULT ON UPDATE CASCADE;

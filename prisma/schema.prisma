@@ -9,10 +9,10 @@ generator client {
 }
 
 model Note {
-  id         Int      @id @default(autoincrement())
-  points     Json     @default("[]")
-  sequence   Sequence @relation(fields: [sequenceId], references: [id])
-  sequenceId Int
+  id         Int       @id @default(autoincrement())
+  points     Json      @default("[]")
+  sequence   Sequence? @relation(fields: [sequenceId], references: [id])
+  sequenceId Int?
 }
 
 enum Role {
@@ -25,8 +25,8 @@ model Sequence {
   measureCount Int
   notes        Note[]
   position     Int
-  track        Track  @relation(fields: [trackId], references: [id])
-  trackId      Int
+  track        Track? @relation(fields: [trackId], references: [id])
+  trackId      Int?
 }
 
 model Song {
@@ -37,8 +37,8 @@ model Song {
   name         String
   updatedAt    DateTime @updatedAt
   tracks       Track[]
-  user         User     @relation(fields: [userId], references: [id])
-  userId       Int
+  user         User?    @relation(fields: [userId], references: [id])
+  userId       Int?
 
   @@unique([name, userId])
 }
@@ -49,10 +49,10 @@ model Track {
   isSoloing Boolean    @default(false)
   position  Int
   sequences Sequence[]
-  song      Song       @relation(fields: [songId], references: [id])
-  songId    Int
+  song      Song?      @relation(fields: [songId], references: [id])
+  songId    Int?
   voice     Voice      @relation(fields: [voiceId], references: [id])
-  voiceId   Int
+  voiceId   Int        @default(0)
   volume    Int        @default(0)
 
   @@unique([position, songId])
