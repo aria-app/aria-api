@@ -20,13 +20,7 @@ module.exports = {
 
   users: async (
     _,
-    {
-      limit = 'ALL',
-      page = 1,
-      search = '',
-      sort = 'firstName',
-      sortDirection = 'asc',
-    },
+    { limit, page = 1, search = '', sort = 'firstName', sortDirection = 'asc' },
     { currentUser, prisma },
   ) => {
     if (!currentUser) {
@@ -79,7 +73,7 @@ module.exports = {
       data: usersPage,
       meta: {
         currentPage: page,
-        itemsPerPage: limit === 'ALL' ? totalItemCount : limit,
+        itemsPerPage: isNil(limit) ? totalItemCount : limit,
         totalItemCount,
       },
     };

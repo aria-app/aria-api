@@ -49,13 +49,13 @@ module.exports = gql`
 
   type Song {
     bpm: Int!
-    dateCreated: String!
-    dateModified: String!
+    createdAt: String!
     id: ID!
     measureCount: Int!
     name: String!
     trackCount: Int!
     tracks: [Track]!
+    updatedAt: String!
     user: User!
   }
 

@@ -11,7 +11,7 @@ module.exports = gql`
 
   type PaginationMetadata {
     currentPage: Int!
-    totalItemCount: Int!
     itemsPerPage: Int!
+    totalItemCount: Int!
   }
 `;
