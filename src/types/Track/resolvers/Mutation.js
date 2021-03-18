@@ -1,9 +1,4 @@
-const {
-  AuthenticationError,
-  ForbiddenError,
-  UserInputError,
-} = require('apollo-server');
-const isEqual = require('lodash/fp/isEqual');
+const { AuthenticationError, ForbiddenError } = require('apollo-server');
 const isNil = require('lodash/fp/isNil');
 const max = require('lodash/fp/max');
 const omitBy = require('lodash/fp/omitBy');
@@ -11,27 +6,52 @@ const omitBy = require('lodash/fp/omitBy');
 const { DEFAULT_VOICE_ID } = require('../../../constants');
 
 module.exports = {
-  createTrack: async (_, { input }, { currentUser, models }) => {
+  createTrack: async (_, { input }, { currentUser, prisma }) => {
     if (!currentUser) {
       throw new AuthenticationError('You are not authenticated.');
     }
 
-    const song = await models.Song.findOneById(input.songId);
+    const song = await prisma.song.findUnique({
+      where: {
+        id: parseInt(input.songId, 10),
+      },
+    });
 
-    if (currentUser.id !== song.user_id) {
+    if (currentUser.id !== song.userId) {
       throw new ForbiddenError(
         'Logged in user does not have permission to edit this song.',
       );
     }
 
-    const otherTracks = await models.Track.findBySongId(input.songId);
+    const otherTracks = await prisma.track.findMany({
+      where: {
+        song: {
+          id: parseInt(input.songId, 10),
+        },
+      },
+    });
     const prevMaxPosition =
       max(otherTracks.map((track) => track.position)) || 0;
 
-    const newTrack = await models.Track.create({
-      position: prevMaxPosition + 1,
-      song_id: input.songId,
-      voice_id: DEFAULT_VOICE_ID,
+    const newTrack = await prisma.track.create({
+      data: {
+        position: prevMaxPosition + 1,
+        song: {
+          connect: {
+            id: parseInt(input.songId, 10),
+          },
+        },
+        voice: {
+          connect: {
+            id: DEFAULT_VOICE_ID,
+          },
+        },
+      },
+      include: {
+        sequences: true,
+        song: true,
+        voice: true,
+      },
     });
 
     return {
@@ -41,21 +61,30 @@ module.exports = {
     };
   },
 
-  deleteTrack: async (_, { id }, { currentUser, models }) => {
+  deleteTrack: async (_, { id }, { currentUser, prisma }) => {
     if (!currentUser) {
       throw new AuthenticationError('You are not authenticated.');
     }
 
-    const track = await models.Track.findOneById(id);
-    const song = await models.Song.findOneById(track.song_id);
+    const song = await prisma.track
+      .findUnique({
+        where: {
+          id: parseInt(id, 10),
+        },
+      })
+      .song();
 
-    if (currentUser.id !== song.user_id) {
+    if (currentUser.id !== song.userId) {
       throw new ForbiddenError(
         'Logged in user does not have permission to edit this song.',
       );
     }
 
-    await models.Track.delete(id);
+    await prisma.track.delete({
+      where: {
+        id: parseInt(id, 10),
+      },
+    });
 
     return {
       message: 'Track was deleted successfully.',
@@ -63,47 +92,50 @@ module.exports = {
     };
   },
 
-  updateTrack: async (_, { input }, { currentUser, models }) => {
+  updateTrack: async (_, { input }, { currentUser, prisma }) => {
     if (!currentUser) {
       throw new AuthenticationError('You are not authenticated.');
     }
 
-    const track = await models.Track.findOneById(input.id);
-    const song = await models.Song.findOneById(track.song_id);
+    const song = await prisma.track
+      .findUnique({
+        where: {
+          id: parseInt(input.id, 10),
+        },
+      })
+      .song();
 
-    if (currentUser.id !== song.user_id) {
+    if (currentUser.id !== song.userId) {
       throw new ForbiddenError(
         'Logged in user does not have permission to edit this song.',
       );
     }
 
-    if (
-      isEqual(
-        {
-          voice_id: input.voiceId,
-          volume: input.volume,
-        },
-        {
-          voice_id: track.voice_id,
-          volume: track.volume,
-        },
-      )
-    ) {
-      throw new UserInputError('No changes submitted');
-    }
-
-    const updatedTrack = await models.Track.update(
-      input.id,
-      omitBy(isNil, {
-        voice_id: input.voiceId,
+    const updatedTrack = await prisma.track.update({
+      data: omitBy(isNil, {
+        voice: input.voiceId
+          ? {
+              connect: {
+                id: parseInt(input.voiceId, 10),
+              },
+            }
+          : undefined,
         volume: input.volume,
       }),
-    );
+      include: {
+        sequences: true,
+        song: true,
+        voice: true,
+      },
+      where: {
+        id: parseInt(input.id, 10),
+      },
+    });
 
     return {
       message: 'Track was updated successfully.',
-      track: updatedTrack,
       success: true,
+      track: updatedTrack,
     };
   },
 };
