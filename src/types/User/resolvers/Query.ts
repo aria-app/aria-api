@@ -1,5 +1,12 @@
-import { AuthenticationError, ForbiddenError } from 'apollo-server';
+import { Role } from '@prisma/client';
+import {
+  AuthenticationError,
+  ForbiddenError,
+  IResolverObject,
+} from 'apollo-server';
 import isNil from 'lodash/fp/isNil';
+
+import ApiContext from '../../../models/ApiContext';
 
 export default {
   me: async (_, __, { currentUser }) => {
@@ -11,7 +18,7 @@ export default {
       throw new AuthenticationError('You are not authenticated.');
     }
 
-    if (currentUser.role !== 'ADMIN') {
+    if (currentUser.role !== Role.ADMIN) {
       throw new ForbiddenError('You are not authorized to view this data.');
     }
 
@@ -27,30 +34,9 @@ export default {
       throw new AuthenticationError('You are not authenticated.');
     }
 
-    if (currentUser.role !== 'ADMIN') {
+    if (currentUser.role !== Role.ADMIN) {
       throw new ForbiddenError('You are not authorized to view this data.');
     }
-
-    const filters = search
-      ? {
-          where: {
-            OR: [
-              {
-                firstName: {
-                  contains: search,
-                  mode: 'insensitive',
-                },
-              },
-              {
-                lastName: {
-                  contains: search,
-                  mode: 'insensitive',
-                },
-              },
-            ],
-          },
-        }
-      : {};
 
     const usersPage = await prisma.user.findMany({
       ...(!isNil(limit)
@@ -59,14 +45,44 @@ export default {
             take: limit,
           }
         : {}),
-      ...filters,
+      where: {
+        OR: [
+          {
+            firstName: {
+              contains: search,
+              mode: 'insensitive',
+            },
+          },
+          {
+            lastName: {
+              contains: search,
+              mode: 'insensitive',
+            },
+          },
+        ],
+      },
       orderBy: {
         [sort]: sortDirection,
       },
     });
 
     const totalItemCount = await prisma.user.count({
-      ...filters,
+      where: {
+        OR: [
+          {
+            firstName: {
+              contains: search,
+              mode: 'insensitive' as const,
+            },
+          },
+          {
+            lastName: {
+              contains: search,
+              mode: 'insensitive' as const,
+            },
+          },
+        ],
+      },
     });
 
     return {
@@ -78,4 +94,4 @@ export default {
       },
     };
   },
-};
+} as IResolverObject<any, ApiContext>;

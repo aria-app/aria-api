@@ -1,7 +1,10 @@
+import { PrismaClient, Role, User } from '@prisma/client';
+import { ExpressContext } from 'apollo-server-express';
 import cookie from 'cookie';
-import { PrismaClient, User } from '@prisma/client';
+import parseISO from 'date-fns/parseISO';
 
 import verifyToken from '../helpers/verifyToken';
+import ApiContext from '../models/ApiContext';
 
 interface GetContextArgs {
   prisma: PrismaClient;
@@ -11,18 +14,19 @@ interface GetContextArgs {
 export default function getContext({
   prisma,
   skipAuth,
-}: GetContextArgs): (args: any) => Promise<Record<string, any>> {
+}: GetContextArgs): (expressContext: ExpressContext) => Promise<ApiContext> {
   return async ({ req, ...rest }) => {
     if (skipAuth) {
       return {
         ...rest,
         currentUser: {
-          createdAt: '2021-02-04 16:44:50.667491',
+          createdAt: parseISO('2021-02-04 16:44:50.667491'),
           email: 'admin@ariaapp.io',
           firstName: 'Alexander',
           id: 1,
           lastName: 'Admin',
-          role: 'ADMIN',
+          password: '',
+          role: Role.ADMIN,
         },
         isAuthenticated: true,
         prisma,

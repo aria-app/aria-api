@@ -1,9 +1,13 @@
+import { Role } from '@prisma/client';
 import {
   ApolloError,
   AuthenticationError,
   ForbiddenError,
+  IResolverObject,
 } from 'apollo-server';
 import isNil from 'lodash/fp/isNil';
+
+import ApiContext from '../../../models/ApiContext';
 
 export default {
   song: async (_, { id }, { currentUser, prisma }) => {
@@ -51,7 +55,7 @@ export default {
     }
 
     if (
-      currentUser.role !== 'ADMIN' &&
+      currentUser.role !== Role.ADMIN &&
       String(currentUser.id) !== String(song.userId)
     ) {
       throw new ForbiddenError('You are not authorized to view this data.');
@@ -70,7 +74,7 @@ export default {
     }
 
     if (
-      currentUser.role !== 'ADMIN' &&
+      currentUser.role !== Role.ADMIN &&
       userId &&
       String(currentUser.id) !== String(userId)
     ) {
@@ -78,7 +82,7 @@ export default {
     }
 
     const filteredUserId =
-      currentUser.role !== 'ADMIN' || userId
+      currentUser.role !== Role.ADMIN || userId
         ? parseInt(userId || currentUser.id, 10)
         : undefined;
 
@@ -128,4 +132,4 @@ export default {
       },
     };
   },
-};
+} as IResolverObject<any, ApiContext>;

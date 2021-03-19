@@ -1,4 +1,4 @@
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient, Role } from '@prisma/client';
 
 import constants from '../src/constants';
 import hashPassword from '../src/helpers/hashPassword';
@@ -19,7 +19,7 @@ async function main() {
       firstName: 'Alexander',
       lastName: 'Admin',
       password,
-      role: 'ADMIN',
+      role: Role.ADMIN,
     },
   });
 

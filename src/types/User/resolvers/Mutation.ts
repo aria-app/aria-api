@@ -1,7 +1,9 @@
+import { Role } from '@prisma/client';
 import {
   ApolloError,
   AuthenticationError,
   ForbiddenError,
+  IResolverObject,
   UserInputError,
   ValidationError,
 } from 'apollo-server';
@@ -14,10 +16,11 @@ import omitBy from 'lodash/fp/omitBy';
 import createToken from '../../../helpers/createToken';
 import hashPassword from '../../../helpers/hashPassword';
 import verifyPassword from '../../../helpers/verifyPassword';
+import ApiContext from '../../../models/ApiContext';
 import DecodedAuthToken from '../../../models/DecodedAuthToken';
 
 export default {
-  login: async (_, { email, password }, { res, prisma }) => {
+  login: async (_, { email, password }, { res, prisma }): Promise<any> => {
     if (!isEmail.validate(email)) {
       throw new ValidationError('Email format invalid.');
     }
@@ -140,7 +143,11 @@ export default {
       where: { id: parseInt(input.id, 10) },
     });
 
-    if (user.role !== 'ADMIN' && currentUser.id !== user.id) {
+    if (!user) {
+      throw new ApolloError('User was not found.');
+    }
+
+    if (user.role !== Role.ADMIN && currentUser.id !== user.id) {
       throw new ForbiddenError(
         'Logged in user does not have permission to manage this user.',
       );
@@ -192,4 +199,4 @@ export default {
       user: updatedUser,
     };
   },
-};
+} as IResolverObject<any, ApiContext>;

@@ -2,7 +2,7 @@ import jwt from 'jsonwebtoken';
 
 export default function createToken(
   payload: Record<string, number | string>,
-): Promise<any> {
+): Promise<string> {
   return new Promise((resolve, reject) => {
     jwt.sign(
       {
@@ -11,7 +11,7 @@ export default function createToken(
         iss: process.env.ISSUER,
         sub: payload.id,
       },
-      process.env.JWT_SECRET,
+      process.env.JWT_SECRET as string,
       {
         expiresIn: '12h',
       },
@@ -19,7 +19,7 @@ export default function createToken(
         if (err) {
           reject(err);
         } else {
-          resolve(token);
+          resolve(token || '');
         }
       },
     );
