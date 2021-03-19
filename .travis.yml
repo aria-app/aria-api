@@ -17,6 +17,7 @@ before_deploy:
   - yarn migrate
 deploy:
   provider: heroku
+  app: aria-app-api
   cleanup: true
   edge: true
   on:
