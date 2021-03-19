@@ -1,10 +1,10 @@
-const {
+import {
   ApolloError,
   AuthenticationError,
   ForbiddenError,
-} = require('apollo-server');
-const isNil = require('lodash/fp/isNil');
-const omitBy = require('lodash/fp/omitBy');
+} from 'apollo-server';
+import isNil from 'lodash/fp/isNil';
+import omitBy from 'lodash/fp/omitBy';
 
 const DEFAULT_BPM = 120;
 const DEFAULT_MEASURE_COUNT = 4;

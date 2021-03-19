@@ -1,9 +1,12 @@
-const { AuthenticationError, ForbiddenError } = require('apollo-server');
-const isNil = require('lodash/fp/isNil');
-const max = require('lodash/fp/max');
-const omitBy = require('lodash/fp/omitBy');
+import isNil from 'lodash/fp/isNil';
+import max from 'lodash/fp/max';
+import omitBy from 'lodash/fp/omitBy';
 
-const { DEFAULT_VOICE_ID } = require('../../../constants');
+import { AuthenticationError, ForbiddenError } from 'apollo-server';
+
+import constants from '../../../constants';
+
+const { DEFAULT_VOICE_ID } = constants;
 
 export default {
   createTrack: async (_, { input }, { currentUser, prisma }) => {

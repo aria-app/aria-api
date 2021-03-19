@@ -1,6 +1,6 @@
-const { AuthenticationError, ForbiddenError } = require('apollo-server');
-const isNil = require('lodash/fp/isNil');
-const omitBy = require('lodash/fp/omitBy');
+import { AuthenticationError, ForbiddenError } from 'apollo-server';
+import isNil from 'lodash/fp/isNil';
+import omitBy from 'lodash/fp/omitBy';
 
 export default {
   createSequence: async (_, { input }, { currentUser, prisma }) => {

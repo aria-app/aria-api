@@ -1,5 +1,5 @@
-const { AuthenticationError, ForbiddenError } = require('apollo-server');
-const isNil = require('lodash/fp/isNil');
+import { AuthenticationError, ForbiddenError } from 'apollo-server';
+import isNil from 'lodash/fp/isNil';
 
 export default {
   me: async (_, __, { currentUser }) => {

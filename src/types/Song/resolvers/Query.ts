@@ -1,9 +1,9 @@
-const {
+import {
   ApolloError,
   AuthenticationError,
   ForbiddenError,
-} = require('apollo-server');
-const isNil = require('lodash/fp/isNil');
+} from 'apollo-server';
+import isNil from 'lodash/fp/isNil';
 
 export default {
   song: async (_, { id }, { currentUser, prisma }) => {

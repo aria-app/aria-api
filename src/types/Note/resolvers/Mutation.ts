@@ -1,9 +1,9 @@
-const {
+import {
   AuthenticationError,
   ForbiddenError,
   ValidationError,
-} = require('apollo-server');
-const isEmpty = require('lodash/fp/isEmpty');
+} from 'apollo-server';
+import isEmpty from 'lodash/fp/isEmpty';
 
 export default {
   createNote: async (_, { input }, { currentUser, prisma }) => {

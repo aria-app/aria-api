@@ -1,19 +1,19 @@
-const {
+import {
   ApolloError,
   AuthenticationError,
   ForbiddenError,
   UserInputError,
   ValidationError,
-} = require('apollo-server');
-const isEmail = require('isemail');
-const jwtDecode = require('jwt-decode');
-const isEqual = require('lodash/fp/isEqual');
-const isNil = require('lodash/fp/isNil');
-const omitBy = require('lodash/fp/omitBy');
+} from 'apollo-server';
+import isEmail from 'isemail';
+import jwtDecode from 'jwt-decode';
+import isEqual from 'lodash/fp/isEqual';
+import isNil from 'lodash/fp/isNil';
+import omitBy from 'lodash/fp/omitBy';
 
-const createToken = require('../../../helpers/createToken');
-const hashPassword = require('../../../helpers/hashPassword');
-const verifyPassword = require('../../../helpers/verifyPassword');
+import createToken from '../../../helpers/createToken';
+import hashPassword from '../../../helpers/hashPassword';
+import verifyPassword from '../../../helpers/verifyPassword';
 
 export default {
   login: async (_, { email, password }, { res, prisma }) => {
