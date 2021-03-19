@@ -46,6 +46,11 @@ module.exports = {
       },
     });
 
+    await prisma.song.update({
+      data: { updatedAt: new Date() },
+      where: { id: song.id },
+    });
+
     return {
       message: 'Sequence was created successfully.',
       sequence: newSequence,
@@ -152,6 +157,11 @@ module.exports = {
       ),
     );
 
+    await prisma.song.update({
+      data: { updatedAt: new Date() },
+      where: { id: song.id },
+    });
+
     return {
       message: 'Sequence was duplicated successfully.',
       sequence: {
@@ -202,6 +212,11 @@ module.exports = {
       where: {
         id: parseInt(input.id, 10),
       },
+    });
+
+    await prisma.song.update({
+      data: { updatedAt: new Date() },
+      where: { id: song.id },
     });
 
     return {

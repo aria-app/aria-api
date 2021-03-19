@@ -54,6 +54,11 @@ module.exports = {
       },
     });
 
+    await prisma.song.update({
+      data: { updatedAt: new Date() },
+      where: { id: song.id },
+    });
+
     return {
       message: 'Track was created successfully.',
       success: true,
@@ -84,6 +89,11 @@ module.exports = {
       where: {
         id: parseInt(id, 10),
       },
+    });
+
+    await prisma.song.update({
+      data: { updatedAt: new Date() },
+      where: { id: song.id },
     });
 
     return {
@@ -130,6 +140,11 @@ module.exports = {
       where: {
         id: parseInt(input.id, 10),
       },
+    });
+
+    await prisma.song.update({
+      data: { updatedAt: new Date() },
+      where: { id: song.id },
     });
 
     return {

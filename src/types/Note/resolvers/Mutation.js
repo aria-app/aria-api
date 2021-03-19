@@ -44,6 +44,11 @@ module.exports = {
       },
     });
 
+    await prisma.song.update({
+      data: { updatedAt: new Date() },
+      where: { id: song.id },
+    });
+
     return {
       message: 'Note was created successfully.',
       note: newNote,
@@ -80,6 +85,11 @@ module.exports = {
       where: {
         id: { in: ids.map((id) => parseInt(id, 10)) },
       },
+    });
+
+    await prisma.song.update({
+      data: { updatedAt: new Date() },
+      where: { id: song.id },
     });
 
     return {
@@ -141,6 +151,11 @@ module.exports = {
       ),
     );
 
+    await prisma.song.update({
+      data: { updatedAt: new Date() },
+      where: { id: song.id },
+    });
+
     return {
       message: 'Notes were duplicated successfully.',
       notes: newNotes,
@@ -192,6 +207,11 @@ module.exports = {
         }),
       ),
     );
+
+    await prisma.song.update({
+      data: { updatedAt: new Date() },
+      where: { id: song.id },
+    });
 
     return {
       message: 'Notes were updated successfully.',
