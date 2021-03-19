@@ -38,6 +38,7 @@ module.exports = {
                 id: true,
               },
             },
+            voice: true,
           },
         },
         user: true,
@@ -83,6 +84,11 @@ module.exports = {
 
     const songsPage = await prisma.song.findMany({
       include: {
+        tracks: {
+          select: {
+            id: true,
+          },
+        },
         user: true,
       },
       orderBy: {

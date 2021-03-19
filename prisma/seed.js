@@ -66,13 +66,38 @@ async function main() {
     },
   });
 
-  const voices = await Promise.all(
-    defaultVoices.map((defaultVoice) =>
-      prisma.voice.create({
-        data: defaultVoice,
-      }),
-    ),
-  );
+  const voices = [
+    await prisma.voice.create({
+      data: defaultVoices[0],
+    }),
+    await prisma.voice.create({
+      data: defaultVoices[1],
+    }),
+    await prisma.voice.create({
+      data: defaultVoices[2],
+    }),
+    await prisma.voice.create({
+      data: defaultVoices[3],
+    }),
+    await prisma.voice.create({
+      data: defaultVoices[4],
+    }),
+    await prisma.voice.create({
+      data: defaultVoices[5],
+    }),
+    await prisma.voice.create({
+      data: defaultVoices[6],
+    }),
+    await prisma.voice.create({
+      data: defaultVoices[7],
+    }),
+    await prisma.voice.create({
+      data: defaultVoices[8],
+    }),
+    await prisma.voice.create({
+      data: defaultVoices[9],
+    }),
+  ];
 
   const adminUserTrack = await prisma.track.create({
     data: {

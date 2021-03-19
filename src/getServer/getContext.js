@@ -40,7 +40,7 @@ module.exports = function getContext({ models, prisma, skipAuth }) {
           payload.sub &&
           (await prisma.user.findUnique({
             where: {
-              id: payload.sub,
+              id: parseInt(payload.sub, 10),
             },
           }));
       }
