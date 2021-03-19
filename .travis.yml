@@ -9,4 +9,15 @@ cache:
   directories:
     - node_modules
 script:
-  - yarn run ci
+  - yarn lint
+  - yarn build
+  - yarn test --coverage
+before_deploy:
+  - npx codecov
+  - yarn migrate
+deploy:
+  provider: heroku
+  cleanup: true
+  edge: true
+  on:
+    branch: master
