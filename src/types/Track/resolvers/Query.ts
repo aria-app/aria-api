@@ -1,3 +1,7 @@
+import { IResolverObject } from 'apollo-server';
+
+import ApiContext from '../../../models/ApiContext';
+
 export default {
   track: (_, { id }, { prisma }) =>
     prisma.track.findUnique({
@@ -18,6 +22,7 @@ export default {
         id: parseInt(id, 10),
       },
     }),
+
   tracks: (_, { songId }, { prisma }) =>
     prisma.track.findMany({
       include: {
@@ -39,4 +44,4 @@ export default {
         },
       },
     }),
-};
+} as IResolverObject<any, ApiContext>;

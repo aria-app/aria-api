@@ -2,9 +2,12 @@ import {
   ApolloError,
   AuthenticationError,
   ForbiddenError,
+  IResolverObject,
 } from 'apollo-server';
 import isNil from 'lodash/fp/isNil';
 import omitBy from 'lodash/fp/omitBy';
+
+import ApiContext from '../../../models/ApiContext';
 
 const DEFAULT_BPM = 120;
 const DEFAULT_MEASURE_COUNT = 4;
@@ -43,6 +46,10 @@ export default {
     const song = await prisma.song.findUnique({
       where: { id: parseInt(id, 10) },
     });
+
+    if (!song) {
+      throw new ApolloError('Could not find song.');
+    }
 
     if (String(currentUser.id) !== String(song.userId)) {
       throw new ForbiddenError('You are not authorized to view this data.');
@@ -96,4 +103,4 @@ export default {
       success: true,
     };
   },
-};
+} as IResolverObject<any, ApiContext>;

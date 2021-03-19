@@ -1,10 +1,15 @@
+import {
+  ApolloError,
+  AuthenticationError,
+  ForbiddenError,
+  IResolverObject,
+} from 'apollo-server';
 import isNil from 'lodash/fp/isNil';
 import max from 'lodash/fp/max';
 import omitBy from 'lodash/fp/omitBy';
 
-import { AuthenticationError, ForbiddenError } from 'apollo-server';
-
 import constants from '../../../constants';
+import ApiContext from '../../../models/ApiContext';
 
 const { DEFAULT_VOICE_ID } = constants;
 
@@ -19,6 +24,10 @@ export default {
         id: parseInt(input.songId, 10),
       },
     });
+
+    if (!song) {
+      throw new ApolloError('Could not find corresponding song.');
+    }
 
     if (currentUser.id !== song.userId) {
       throw new ForbiddenError(
@@ -82,6 +91,10 @@ export default {
       })
       .song();
 
+    if (!song) {
+      throw new ApolloError('Could not find corresponding song.');
+    }
+
     if (currentUser.id !== song.userId) {
       throw new ForbiddenError(
         'Logged in user does not have permission to edit this song.',
@@ -117,6 +130,10 @@ export default {
         },
       })
       .song();
+
+    if (!song) {
+      throw new ApolloError('Could not find corresponding song.');
+    }
 
     if (currentUser.id !== song.userId) {
       throw new ForbiddenError(
@@ -156,4 +173,4 @@ export default {
       track: updatedTrack,
     };
   },
-};
+} as IResolverObject<any, ApiContext>;

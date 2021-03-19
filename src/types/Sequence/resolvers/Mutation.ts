@@ -1,6 +1,13 @@
-import { AuthenticationError, ForbiddenError } from 'apollo-server';
+import {
+  ApolloError,
+  AuthenticationError,
+  ForbiddenError,
+  IResolverObject,
+} from 'apollo-server';
 import isNil from 'lodash/fp/isNil';
 import omitBy from 'lodash/fp/omitBy';
+
+import ApiContext from '../../../models/ApiContext';
 
 export default {
   createSequence: async (_, { input }, { currentUser, prisma }) => {
@@ -15,6 +22,10 @@ export default {
         },
       })
       .song();
+
+    if (!song) {
+      throw new ApolloError('Could not find corresponding song.');
+    }
 
     if (currentUser.id !== song.userId) {
       throw new ForbiddenError(
@@ -72,6 +83,10 @@ export default {
       .track()
       .song();
 
+    if (!song) {
+      throw new ApolloError('Could not find corresponding song.');
+    }
+
     if (currentUser.id !== song.userId) {
       throw new ForbiddenError(
         'Logged in user does not have permission to edit this song.',
@@ -95,6 +110,16 @@ export default {
       throw new AuthenticationError('You are not authenticated.');
     }
 
+    const sequence = await prisma.sequence.findUnique({
+      where: {
+        id: parseInt(id, 10),
+      },
+    });
+
+    if (!sequence) {
+      throw new ApolloError('Could not find sequence.');
+    }
+
     const song = await prisma.sequence
       .findUnique({
         where: {
@@ -104,17 +129,15 @@ export default {
       .track()
       .song();
 
+    if (!song) {
+      throw new ApolloError('Could not find corresponding song.');
+    }
+
     if (currentUser.id !== song.userId) {
       throw new ForbiddenError(
         'Logged in user does not have permission to edit this song.',
       );
     }
-
-    const sequence = await prisma.sequence.findUnique({
-      where: {
-        id: parseInt(id, 10),
-      },
-    });
 
     const sequenceNotes = await prisma.note.findMany({
       where: {
@@ -142,7 +165,7 @@ export default {
             points: JSON.stringify(note.points),
             sequence: {
               connect: {
-                id: parseInt(newSequence.id, 10),
+                id: newSequence.id,
               },
             },
           },
@@ -186,6 +209,10 @@ export default {
       .track()
       .song();
 
+    if (!song) {
+      throw new ApolloError('Could not find corresponding song.');
+    }
+
     if (currentUser.id !== song.userId) {
       throw new ForbiddenError(
         'Logged in user does not have permission to edit this song.',
@@ -225,4 +252,4 @@ export default {
       success: true,
     };
   },
-};
+} as IResolverObject<any, ApiContext>;
