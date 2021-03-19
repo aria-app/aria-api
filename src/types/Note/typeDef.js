@@ -53,7 +53,6 @@ module.exports = gql`
   input UpdateNotesInputNote {
     id: ID!
     points: [UpdateNotesInputNotePoint]!
-    sequenceId: ID!
   }
 
   input UpdateNotesInputNotePoint {
