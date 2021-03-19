@@ -1,9 +1,13 @@
 import {
+  ApolloError,
   AuthenticationError,
   ForbiddenError,
+  IResolverObject,
   ValidationError,
 } from 'apollo-server';
 import isEmpty from 'lodash/fp/isEmpty';
+
+import ApiContext from '../../../models/ApiContext';
 
 export default {
   createNote: async (_, { input }, { currentUser, prisma }) => {
@@ -19,6 +23,10 @@ export default {
       })
       .track()
       .song();
+
+    if (!song) {
+      throw new ApolloError('Could not find corresponding song.');
+    }
 
     if (currentUser.id !== song.userId) {
       throw new ForbiddenError(
@@ -75,6 +83,10 @@ export default {
       .track()
       .song();
 
+    if (!song) {
+      throw new ApolloError('Could not find corresponding song.');
+    }
+
     if (currentUser.id !== song.userId) {
       throw new ForbiddenError(
         'Logged in user does not have permission to edit this song.',
@@ -117,6 +129,10 @@ export default {
       .track()
       .song();
 
+    if (!song) {
+      throw new ApolloError('Could not find corresponding song.');
+    }
+
     if (currentUser.id !== song.userId) {
       throw new ForbiddenError(
         'Logged in user does not have permission to edit this song.',
@@ -136,7 +152,7 @@ export default {
             points: note.points,
             sequence: {
               connect: {
-                id: parseInt(note.sequenceId, 10),
+                id: note.sequenceId || 0,
               },
             },
           },
@@ -182,6 +198,10 @@ export default {
       .track()
       .song();
 
+    if (!song) {
+      throw new ApolloError('Could not find corresponding song.');
+    }
+
     if (currentUser.id !== song.userId) {
       throw new ForbiddenError(
         'Logged in user does not have permission to edit this song.',
@@ -219,4 +239,4 @@ export default {
       success: true,
     };
   },
-};
+} as IResolverObject<any, ApiContext>;
