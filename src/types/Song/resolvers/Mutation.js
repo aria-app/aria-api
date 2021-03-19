@@ -1,9 +1,8 @@
 const {
+  ApolloError,
   AuthenticationError,
   ForbiddenError,
-  UserInputError,
 } = require('apollo-server');
-const isEqual = require('lodash/fp/isEqual');
 const isNil = require('lodash/fp/isNil');
 const omitBy = require('lodash/fp/omitBy');
 
@@ -11,16 +10,22 @@ const DEFAULT_BPM = 120;
 const DEFAULT_MEASURE_COUNT = 4;
 
 module.exports = {
-  createSong: async (_, { options }, { currentUser, models }) => {
+  createSong: async (_, { options }, { currentUser, prisma }) => {
     if (!currentUser) {
       throw new AuthenticationError('You are not authenticated.');
     }
 
-    const newSong = await models.Song.create({
-      bpm: DEFAULT_BPM,
-      measure_count: DEFAULT_MEASURE_COUNT,
-      user_id: currentUser.id,
-      ...options,
+    const newSong = await prisma.song.create({
+      data: {
+        bpm: DEFAULT_BPM,
+        measureCount: DEFAULT_MEASURE_COUNT,
+        userId: currentUser.id,
+        ...options,
+      },
+      include: {
+        tracks: true,
+        user: true,
+      },
     });
 
     return {
@@ -30,18 +35,22 @@ module.exports = {
     };
   },
 
-  deleteSong: async (_, { id }, { currentUser, models }) => {
+  deleteSong: async (_, { id }, { currentUser, prisma }) => {
     if (!currentUser) {
       throw new AuthenticationError('You are not authenticated.');
     }
 
-    const song = await models.Song.findOneById(id);
+    const song = await prisma.song.findUnique({
+      where: { id: parseInt(id, 10) },
+    });
 
-    if (String(currentUser.id) !== String(song.user_id)) {
+    if (String(currentUser.id) !== String(song.userId)) {
       throw new ForbiddenError('You are not authorized to view this data.');
     }
 
-    await models.Song.delete(id);
+    await prisma.song.delete({
+      where: { id: parseInt(id, 10) },
+    });
 
     return {
       message: 'Song was deleted successfully.',
@@ -49,43 +58,37 @@ module.exports = {
     };
   },
 
-  updateSong: async (_, { input }, { currentUser, models }) => {
+  updateSong: async (_, { input }, { currentUser, prisma }) => {
     if (!currentUser) {
       throw new AuthenticationError('You are not authenticated.');
     }
 
-    const song = await models.Song.findOneById(input.id);
+    const song = await prisma.song.findUnique({
+      where: { id: parseInt(input.id, 10) },
+    });
 
-    if (currentUser.id !== song.user_id) {
+    if (!song) {
+      throw new ApolloError(`Song with id ${input.id} not found.`);
+    }
+
+    if (currentUser.id !== song.userId) {
       throw new ForbiddenError('You are not authorized to view this data.');
     }
 
-    if (
-      isEqual(
-        {
-          bpm: input.bpm,
-          measure_count: input.measureCount,
-          name: input.name,
-        },
-        {
-          bpm: song.bpm,
-          measure_count: song.measure_count,
-          name: song.name,
-        },
-      )
-    ) {
-      throw new UserInputError('No changes submitted');
-    }
-
-    const updatedSong = await models.Song.update(
-      input.id,
-      omitBy(isNil, {
+    const updatedSong = await prisma.song.update({
+      data: omitBy(isNil, {
         bpm: input.bpm,
-        date_modified: new Date(),
-        measure_count: input.measureCount,
+        measureCount: input.measureCount,
         name: input.name,
       }),
-    );
+      include: {
+        tracks: true,
+        user: true,
+      },
+      where: {
+        id: parseInt(input.id, 10),
+      },
+    });
 
     return {
       message: 'Song was updated successfully.',

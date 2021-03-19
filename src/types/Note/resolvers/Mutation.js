@@ -1,24 +1,52 @@
-const { AuthenticationError, ForbiddenError } = require('apollo-server');
+const {
+  AuthenticationError,
+  ForbiddenError,
+  ValidationError,
+} = require('apollo-server');
+const isEmpty = require('lodash/fp/isEmpty');
 
 module.exports = {
-  createNote: async (_, { input }, { currentUser, models }) => {
+  createNote: async (_, { input }, { currentUser, prisma }) => {
     if (!currentUser) {
       throw new AuthenticationError('You are not authenticated.');
     }
 
-    const sequence = await models.Sequence.findOneById(input.sequenceId);
-    const track = await models.Track.findOneById(sequence.track_id);
-    const song = await models.Song.findOneById(track.song_id);
+    const song = await prisma.sequence
+      .findUnique({
+        where: {
+          id: parseInt(input.sequenceId, 10),
+        },
+      })
+      .track()
+      .song();
 
-    if (currentUser.id !== song.user_id) {
+    if (currentUser.id !== song.userId) {
       throw new ForbiddenError(
         'Logged in user does not have permission to edit this song.',
       );
     }
 
-    const newNote = await models.Note.create({
-      points: JSON.stringify(input.points),
-      sequence_id: input.sequenceId,
+    const newNote = await prisma.note.create({
+      data: {
+        points: input.points,
+        sequence: {
+          connect: {
+            id: parseInt(input.sequenceId, 10),
+          },
+        },
+      },
+      include: {
+        sequence: {
+          select: {
+            id: true,
+          },
+        },
+      },
+    });
+
+    await prisma.song.update({
+      data: { updatedAt: new Date() },
+      where: { id: song.id },
     });
 
     return {
@@ -28,23 +56,41 @@ module.exports = {
     };
   },
 
-  deleteNotes: async (_, { ids }, { currentUser, models }) => {
+  deleteNotes: async (_, { ids }, { currentUser, prisma }) => {
     if (!currentUser) {
       throw new AuthenticationError('You are not authenticated.');
     }
 
-    const note = await models.Note.findOneById(ids[0]);
-    const sequence = await models.Sequence.findOneById(note.sequence_id);
-    const track = await models.Track.findOneById(sequence.track_id);
-    const song = await models.Song.findOneById(track.song_id);
+    if (isEmpty(ids)) {
+      throw new ValidationError('Note IDs to delete must be provided.');
+    }
 
-    if (currentUser.id !== song.user_id) {
+    const song = await prisma.note
+      .findUnique({
+        where: {
+          id: parseInt(ids[0], 10),
+        },
+      })
+      .sequence()
+      .track()
+      .song();
+
+    if (currentUser.id !== song.userId) {
       throw new ForbiddenError(
         'Logged in user does not have permission to edit this song.',
       );
     }
 
-    await models.Note.deleteMany(ids);
+    await prisma.note.deleteMany({
+      where: {
+        id: { in: ids.map((id) => parseInt(id, 10)) },
+      },
+    });
+
+    await prisma.song.update({
+      data: { updatedAt: new Date() },
+      where: { id: song.id },
+    });
 
     return {
       message: 'Notes were deleted successfully.',
@@ -52,30 +98,63 @@ module.exports = {
     };
   },
 
-  duplicateNotes: async (_, { ids }, { currentUser, models }) => {
+  duplicateNotes: async (_, { ids }, { currentUser, prisma }) => {
     if (!currentUser) {
       throw new AuthenticationError('You are not authenticated.');
     }
 
-    const notes = await models.Note.findMany(ids);
-    const sequence = await models.Sequence.findOneById(notes[0].sequence_id);
-    const track = await models.Track.findOneById(sequence.track_id);
-    const song = await models.Song.findOneById(track.song_id);
+    if (isEmpty(ids)) {
+      throw new ValidationError('Note IDs to duplicate must be provided.');
+    }
 
-    if (currentUser.id !== song.user_id) {
+    const song = await prisma.note
+      .findUnique({
+        where: {
+          id: parseInt(ids[0], 10),
+        },
+      })
+      .sequence()
+      .track()
+      .song();
+
+    if (currentUser.id !== song.userId) {
       throw new ForbiddenError(
         'Logged in user does not have permission to edit this song.',
       );
     }
 
+    const notes = await prisma.note.findMany({
+      where: {
+        id: { in: ids.map((id) => parseInt(id, 10)) },
+      },
+    });
+
     const newNotes = await Promise.all(
       notes.map((note) =>
-        models.Note.create({
-          points: JSON.stringify(note.points),
-          sequence_id: note.sequence_id,
+        prisma.note.create({
+          data: {
+            points: note.points,
+            sequence: {
+              connect: {
+                id: parseInt(note.sequenceId, 10),
+              },
+            },
+          },
+          include: {
+            sequence: {
+              select: {
+                id: true,
+              },
+            },
+          },
         }),
       ),
     );
+
+    await prisma.song.update({
+      data: { updatedAt: new Date() },
+      where: { id: song.id },
+    });
 
     return {
       message: 'Notes were duplicated successfully.',
@@ -84,31 +163,55 @@ module.exports = {
     };
   },
 
-  updateNotes: async (_, { input }, { currentUser, models }) => {
+  updateNotes: async (_, { input }, { currentUser, prisma }) => {
     if (!currentUser) {
       throw new AuthenticationError('You are not authenticated.');
     }
 
-    const sequence = await models.Sequence.findOneById(
-      input.notes[0].sequenceId,
-    );
-    const track = await models.Track.findOneById(sequence.track_id);
-    const song = await models.Song.findOneById(track.song_id);
+    if (isEmpty(input.notes)) {
+      throw new ValidationError('Notes to update must be provided.');
+    }
 
-    if (currentUser.id !== song.user_id) {
+    const song = await prisma.note
+      .findUnique({
+        where: {
+          id: parseInt(input.notes[0].id, 10),
+        },
+      })
+      .sequence()
+      .track()
+      .song();
+
+    if (currentUser.id !== song.userId) {
       throw new ForbiddenError(
         'Logged in user does not have permission to edit this song.',
       );
     }
 
-    const updatedNotes = await models.Note.updateMany(
-      input.notes.map((note) => ({
-        id: note.id,
-        updates: {
-          points: JSON.stringify(note.points),
-        },
-      })),
+    const updatedNotes = await Promise.all(
+      input.notes.map((note) =>
+        prisma.note.update({
+          data: {
+            points: note.points,
+          },
+          include: {
+            sequence: {
+              select: {
+                id: true,
+              },
+            },
+          },
+          where: {
+            id: parseInt(note.id, 10),
+          },
+        }),
+      ),
     );
+
+    await prisma.song.update({
+      data: { updatedAt: new Date() },
+      where: { id: song.id },
+    });
 
     return {
       message: 'Notes were updated successfully.',

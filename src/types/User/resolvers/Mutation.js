@@ -16,37 +16,17 @@ const hashPassword = require('../../../helpers/hashPassword');
 const verifyPassword = require('../../../helpers/verifyPassword');
 
 module.exports = {
-  deleteUser: async (_, { id }, { currentUser, models }) => {
-    if (!currentUser) {
-      throw new AuthenticationError('You are not authenticated.');
-    }
-
-    const user = await models.User.findOneById(id);
-
-    if (String(currentUser.id) !== String(user.id)) {
-      throw new ForbiddenError(
-        'Logged in user does not have permission to manage this user.',
-      );
-    }
-
-    await models.User.delete(id);
-
-    return {
-      message: 'User was deleted successfully.',
-      success: true,
-    };
-  },
-
-  login: async (_, { email, password }, { models, res }) => {
+  login: async (_, { email, password }, { res, prisma }) => {
     if (!isEmail.validate(email)) {
       throw new ValidationError('Email format invalid.');
     }
 
-    const user = await models.User.findOneByEmail(email);
+    const user = await prisma.user.findUnique({ where: { email } });
 
     if (!user) {
       throw new ForbiddenError('Email or password is incorrect.');
     }
+
     const isPasswordVerified = await verifyPassword({
       attemptedPassword: password,
       hashedPassword: user.password,
@@ -95,7 +75,7 @@ module.exports = {
   register: async (
     _,
     { email, firstName, lastName, password },
-    { models, res },
+    { res, prisma },
   ) => {
     const formattedEmail = email.toLowerCase();
 
@@ -103,22 +83,24 @@ module.exports = {
       throw new ValidationError('Email format invalid.');
     }
 
-    const isExistingUserEmail = await models.User.findOneByEmail(
-      formattedEmail,
-    );
+    const existingUserWithEmail = await prisma.user.findUnique({
+      where: { email },
+    });
 
-    if (isExistingUserEmail) {
+    if (existingUserWithEmail) {
       throw new ValidationError('User with that email already exists.');
     }
 
     try {
       const hashedPassword = await hashPassword(password);
 
-      const newUser = await models.User.create({
-        email: formattedEmail,
-        first_name: firstName,
-        last_name: lastName,
-        password: hashedPassword,
+      const newUser = await prisma.user.create({
+        data: {
+          email: formattedEmail,
+          firstName,
+          lastName,
+          password: hashedPassword,
+        },
       });
 
       const userInfo = {
@@ -148,18 +130,16 @@ module.exports = {
     }
   },
 
-  updateUser: async (_, { input }, { currentUser, models }) => {
+  updateUser: async (_, { input }, { currentUser, prisma }) => {
     if (!currentUser) {
       throw new AuthenticationError('You are not authenticated.');
     }
 
-    const isCurrentUserAdmin = !!(await models.Admin.findOneByUserId(
-      currentUser.id,
-    ));
+    const user = await prisma.user.findUnique({
+      where: { id: parseInt(input.id, 10) },
+    });
 
-    const user = await models.User.findOneById(input.id);
-
-    if (!isCurrentUserAdmin && currentUser.id !== user.id) {
+    if (user.role !== 'ADMIN' && currentUser.id !== user.id) {
       throw new ForbiddenError(
         'Logged in user does not have permission to manage this user.',
       );
@@ -169,39 +149,41 @@ module.exports = {
       isEqual(
         {
           email: input.email,
-          first_name: input.firstName,
-          last_name: input.lastName,
+          firstName: input.firstName,
+          lastName: input.lastName,
         },
         {
           email: user.email,
-          first_name: user.first_name,
-          last_name: user.last_name,
+          firstName: user.firstName,
+          lastName: user.lastName,
         },
       )
     ) {
       throw new UserInputError('No changes submitted');
     }
 
-    if (!isEmail.validate(input.email)) {
+    if (!isNil(input.email) && !isEmail.validate(input.email)) {
       throw new ValidationError('Email format invalid.');
     }
 
-    if (input.email !== user.email) {
-      const isExistingUserEmail = await models.User.findOneByEmail(input.email);
+    if (!isNil(input.email) && input.email !== user.email) {
+      const existingUserWithEmail = await prisma.user.findUnique({
+        where: { email: input.email },
+      });
 
-      if (isExistingUserEmail) {
+      if (existingUserWithEmail) {
         throw new ValidationError('User with that email already exists.');
       }
     }
 
-    const updatedUser = await models.User.update(
-      input.id,
-      omitBy(isNil, {
+    const updatedUser = await prisma.user.update({
+      data: omitBy(isNil, {
         email: input.email,
-        first_name: input.firstName,
-        last_name: input.lastName,
+        firstName: input.firstName,
+        lastName: input.lastName,
       }),
-    );
+      where: { id: parseInt(input.id, 10) },
+    });
 
     return {
       message: 'User was updated successfully.',

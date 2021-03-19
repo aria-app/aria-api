@@ -1,4 +1,42 @@
 module.exports = {
-  track: (_, { id }, { models }) => models.Track.findOneById(id),
-  tracks: (_, { songId }, { models }) => models.Track.findBySongId(songId),
+  track: (_, { id }, { prisma }) =>
+    prisma.track.findUnique({
+      include: {
+        sequences: {
+          include: {
+            track: {
+              select: {
+                id: true,
+              },
+            },
+          },
+        },
+        song: true,
+        voice: true,
+      },
+      where: {
+        id: parseInt(id, 10),
+      },
+    }),
+  tracks: (_, { songId }, { prisma }) =>
+    prisma.track.findMany({
+      include: {
+        sequences: {
+          include: {
+            track: {
+              select: {
+                id: true,
+              },
+            },
+          },
+        },
+        song: true,
+        voice: true,
+      },
+      where: {
+        song: {
+          id: parseInt(songId, 10),
+        },
+      },
+    }),
 };

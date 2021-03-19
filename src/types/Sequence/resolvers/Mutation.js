@@ -1,31 +1,54 @@
-const {
-  AuthenticationError,
-  ForbiddenError,
-  UserInputError,
-} = require('apollo-server');
-const isEqual = require('lodash/fp/isEqual');
+const { AuthenticationError, ForbiddenError } = require('apollo-server');
 const isNil = require('lodash/fp/isNil');
 const omitBy = require('lodash/fp/omitBy');
 
 module.exports = {
-  createSequence: async (_, { input }, { currentUser, models }) => {
+  createSequence: async (_, { input }, { currentUser, prisma }) => {
     if (!currentUser) {
       throw new AuthenticationError('You are not authenticated.');
     }
 
-    const track = await models.Track.findOneById(input.trackId);
-    const song = await models.Song.findOneById(track.song_id);
+    const song = await prisma.track
+      .findUnique({
+        where: {
+          id: parseInt(input.trackId, 10),
+        },
+      })
+      .song();
 
-    if (currentUser.id !== song.user_id) {
+    if (currentUser.id !== song.userId) {
       throw new ForbiddenError(
         'Logged in user does not have permission to edit this song.',
       );
     }
 
-    const newSequence = await models.Sequence.create({
-      measure_count: 1,
-      position: input.position,
-      track_id: input.trackId,
+    const newSequence = await prisma.sequence.create({
+      data: {
+        measureCount: 1,
+        position: input.position,
+        track: {
+          connect: {
+            id: parseInt(input.trackId, 10),
+          },
+        },
+      },
+      include: {
+        notes: {
+          include: {
+            sequence: {
+              select: {
+                id: true,
+              },
+            },
+          },
+        },
+        track: true,
+      },
+    });
+
+    await prisma.song.update({
+      data: { updatedAt: new Date() },
+      where: { id: song.id },
     });
 
     return {
@@ -35,22 +58,31 @@ module.exports = {
     };
   },
 
-  deleteSequence: async (_, { id }, { currentUser, models }) => {
+  deleteSequence: async (_, { id }, { currentUser, prisma }) => {
     if (!currentUser) {
       throw new AuthenticationError('You are not authenticated.');
     }
 
-    const sequence = await models.Sequence.findOneById(id);
-    const track = await models.Track.findOneById(sequence.track_id);
-    const song = await models.Song.findOneById(track.song_id);
+    const song = await prisma.sequence
+      .findUnique({
+        where: {
+          id: parseInt(id, 10),
+        },
+      })
+      .track()
+      .song();
 
-    if (currentUser.id !== song.user_id) {
+    if (currentUser.id !== song.userId) {
       throw new ForbiddenError(
         'Logged in user does not have permission to edit this song.',
       );
     }
 
-    await models.Sequence.delete(id);
+    await prisma.sequence.delete({
+      where: {
+        id: parseInt(id, 10),
+      },
+    });
 
     return {
       message: 'Sequence was deleted successfully.',
@@ -58,82 +90,134 @@ module.exports = {
     };
   },
 
-  duplicateSequence: async (_, { id }, { currentUser, models }) => {
+  duplicateSequence: async (_, { id }, { currentUser, prisma }) => {
     if (!currentUser) {
       throw new AuthenticationError('You are not authenticated.');
     }
 
-    const sequence = await models.Sequence.findOneById(id);
-    const track = await models.Track.findOneById(sequence.track_id);
-    const song = await models.Song.findOneById(track.song_id);
+    const song = await prisma.sequence
+      .findUnique({
+        where: {
+          id: parseInt(id, 10),
+        },
+      })
+      .track()
+      .song();
 
-    if (currentUser.id !== song.user_id) {
+    if (currentUser.id !== song.userId) {
       throw new ForbiddenError(
         'Logged in user does not have permission to edit this song.',
       );
     }
 
-    const sequenceNotes = await models.Note.findBySequenceId(id);
-
-    const newSequence = await models.Sequence.create({
-      measure_count: sequence.measure_count,
-      position: sequence.position,
-      track_id: sequence.track_id,
+    const sequence = await prisma.sequence.findUnique({
+      where: {
+        id: parseInt(id, 10),
+      },
     });
 
-    await Promise.all(
+    const sequenceNotes = await prisma.note.findMany({
+      where: {
+        sequence: {
+          id: parseInt(id, 10),
+        },
+      },
+    });
+
+    const newSequence = await prisma.sequence.create({
+      data: {
+        measureCount: sequence.measureCount,
+        position: sequence.position,
+        trackId: sequence.trackId,
+      },
+      include: {
+        track: true,
+      },
+    });
+
+    const newNotes = await Promise.all(
       sequenceNotes.map((note) =>
-        models.Note.create({
-          points: JSON.stringify(note.points),
-          sequence_id: newSequence.id,
+        prisma.note.create({
+          data: {
+            points: JSON.stringify(note.points),
+            sequence: {
+              connect: {
+                id: parseInt(newSequence.id, 10),
+              },
+            },
+          },
+          include: {
+            sequence: {
+              select: {
+                id: true,
+              },
+            },
+          },
         }),
       ),
     );
 
+    await prisma.song.update({
+      data: { updatedAt: new Date() },
+      where: { id: song.id },
+    });
+
     return {
       message: 'Sequence was duplicated successfully.',
-      sequence: newSequence,
+      sequence: {
+        ...newSequence,
+        notes: newNotes,
+      },
       success: true,
     };
   },
 
-  updateSequence: async (_, { input }, { currentUser, models }) => {
+  updateSequence: async (_, { input }, { currentUser, prisma }) => {
     if (!currentUser) {
       throw new AuthenticationError('You are not authenticated.');
     }
 
-    const sequence = await models.Sequence.findOneById(input.id);
-    const track = await models.Track.findOneById(sequence.track_id);
-    const song = await models.Song.findOneById(track.song_id);
+    const song = await prisma.sequence
+      .findUnique({
+        where: {
+          id: parseInt(input.id, 10),
+        },
+      })
+      .track()
+      .song();
 
-    if (currentUser.id !== song.user_id) {
+    if (currentUser.id !== song.userId) {
       throw new ForbiddenError(
         'Logged in user does not have permission to edit this song.',
       );
     }
 
-    if (
-      isEqual(
-        {
-          measure_count: input.measureCount,
-          position: input.position,
-        },
-        {
-          measureCount: sequence.measureCount,
-          position: sequence.position,
-        },
-      )
-    ) {
-      throw new UserInputError('No changes submitted');
-    }
-
-    const updatedSequence = await models.Sequence.update(
-      input.id,
-      omitBy(isNil, {
-        measure_count: input.measureCount,
+    const updatedSequence = await prisma.sequence.update({
+      data: omitBy(isNil, {
+        measureCount: input.measureCount,
         position: input.position,
       }),
-    );
+      include: {
+        notes: {
+          include: {
+            sequence: {
+              select: {
+                id: true,
+              },
+            },
+          },
+        },
+        track: true,
+      },
+      where: {
+        id: parseInt(input.id, 10),
+      },
+    });
+
+    await prisma.song.update({
+      data: { updatedAt: new Date() },
+      where: { id: song.id },
+    });
 
     return {
       message: 'Sequence was updated successfully.',

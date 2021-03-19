@@ -1,66 +1,79 @@
 const { AuthenticationError, ForbiddenError } = require('apollo-server');
+const isNil = require('lodash/fp/isNil');
 
 module.exports = {
   me: async (_, __, { currentUser }) => {
     return currentUser;
   },
 
-  user: async (_, { id }, { currentUser, models }) => {
+  user: async (_, { id }, { currentUser, prisma }) => {
     if (!currentUser) {
       throw new AuthenticationError('You are not authenticated.');
     }
 
-    const isCurrentUserAdmin = !!(await models.Admin.findOneByUserId(
-      currentUser.id,
-    ));
-
-    if (!isCurrentUserAdmin) {
+    if (currentUser.role !== 'ADMIN') {
       throw new ForbiddenError('You are not authorized to view this data.');
     }
 
-    return models.User.findOneById(id);
+    return prisma.user.findUnique({ where: { id: parseInt(id, 10) } });
   },
 
   users: async (
     _,
-    {
-      limit = 'ALL',
-      page = 1,
-      search = '',
-      sort = 'firstName',
-      sortDirection = 'asc',
-    },
-    { currentUser, models },
+    { limit, page = 1, search = '', sort = 'firstName', sortDirection = 'asc' },
+    { currentUser, prisma },
   ) => {
     if (!currentUser) {
       throw new AuthenticationError('You are not authenticated.');
     }
 
-    const isCurrentUserAdmin = !!(await models.Admin.findOneByUserId(
-      currentUser.id,
-    ));
-
-    if (!isCurrentUserAdmin) {
+    if (currentUser.role !== 'ADMIN') {
       throw new ForbiddenError('You are not authorized to view this data.');
     }
 
-    const usersPage = await models.User.find({
-      limit,
-      offset: page - 1,
-      search,
-      sort,
-      sortDirection,
+    const filters = search
+      ? {
+          where: {
+            OR: [
+              {
+                firstName: {
+                  contains: search,
+                  mode: 'insensitive',
+                },
+              },
+              {
+                lastName: {
+                  contains: search,
+                  mode: 'insensitive',
+                },
+              },
+            ],
+          },
+        }
+      : {};
+
+    const usersPage = await prisma.user.findMany({
+      ...(!isNil(limit)
+        ? {
+            skip: (page - 1) * limit,
+            take: limit,
+          }
+        : {}),
+      ...filters,
+      orderBy: {
+        [sort]: sortDirection,
+      },
     });
 
-    const totalItemCount = await models.User.count({
-      search,
+    const totalItemCount = await prisma.user.count({
+      ...filters,
     });
 
     return {
       data: usersPage,
       meta: {
         currentPage: page,
-        itemsPerPage: limit === 'ALL' ? totalItemCount : limit,
+        itemsPerPage: isNil(limit) ? totalItemCount : limit,
         totalItemCount,
       },
     };

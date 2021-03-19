@@ -3,22 +3,57 @@ const {
   AuthenticationError,
   ForbiddenError,
 } = require('apollo-server');
+const isNil = require('lodash/fp/isNil');
 
 module.exports = {
-  song: async (_, { id }, { currentUser, models }) => {
+  song: async (_, { id }, { currentUser, prisma }) => {
     if (!currentUser) {
       throw new AuthenticationError('You are not authenticated.');
     }
 
-    const song = await models.Song.findOneById(id);
+    const song = await prisma.song.findUnique({
+      include: {
+        tracks: {
+          include: {
+            sequences: {
+              include: {
+                notes: {
+                  include: {
+                    sequence: {
+                      select: {
+                        id: true,
+                      },
+                    },
+                  },
+                },
+                track: {
+                  select: {
+                    id: true,
+                  },
+                },
+              },
+            },
+            song: {
+              select: {
+                id: true,
+              },
+            },
+            voice: true,
+          },
+        },
+        user: true,
+      },
+      where: { id: parseInt(id, 10) },
+    });
 
     if (!song) {
       throw new ApolloError('Song was not found', 'NOT_FOUND');
     }
 
-    const isAdmin = !!(await models.Admin.findOneByUserId(currentUser.id));
-
-    if (!isAdmin && String(currentUser.id) !== String(song.user_id)) {
+    if (
+      currentUser.role !== 'ADMIN' &&
+      String(currentUser.id) !== String(song.userId)
+    ) {
       throw new ForbiddenError('You are not authorized to view this data.');
     }
 
@@ -27,45 +62,68 @@ module.exports = {
 
   songs: async (
     _,
-    {
-      limit = 'ALL',
-      page = 1,
-      search,
-      sort = 'name',
-      sortDirection = 'asc',
-      userId,
-    },
-    { currentUser, models },
+    { limit, page = 1, search, sort = 'name', sortDirection = 'asc', userId },
+    { currentUser, prisma },
   ) => {
     if (!currentUser) {
       throw new AuthenticationError('You are not authenticated.');
     }
 
-    const isAdmin = !!(await models.Admin.findOneByUserId(currentUser.id));
-
-    if (!isAdmin && userId && String(currentUser.id) !== String(userId)) {
+    if (
+      currentUser.role !== 'ADMIN' &&
+      userId &&
+      String(currentUser.id) !== String(userId)
+    ) {
       throw new ForbiddenError('You are not authorized to view this data.');
     }
 
-    const songsPage = await models.Song.find({
-      search,
-      limit,
-      offset: page - 1,
-      sort,
-      sortDirection,
-      userId: !isAdmin || userId ? userId || currentUser.id : undefined,
+    const filteredUserId =
+      currentUser.role !== 'ADMIN' || userId
+        ? parseInt(userId || currentUser.id, 10)
+        : undefined;
+
+    const songsPage = await prisma.song.findMany({
+      include: {
+        tracks: {
+          select: {
+            id: true,
+          },
+        },
+        user: true,
+      },
+      orderBy: {
+        [sort]: sortDirection,
+      },
+      ...(!isNil(limit)
+        ? {
+            skip: (page - 1) * limit,
+            take: limit,
+          }
+        : {}),
+      where: {
+        name: {
+          contains: search,
+          mode: 'insensitive',
+        },
+        userId: filteredUserId,
+      },
     });
 
-    const totalItemCount = await models.Song.count({
-      search,
-      userId: !isAdmin || userId ? userId || currentUser.id : undefined,
+    const totalItemCount = await prisma.song.count({
+      where: {
+        name: {
+          contains: search,
+          mode: 'insensitive',
+        },
+        userId: filteredUserId,
+      },
     });
 
     return {
       data: songsPage,
       meta: {
         currentPage: page,
-        itemsPerPage: limit === 'ALL' ? totalItemCount : limit,
+        itemsPerPage: isNil(limit) ? totalItemCount : limit,
         totalItemCount,
       },
     };
