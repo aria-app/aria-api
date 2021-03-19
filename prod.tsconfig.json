@@ -5,10 +5,12 @@
     "module": "commonjs",
     "moduleResolution": "node",
     "noImplicitAny": false,
+    "outDir": "dist",
     "removeComments": true,
-    "rootDir": ".",
-    "sourceMap": true,
+    "rootDir": "src",
+    "sourceMap": false,
     "strict": true,
     "target": "ES2018"
-  }
+  },
+  "exclude": ["prisma/**/*"]
 }

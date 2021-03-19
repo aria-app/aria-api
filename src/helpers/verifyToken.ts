@@ -1,8 +1,8 @@
 import jwt from 'jsonwebtoken';
 
-export default function verifyToken(
-  token: string,
-): Promise<Record<string, any>> {
+import DecodedAuthToken from '../models/DecodedAuthToken';
+
+export default function verifyToken(token: string): Promise<DecodedAuthToken> {
   return new Promise((resolve, reject) => {
     jwt.verify(
       token,

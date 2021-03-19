@@ -4,13 +4,13 @@
   "description": "Main API for Aria.",
   "main": "index.js",
   "scripts": {
-    "build": "yarn clean && tsc",
-    "ci": "yarn run lint && yarn build && yarn test --coverage && npx codecov",
+    "build": "tsc --project prod.tsconfig.json",
     "clean": "rimraf coverage dist",
     "dev": "ts-node-dev --transpile-only --no-notify src/index.ts",
     "lint": "eslint --cache --fix src/**/*.ts && prettier --write src/**/*.ts",
+    "migrate": "prisma migrate deploy",
     "reset": "prisma migrate reset -f && prisma generate",
-    "start": "ts-node --transpile-only src/index.ts",
+    "start": "node dist/index.js",
     "test": "jest --passWithNoTests"
   },
   "repository": {

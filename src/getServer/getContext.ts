@@ -1,5 +1,5 @@
 import cookie from 'cookie';
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient, User } from '@prisma/client';
 
 import verifyToken from '../helpers/verifyToken';
 
@@ -30,7 +30,7 @@ export default function getContext({
       };
     }
     let isAuthenticated = false;
-    let currentUser = null;
+    let currentUser: User | null = null;
     try {
       const cookies = req.headers.cookie
         ? cookie.parse(req.headers.cookie)
@@ -45,13 +45,13 @@ export default function getContext({
         const payload = await verifyToken(token);
         isAuthenticated = !!(payload && payload.sub);
         currentUser =
-          payload &&
-          payload.sub &&
-          (await prisma.user.findUnique({
-            where: {
-              id: parseInt(payload.sub, 10),
-            },
-          }));
+          payload && payload.sub
+            ? await prisma.user.findUnique({
+                where: {
+                  id: parseInt(payload.sub, 10),
+                },
+              })
+            : null;
       }
     } catch (error) {
       if (!['jwt expired'].includes(error.message)) {

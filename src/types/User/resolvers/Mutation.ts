@@ -14,6 +14,7 @@ import omitBy from 'lodash/fp/omitBy';
 import createToken from '../../../helpers/createToken';
 import hashPassword from '../../../helpers/hashPassword';
 import verifyPassword from '../../../helpers/verifyPassword';
+import DecodedAuthToken from '../../../models/DecodedAuthToken';
 
 export default {
   login: async (_, { email, password }, { res, prisma }) => {
@@ -43,7 +44,7 @@ export default {
       };
 
       const token = await createToken(userInfo);
-      const decodedToken = jwtDecode(token);
+      const decodedToken = jwtDecode<DecodedAuthToken>(token);
       const expiresAt = decodedToken.exp;
 
       res.cookie('token', token, {
@@ -109,7 +110,7 @@ export default {
       };
 
       const token = await createToken(userInfo);
-      const decodedToken = jwtDecode(token);
+      const decodedToken = jwtDecode<DecodedAuthToken>(token);
       const expiresAt = decodedToken.exp;
 
       res.cookie('token', token, {
