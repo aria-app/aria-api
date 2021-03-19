@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "build": "yarn clean && tsc",
-    "ci": "yarn run lint && && yarn build && yarn test --coverage && npx codecov",
+    "ci": "yarn run lint && yarn build && yarn test --coverage && npx codecov",
     "clean": "rimraf coverage dist",
     "dev": "ts-node-dev --transpile-only --no-notify src/index.ts",
     "lint": "eslint --cache --fix src/**/*.ts && prettier --write src/**/*.ts",
