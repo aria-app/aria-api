@@ -1,35 +1,28 @@
-import { Role } from '@prisma/client';
-import {
-  AuthenticationError,
-  ForbiddenError,
-  IResolverObject,
-} from 'apollo-server';
+import { Role, User } from '@prisma/client';
+import { AuthenticationError, ForbiddenError } from 'apollo-server';
 import isNil from 'lodash/fp/isNil';
 
-import ApiContext from '../../../models/ApiContext';
+import ApiContext from '../../../../models/ApiContext';
+import PaginatedResponse from '../../../../models/PaginatedResponse';
 
-export default {
-  me: async (_, __, { currentUser }) => {
-    return currentUser;
+type UsersResolver = (
+  parent: Record<string, never>,
+  args: {
+    limit?: number;
+    page: number;
+    search: string;
+    sort: string;
+    sortDirection: string;
   },
+  context: ApiContext,
+) => Promise<PaginatedResponse<User>>;
 
-  user: async (_, { id }, { currentUser, prisma }) => {
-    if (!currentUser) {
-      throw new AuthenticationError('You are not authenticated.');
-    }
-
-    if (currentUser.role !== Role.ADMIN) {
-      throw new ForbiddenError('You are not authorized to view this data.');
-    }
-
-    return prisma.user.findUnique({ where: { id: parseInt(id, 10) } });
-  },
-
-  users: async (
-    _,
+export default <UsersResolver>(
+  async function users(
+    parent,
     { limit, page = 1, search = '', sort = 'firstName', sortDirection = 'asc' },
     { currentUser, prisma },
-  ) => {
+  ) {
     if (!currentUser) {
       throw new AuthenticationError('You are not authenticated.');
     }
@@ -93,5 +86,5 @@ export default {
         totalItemCount,
       },
     };
-  },
-} as IResolverObject<any, ApiContext>;
+  }
+);

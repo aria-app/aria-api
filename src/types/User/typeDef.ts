@@ -3,7 +3,7 @@ import { gql } from 'apollo-server';
 export default gql`
   extend type Query {
     me: User
-    user(id: ID!): User
+    user(id: Int!): User
     users(
       limit: Int
       page: Int
@@ -51,7 +51,7 @@ export default gql`
   input UpdateUserInput {
     email: String
     firstName: String
-    id: ID!
+    id: Int!
     lastName: String
   }
 
@@ -64,7 +64,7 @@ export default gql`
   type User {
     email: String!
     firstName: String!
-    id: ID!
+    id: Int!
     lastName: String!
     role: Role!
   }

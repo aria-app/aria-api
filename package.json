@@ -26,6 +26,7 @@
   "homepage": "https://github.com/aria-app/aria-api#readme",
   "dependencies": {
     "@prisma/client": "2.19.0",
+    "@types/lodash": "4.14.168",
     "apollo-server": "2.19.0",
     "apollo-server-express": "2.21.2",
     "bcrypt": "5.0.0",
