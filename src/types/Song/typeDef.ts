@@ -2,20 +2,20 @@ import { gql } from 'apollo-server';
 
 export default gql`
   extend type Query {
-    song(id: ID!): Song
+    song(id: Int!): Song
     songs(
       limit: Int
       page: Int
       search: String
       sort: String
       sortDirection: String
-      userId: ID
+      userId: Int
     ): SongsResponse!
   }
 
   extend type Mutation {
-    createSong(options: CreateSongInput!): CreateSongResponse
-    deleteSong(id: ID!): DeleteSongResponse
+    createSong(input: CreateSongInput!): CreateSongResponse
+    deleteSong(id: Int!): DeleteSongResponse
     updateSong(input: UpdateSongInput!): UpdateSongResponse
   }
 
@@ -36,7 +36,7 @@ export default gql`
 
   input UpdateSongInput {
     bpm: Int
-    id: ID!
+    id: Int!
     measureCount: Int
     name: String
   }
@@ -50,7 +50,7 @@ export default gql`
   type Song {
     bpm: Int!
     createdAt: String!
-    id: ID!
+    id: Int!
     measureCount: Int!
     name: String!
     trackCount: Int!
