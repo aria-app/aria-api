@@ -1,7 +1,2 @@
-import Mutation from './Mutation';
-import Query from './Query';
-
-export default {
-  Mutation,
-  Query,
-};
+export * as Mutation from './Mutation';
+export * as Query from './Query';
