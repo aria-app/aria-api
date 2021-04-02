@@ -1,5 +1,5 @@
-import Mutation from './Mutation';
-import Query from './Query';
+import * as Mutation from './Mutation';
+import * as Query from './Query';
 
 export default {
   Mutation,

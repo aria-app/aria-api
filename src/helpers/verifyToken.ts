@@ -2,11 +2,13 @@ import jwt from 'jsonwebtoken';
 
 import DecodedAuthToken from '../models/DecodedAuthToken';
 
-export default function verifyToken(token: string): Promise<DecodedAuthToken> {
+export default function verifyToken(
+  token: string,
+): Promise<DecodedAuthToken | undefined> {
   return new Promise((resolve, reject) => {
     jwt.verify(
       token,
-      process.env.JWT_SECRET,
+      process.env.JWT_SECRET as string,
       {
         audience: process.env.AUDIENCE,
         issuer: process.env.ISSUER,
@@ -15,7 +17,7 @@ export default function verifyToken(token: string): Promise<DecodedAuthToken> {
         if (err) {
           reject(err);
         } else {
-          resolve(payload);
+          resolve(payload as DecodedAuthToken);
         }
       },
     );

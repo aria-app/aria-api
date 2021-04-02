@@ -2,12 +2,12 @@ import { gql } from 'apollo-server';
 
 export default gql`
   extend type Query {
-    voice(id: ID!): Voice
+    voice(id: Int!): Voice
     voices: [Voice]!
   }
 
   type Voice {
-    id: ID!
+    id: Int!
     name: String!
     toneOscillatorType: String!
   }

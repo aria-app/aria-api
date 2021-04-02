@@ -11,17 +11,20 @@ module.exports = {
     'prettier',
   ],
   parser: '@typescript-eslint/parser',
-  plugins: ['@typescript-eslint', 'jest', 'prettier'],
+  plugins: ['simple-import-sort', '@typescript-eslint', 'jest', 'prettier'],
   root: true,
   rules: {
-    '@typescript-eslint/explicit-module-boundary-types': 0,
     '@typescript-eslint/no-explicit-any': 0,
     '@typescript-eslint/no-var-requires': 0,
     camelcase: 0,
     'import/extensions': [2, 'never'],
+    'import/order': 0,
     'new-cap': 0,
     'no-console': 1,
     'no-underscore-dangle': 0,
+    'simple-import-sort/imports': 'error',
+    'simple-import-sort/exports': 'error',
+    'sort-imports': 0,
   },
   settings: {
     'import/resolver': {

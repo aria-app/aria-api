@@ -1,5 +1,5 @@
-import { ApolloServer } from 'apollo-server';
 import { PrismaClient } from '@prisma/client';
+import { ApolloServer } from 'apollo-server';
 
 import getContext from './getContext';
 import resolvers from './resolvers';

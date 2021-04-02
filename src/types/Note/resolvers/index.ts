@@ -1,4 +1,4 @@
-import Mutation from './Mutation';
+import * as Mutation from './Mutation';
 
 export default {
   Mutation,

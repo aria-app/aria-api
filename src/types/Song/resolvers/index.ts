@@ -1,6 +1,6 @@
-import Mutation from './Mutation';
-import Query from './Query';
-import Song from './Song';
+import * as Mutation from './Mutation';
+import * as Query from './Query';
+import * as Song from './Song';
 
 export default {
   Mutation,

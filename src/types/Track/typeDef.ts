@@ -3,17 +3,17 @@ import { gql } from 'apollo-server';
 export default gql`
   extend type Mutation {
     createTrack(input: CreateTrackInput!): CreateTrackResponse
-    deleteTrack(id: ID!): DeleteTrackResponse
+    deleteTrack(id: Int!): DeleteTrackResponse
     updateTrack(input: UpdateTrackInput!): UpdateTrackResponse
   }
 
   extend type Query {
-    track(id: ID!): Track
-    tracks(songId: ID!): [Track]!
+    track(id: Int!): Track
+    tracks(songId: Int!): [Track]!
   }
 
   input CreateTrackInput {
-    songId: ID!
+    songId: Int!
   }
 
   type CreateTrackResponse {
@@ -28,7 +28,7 @@ export default gql`
   }
 
   type Track {
-    id: ID!
+    id: Int!
     isMuted: Boolean!
     isSoloing: Boolean!
     position: Int!
@@ -39,8 +39,8 @@ export default gql`
   }
 
   input UpdateTrackInput {
-    id: ID!
-    voiceId: ID
+    id: Int!
+    voiceId: Int
     volume: Int
   }
 
