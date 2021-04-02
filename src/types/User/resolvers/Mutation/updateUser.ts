@@ -36,12 +36,14 @@ type UpdateUserResolver = (
 
 export default <UpdateUserResolver>(
   async function updateUser(parent, { input }, { currentUser, prisma }) {
+    const { email, firstName, id, lastName } = input;
+
     if (!currentUser) {
       throw new AuthenticationError('You are not authenticated.');
     }
 
     const user = await prisma.user.findUnique({
-      where: { id: input.id },
+      where: { id },
     });
 
     if (!user) {
@@ -57,9 +59,9 @@ export default <UpdateUserResolver>(
     if (
       isEqual(
         {
-          email: input.email,
-          firstName: input.firstName,
-          lastName: input.lastName,
+          email,
+          firstName,
+          lastName,
         },
         {
           email: user.email,
@@ -71,13 +73,13 @@ export default <UpdateUserResolver>(
       throw new UserInputError('No changes submitted');
     }
 
-    if (!isNil(input.email) && !isEmail.validate(input.email)) {
+    if (!isNil(email) && !isEmail.validate(email)) {
       throw new ValidationError('Email format invalid.');
     }
 
-    if (!isNil(input.email) && input.email !== user.email) {
+    if (!isNil(email) && email !== user.email) {
       const existingUserWithEmail = await prisma.user.findUnique({
-        where: { email: input.email },
+        where: { email },
       });
 
       if (existingUserWithEmail) {
@@ -87,11 +89,11 @@ export default <UpdateUserResolver>(
 
     const updatedUser = await prisma.user.update({
       data: omitBy(isNil, {
-        email: input.email,
-        firstName: input.firstName,
-        lastName: input.lastName,
+        email,
+        firstName,
+        lastName,
       }),
-      where: { id: input.id },
+      where: { id },
     });
 
     return {
