@@ -3,14 +3,14 @@ import { gql } from 'apollo-server';
 export default gql`
   extend type Mutation {
     createNote(input: CreateNoteInput!): CreateNoteResponse
-    deleteNotes(ids: [ID]!): DeleteNotesResponse
-    duplicateNotes(ids: [ID]!): DuplicateNotesResponse
+    deleteNotes(ids: [Int!]!): DeleteNotesResponse
+    duplicateNotes(ids: [Int!]!): DuplicateNotesResponse
     updateNotes(input: UpdateNotesInput!): UpdateNotesResponse
   }
 
   input CreateNoteInput {
     points: [CreateNoteInputPoint]!
-    sequenceId: ID!
+    sequenceId: Int!
   }
 
   input CreateNoteInputPoint {
@@ -36,7 +36,7 @@ export default gql`
   }
 
   type Note {
-    id: ID!
+    id: Int!
     points: [Point]!
     sequence: Sequence!
   }
@@ -51,7 +51,7 @@ export default gql`
   }
 
   input UpdateNotesInputNote {
-    id: ID!
+    id: Int!
     points: [UpdateNotesInputNotePoint]!
   }
 

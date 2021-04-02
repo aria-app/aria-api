@@ -2,19 +2,19 @@ import { gql } from 'apollo-server';
 
 export default gql`
   extend type Query {
-    sequence(id: ID!): Sequence
+    sequence(id: Int!): Sequence
   }
 
   extend type Mutation {
     createSequence(input: CreateSequenceInput!): CreateSequenceResponse
-    deleteSequence(id: ID!): DeleteSequenceResponse
-    duplicateSequence(id: ID!): DuplicateSequenceResponse
+    deleteSequence(id: Int!): DeleteSequenceResponse
+    duplicateSequence(id: Int!): DuplicateSequenceResponse
     updateSequence(input: UpdateSequenceInput!): UpdateSequenceResponse
   }
 
   input CreateSequenceInput {
     position: Int!
-    trackId: ID!
+    trackId: Int!
   }
 
   type CreateSequenceResponse {
@@ -35,7 +35,7 @@ export default gql`
   }
 
   type Sequence {
-    id: ID!
+    id: Int!
     measureCount: Int!
     notes: [Note]!
     position: Int!
@@ -43,7 +43,7 @@ export default gql`
   }
 
   input UpdateSequenceInput {
-    id: ID!
+    id: Int!
     measureCount: Int
     position: Int
   }
