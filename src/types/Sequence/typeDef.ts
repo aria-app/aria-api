@@ -21,17 +21,26 @@ export default gql`
     message: String!
     sequence: Sequence
     success: Boolean!
+      @deprecated(
+        reason: "Success fields are deprecated in favor of returning meaningful data."
+      )
   }
 
   type DeleteSequenceResponse {
     message: String!
     success: Boolean!
+      @deprecated(
+        reason: "Success fields are deprecated in favor of returning meaningful data."
+      )
   }
 
   type DuplicateSequenceResponse {
     message: String!
     sequence: Sequence
     success: Boolean!
+      @deprecated(
+        reason: "Success fields are deprecated in favor of returning meaningful data."
+      )
   }
 
   type Sequence {
@@ -52,5 +61,8 @@ export default gql`
     message: String!
     sequence: Sequence!
     success: Boolean!
+      @deprecated(
+        reason: "Success fields are deprecated in favor of returning meaningful data."
+      )
   }
 `;
