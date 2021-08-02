@@ -1,3 +1,4 @@
+import { Song } from '@prisma/client';
 import {
   ApolloError,
   AuthenticationError,
@@ -8,6 +9,7 @@ import ApiContext from '../../../../models/ApiContext';
 
 interface DeleteSongResponse {
   message: string;
+  song: Song;
   success: boolean;
 }
 
@@ -43,6 +45,7 @@ export default <DeleteSongResolver>(
 
     return {
       message: 'Song was deleted successfully.',
+      song,
       success: true,
     };
   }
