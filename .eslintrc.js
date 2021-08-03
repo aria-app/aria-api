@@ -19,11 +19,12 @@ module.exports = {
     camelcase: 0,
     'import/extensions': [2, 'never'],
     'import/order': 0,
+    'import/prefer-default-export': 0,
     'new-cap': 0,
     'no-console': 1,
     'no-underscore-dangle': 0,
-    'simple-import-sort/imports': 'error',
     'simple-import-sort/exports': 'error',
+    'simple-import-sort/imports': 'error',
     'sort-imports': 0,
   },
   settings: {
