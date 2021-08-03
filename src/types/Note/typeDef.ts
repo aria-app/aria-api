@@ -29,6 +29,7 @@ export default gql`
 
   type DeleteNotesResponse {
     message: String!
+    notes: [Note!]!
     success: Boolean!
       @deprecated(
         reason: "Success fields are deprecated in favor of returning meaningful data."
