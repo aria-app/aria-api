@@ -31,6 +31,7 @@ export default gql`
       @deprecated(
         reason: "Success fields are deprecated in favor of returning meaningful data."
       )
+    track: Track!
   }
 
   type Track {
