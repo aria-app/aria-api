@@ -1,11 +1,11 @@
 import merge from 'lodash/merge';
 
-import Note from '../types/Note';
-import Sequence from '../types/Sequence';
-import Song from '../types/Song';
-import Track from '../types/Track';
-import User from '../types/User';
-import Voice from '../types/Voice';
+import Note from '../domains/notes';
+import Sequence from '../domains/sequences';
+import Song from '../domains/songs';
+import Track from '../domains/tracks';
+import User from '../domains/users';
+import Voice from '../domains/voices';
 
 export default merge(
   Note.resolvers,

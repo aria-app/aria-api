@@ -1,12 +1,12 @@
 import { gql } from 'apollo-server';
 
-import Note from '../types/Note';
-import Sequence from '../types/Sequence';
-import Shared from '../types/Shared';
-import Song from '../types/Song';
-import Track from '../types/Track';
-import User from '../types/User';
-import Voice from '../types/Voice';
+import Note from '../domains/notes';
+import Sequence from '../domains/sequences';
+import Shared from '../domains/shared';
+import Song from '../domains/songs';
+import Track from '../domains/tracks';
+import User from '../domains/users';
+import Voice from '../domains/voices';
 
 export default gql`
   ${Shared.typeDef}
