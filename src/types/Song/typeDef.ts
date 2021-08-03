@@ -25,13 +25,20 @@ export default gql`
 
   type CreateSongResponse {
     message: String!
-    song: Song
+    song: Song!
     success: Boolean!
+      @deprecated(
+        reason: "Success fields are deprecated in favor of returning meaningful data."
+      )
   }
 
   type DeleteSongResponse {
     message: String!
+    song: Song!
     success: Boolean!
+      @deprecated(
+        reason: "Success fields are deprecated in favor of returning meaningful data."
+      )
   }
 
   input UpdateSongInput {
@@ -45,6 +52,9 @@ export default gql`
     message: String!
     song: Song!
     success: Boolean!
+      @deprecated(
+        reason: "Success fields are deprecated in favor of returning meaningful data."
+      )
   }
 
   type Song {
@@ -60,7 +70,7 @@ export default gql`
   }
 
   type SongsResponse {
-    data: [Song]
+    data: [Song]!
     meta: PaginationMetadata
   }
 `;

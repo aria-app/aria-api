@@ -19,12 +19,19 @@ export default gql`
   type CreateTrackResponse {
     message: String!
     success: Boolean!
+      @deprecated(
+        reason: "Success fields are deprecated in favor of returning meaningful data."
+      )
     track: Track
   }
 
   type DeleteTrackResponse {
     message: String!
     success: Boolean!
+      @deprecated(
+        reason: "Success fields are deprecated in favor of returning meaningful data."
+      )
+    track: Track!
   }
 
   type Track {
@@ -47,6 +54,9 @@ export default gql`
   type UpdateTrackResponse {
     message: String!
     success: Boolean!
+      @deprecated(
+        reason: "Success fields are deprecated in favor of returning meaningful data."
+      )
     track: Track!
   }
 `;

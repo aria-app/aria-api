@@ -28,6 +28,9 @@ export default gql`
   type LoginResponse {
     expiresAt: Int
     success: Boolean!
+      @deprecated(
+        reason: "Success fields are deprecated in favor of returning meaningful data."
+      )
     token: String
     user: User
   }
@@ -39,6 +42,9 @@ export default gql`
   type RegisterResponse {
     expiresAt: Int
     success: Boolean!
+      @deprecated(
+        reason: "Success fields are deprecated in favor of returning meaningful data."
+      )
     token: String
     user: User
   }
@@ -58,6 +64,9 @@ export default gql`
   type UpdateUserResponse {
     message: String!
     success: Boolean!
+      @deprecated(
+        reason: "Success fields are deprecated in favor of returning meaningful data."
+      )
     user: User
   }
 
