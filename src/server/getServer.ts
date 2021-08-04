@@ -5,9 +5,7 @@ import getContext from './getContext';
 import resolvers from './resolvers';
 import typeDefs from './typeDefs';
 
-export default function getServer(
-  { skipAuth } = { skipAuth: false },
-): ApolloServer {
+export function getServer({ skipAuth } = { skipAuth: false }): ApolloServer {
   return new ApolloServer({
     context: getContext({
       prisma: new PrismaClient(),
