@@ -7,11 +7,7 @@ import {
 import max from 'lodash/fp/max';
 
 import { DEFAULT_VOICE_ID } from '../../../../constants';
-import { ApiContext } from '../../../../types';
-
-interface CreateTrackInput {
-  songId: number;
-}
+import { Resolver } from '../../../../types';
 
 interface CreateTrackResponse {
   message: string;
@@ -19,78 +15,76 @@ interface CreateTrackResponse {
   track: Track;
 }
 
-type CreateTrackResolver = (
-  parent: Record<string, never>,
-  args: {
-    input: CreateTrackInput;
-  },
-  context: ApiContext,
-) => Promise<CreateTrackResponse>;
+interface CreateTrackVariables {
+  input: {
+    songId: number;
+  };
+}
 
-export default <CreateTrackResolver>(
-  async function createTrack(parent, { input }, { currentUser, prisma }) {
-    const { songId } = input;
+export const createTrack: Resolver<
+  CreateTrackResponse,
+  CreateTrackVariables
+> = async (parent, { input }, { currentUser, prisma }) => {
+  const { songId } = input;
 
-    if (!currentUser) {
-      throw new AuthenticationError('You are not authenticated.');
-    }
+  if (!currentUser) {
+    throw new AuthenticationError('You are not authenticated.');
+  }
 
-    const song = await prisma.song.findUnique({
-      where: {
+  const song = await prisma.song.findUnique({
+    where: {
+      id: songId,
+    },
+  });
+
+  if (!song) {
+    throw new ApolloError('Could not find corresponding song.');
+  }
+
+  if (currentUser.id !== song.userId) {
+    throw new ForbiddenError(
+      'Logged in user does not have permission to edit this song.',
+    );
+  }
+
+  const otherTracks = await prisma.track.findMany({
+    where: {
+      song: {
         id: songId,
       },
-    });
+    },
+  });
+  const prevMaxPosition = max(otherTracks.map((track) => track.position)) || 0;
 
-    if (!song) {
-      throw new ApolloError('Could not find corresponding song.');
-    }
-
-    if (currentUser.id !== song.userId) {
-      throw new ForbiddenError(
-        'Logged in user does not have permission to edit this song.',
-      );
-    }
-
-    const otherTracks = await prisma.track.findMany({
-      where: {
-        song: {
+  const newTrack = await prisma.track.create({
+    data: {
+      position: prevMaxPosition + 1,
+      song: {
+        connect: {
           id: songId,
         },
       },
-    });
-    const prevMaxPosition =
-      max(otherTracks.map((track) => track.position)) || 0;
-
-    const newTrack = await prisma.track.create({
-      data: {
-        position: prevMaxPosition + 1,
-        song: {
-          connect: {
-            id: songId,
-          },
-        },
-        voice: {
-          connect: {
-            id: DEFAULT_VOICE_ID,
-          },
+      voice: {
+        connect: {
+          id: DEFAULT_VOICE_ID,
         },
       },
-      include: {
-        sequences: true,
-        song: true,
-        voice: true,
-      },
-    });
+    },
+    include: {
+      sequences: true,
+      song: true,
+      voice: true,
+    },
+  });
 
-    await prisma.song.update({
-      data: { updatedAt: new Date() },
-      where: { id: song.id },
-    });
+  await prisma.song.update({
+    data: { updatedAt: new Date() },
+    where: { id: song.id },
+  });
 
-    return {
-      message: 'Track was created successfully.',
-      success: true,
-      track: newTrack,
-    };
-  }
-);
+  return {
+    message: 'Track was created successfully.',
+    success: true,
+    track: newTrack,
+  };
+};

@@ -1,6 +1,6 @@
 import { gql } from 'apollo-server';
 
-export default gql`
+export const typeDef = gql`
   extend type Mutation {
     createTrack(input: CreateTrackInput!): CreateTrackResponse
     deleteTrack(id: Int!): DeleteTrackResponse

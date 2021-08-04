@@ -1,41 +1,39 @@
 import { Track } from '@prisma/client';
 import { AuthenticationError } from 'apollo-server';
 
-import { ApiContext } from '../../../../types';
+import { Resolver } from '../../../../types';
 
-type TracksResolver = (
-  parent: Record<string, never>,
-  args: {
-    songId: number;
-  },
-  context: ApiContext,
-) => Promise<Track[]>;
+export interface TracksVariables {
+  songId: number;
+}
 
-export default <TracksResolver>(
-  function tracks(_, { songId }, { currentUser, prisma }) {
-    if (!currentUser) {
-      throw new AuthenticationError('You are not authenticated.');
-    }
+export const tracks: Resolver<Track[], TracksVariables> = (
+  _,
+  { songId },
+  { currentUser, prisma },
+) => {
+  if (!currentUser) {
+    throw new AuthenticationError('You are not authenticated.');
+  }
 
-    return prisma.track.findMany({
-      include: {
-        sequences: {
-          include: {
-            track: {
-              select: {
-                id: true,
-              },
+  return prisma.track.findMany({
+    include: {
+      sequences: {
+        include: {
+          track: {
+            select: {
+              id: true,
             },
           },
         },
-        song: true,
-        voice: true,
       },
-      where: {
-        song: {
-          id: songId,
-        },
+      song: true,
+      voice: true,
+    },
+    where: {
+      song: {
+        id: songId,
       },
-    });
-  }
-);
+    },
+  });
+};

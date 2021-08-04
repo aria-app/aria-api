@@ -1,27 +1,27 @@
 import { gql } from 'apollo-server';
 import merge from 'lodash/merge';
 
-import * as note from './notes';
-import * as sequence from './sequences';
-import song from './songs';
-import track from './tracks';
-import user from './users';
-import voice from './voices';
+import * as notes from './notes';
+import * as sequences from './sequences';
+import songs from './songs';
+import * as tracks from './tracks';
+import users from './users';
+import voices from './voices';
 
 export const resolvers = merge(
-  note.resolvers,
-  sequence.resolvers,
-  song.resolvers,
-  voice.resolvers,
-  track.resolvers,
-  user.resolvers,
+  notes.resolvers,
+  sequences.resolvers,
+  songs.resolvers,
+  voices.resolvers,
+  tracks.resolvers,
+  users.resolvers,
 );
 
 export const typeDef = gql`
-  ${note.typeDef}
-  ${sequence.typeDef}
-  ${song.typeDef}
-  ${voice.typeDef}
-  ${track.typeDef}
-  ${user.typeDef}
+  ${notes.typeDef}
+  ${sequences.typeDef}
+  ${songs.typeDef}
+  ${voices.typeDef}
+  ${tracks.typeDef}
+  ${users.typeDef}
 `;
