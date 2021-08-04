@@ -6,10 +6,8 @@ import {
 } from 'apollo-server';
 import max from 'lodash/fp/max';
 
-import constants from '../../../../constants';
+import { DEFAULT_VOICE_ID } from '../../../../constants';
 import { ApiContext } from '../../../../types';
-
-const { DEFAULT_VOICE_ID } = constants;
 
 interface CreateTrackInput {
   songId: number;

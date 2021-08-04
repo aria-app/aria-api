@@ -1,10 +1,8 @@
 import { PrismaClient, Role } from '@prisma/client';
 
-import constants from '../src/constants';
-import hashPassword from '../src/helpers/hashPassword';
-import defaultVoices from './defaultVoices';
-
-const { DEFAULT_BPM, DEFAULT_MEASURE_COUNT } = constants;
+import { DEFAULT_BPM, DEFAULT_MEASURE_COUNT } from '../src/constants';
+import { hashPassword } from '../src/domains/users/helpers';
+import { defaultVoices } from './defaultVoices';
 
 const prisma = new PrismaClient();
 const SEEDED_USER_PASSWORD =

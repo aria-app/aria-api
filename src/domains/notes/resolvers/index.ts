@@ -1,5 +1,1 @@
-import * as Mutation from './Mutation';
-
-export default {
-  Mutation,
-};
+export * as Mutation from './Mutation';
