@@ -1,4 +1,4 @@
-export { default as login } from './login';
-export { default as logout } from './logout';
-export { default as register } from './register';
-export { default as updateUser } from './updateUser';
+export * from './login';
+export * from './logout';
+export * from './register';
+export * from './updateUser';

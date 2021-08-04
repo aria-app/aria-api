@@ -3,7 +3,7 @@ import { ApolloError, ValidationError } from 'apollo-server';
 import isEmail from 'isemail';
 import jwtDecode from 'jwt-decode';
 
-import { ApiContext, DecodedAuthToken } from '../../../../types';
+import { DecodedAuthToken, Resolver } from '../../../../types';
 import { createToken, hashPassword } from '../../helpers';
 
 interface RegisterResponse {
@@ -13,73 +13,67 @@ interface RegisterResponse {
   user: User;
 }
 
-type RegisterResolver = (
-  parent: Record<string, never>,
-  args: {
-    email: string;
-    firstName: string;
-    lastName: string;
-    password: string;
-  },
-  context: ApiContext,
-) => Promise<RegisterResponse>;
+interface RegisterVariables {
+  email: string;
+  firstName: string;
+  lastName: string;
+  password: string;
+}
 
-export default <RegisterResolver>(
-  async function register(
-    parent,
-    { email, firstName, lastName, password },
-    { res, prisma },
-  ) {
-    const formattedEmail = email.toLowerCase();
+export const register: Resolver<RegisterResponse, RegisterVariables> = async (
+  parent,
+  { email, firstName, lastName, password },
+  { res, prisma },
+) => {
+  const formattedEmail = email.toLowerCase();
 
-    if (!isEmail.validate(formattedEmail)) {
-      throw new ValidationError('Email format invalid.');
-    }
+  if (!isEmail.validate(formattedEmail)) {
+    throw new ValidationError('Email format invalid.');
+  }
 
-    const existingUserWithEmail = await prisma.user.findUnique({
-      where: { email },
+  const existingUserWithEmail = await prisma.user.findUnique({
+    where: { email },
+  });
+
+  if (existingUserWithEmail) {
+    throw new ValidationError('User with that email already exists.');
+  }
+
+  try {
+    const hashedPassword = await hashPassword(password);
+
+    const newUser = await prisma.user.create({
+      data: {
+        email: formattedEmail,
+        firstName,
+        lastName,
+        password: hashedPassword,
+      },
     });
 
-    if (existingUserWithEmail) {
-      throw new ValidationError('User with that email already exists.');
-    }
+    const userInfo = {
+      id: newUser.id,
+      email: newUser.email,
+    };
 
-    try {
-      const hashedPassword = await hashPassword(password);
+    const token = await createToken(userInfo);
+    const decodedToken = jwtDecode<DecodedAuthToken>(token);
+    const expiresAt = decodedToken.exp;
 
-      const newUser = await prisma.user.create({
-        data: {
-          email: formattedEmail,
-          firstName,
-          lastName,
-          password: hashedPassword,
-        },
-      });
+    res.cookie('token', token, {
+      httpOnly: true,
+    });
 
-      const userInfo = {
-        id: newUser.id,
-        email: newUser.email,
-      };
+    return {
+      expiresAt,
+      success: true,
+      token,
+      user: newUser,
+    };
+  } catch (e) {
+    // eslint-disable-next-line no-console
+    console.error(e.message);
 
-      const token = await createToken(userInfo);
-      const decodedToken = jwtDecode<DecodedAuthToken>(token);
-      const expiresAt = decodedToken.exp;
-
-      res.cookie('token', token, {
-        httpOnly: true,
-      });
-
-      return {
-        expiresAt,
-        success: true,
-        token,
-        user: newUser,
-      };
-    } catch (e) {
-      // eslint-disable-next-line no-console
-      console.error(e.message);
-
-      throw new ApolloError('Something went wrong.', 'SERVER_ERROR');
-    }
+    throw new ApolloError('Something went wrong.', 'SERVER_ERROR');
   }
-);
+};

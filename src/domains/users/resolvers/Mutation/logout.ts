@@ -1,16 +1,14 @@
-import { ApiContext } from '../../../../types';
+import { Resolver } from '../../../../types';
 
 interface LogoutResponse {
   success: boolean;
 }
 
-type LogoutResolver = (
-  parent: Record<string, never>,
-  args: Record<string, never>,
-  context: ApiContext,
-) => Promise<LogoutResponse>;
-
-export default <LogoutResolver>async function login(parent, args, { res }) {
+export const logout: Resolver<LogoutResponse> = async (
+  parent,
+  args,
+  { res },
+) => {
   res.clearCookie('token');
 
   return {

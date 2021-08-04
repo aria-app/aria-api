@@ -11,14 +11,7 @@ import isEqual from 'lodash/fp/isEqual';
 import isNil from 'lodash/fp/isNil';
 import omitBy from 'lodash/fp/omitBy';
 
-import { ApiContext } from '../../../../types';
-
-interface UpdateUserInput {
-  email?: string;
-  firstName?: string;
-  id: number;
-  lastName?: string;
-}
+import { Resolver } from '../../../../types';
 
 interface UpdateUserResponse {
   message: string;
@@ -26,80 +19,82 @@ interface UpdateUserResponse {
   user: User;
 }
 
-type UpdateUserResolver = (
-  parent: Record<string, never>,
-  args: {
-    input: UpdateUserInput;
-  },
-  context: ApiContext,
-) => Promise<UpdateUserResponse>;
+interface UpdateUserVariables {
+  input: {
+    email?: string;
+    firstName?: string;
+    id: number;
+    lastName?: string;
+  };
+}
 
-export default <UpdateUserResolver>(
-  async function updateUser(parent, { input }, { currentUser, prisma }) {
-    const { email, firstName, id, lastName } = input;
+export const updateUser: Resolver<
+  UpdateUserResponse,
+  UpdateUserVariables
+> = async (parent, { input }, { currentUser, prisma }) => {
+  const { email, firstName, id, lastName } = input;
 
-    if (!currentUser) {
-      throw new AuthenticationError('You are not authenticated.');
-    }
+  if (!currentUser) {
+    throw new AuthenticationError('You are not authenticated.');
+  }
 
-    const user = await prisma.user.findUnique({
-      where: { id },
-    });
+  const user = await prisma.user.findUnique({
+    where: { id },
+  });
 
-    if (!user) {
-      throw new ApolloError('User was not found.');
-    }
+  if (!user) {
+    throw new ApolloError('User was not found.');
+  }
 
-    if (user.role !== Role.ADMIN && currentUser.id !== user.id) {
-      throw new ForbiddenError(
-        'Logged in user does not have permission to manage this user.',
-      );
-    }
+  if (user.role !== Role.ADMIN && currentUser.id !== user.id) {
+    throw new ForbiddenError(
+      'Logged in user does not have permission to manage this user.',
+    );
+  }
 
-    if (
-      isEqual(
-        {
-          email,
-          firstName,
-          lastName,
-        },
-        {
-          email: user.email,
-          firstName: user.firstName,
-          lastName: user.lastName,
-        },
-      )
-    ) {
-      throw new UserInputError('No changes submitted');
-    }
-
-    if (!isNil(email) && !isEmail.validate(email)) {
-      throw new ValidationError('Email format invalid.');
-    }
-
-    if (!isNil(email) && email !== user.email) {
-      const existingUserWithEmail = await prisma.user.findUnique({
-        where: { email },
-      });
-
-      if (existingUserWithEmail) {
-        throw new ValidationError('User with that email already exists.');
-      }
-    }
-
-    const updatedUser = await prisma.user.update({
-      data: omitBy(isNil, {
+  if (
+    isEqual(
+      {
         email,
         firstName,
         lastName,
-      }),
-      where: { id },
+      },
+      {
+        email: user.email,
+        firstName: user.firstName,
+        lastName: user.lastName,
+      },
+    )
+  ) {
+    throw new UserInputError('No changes submitted');
+  }
+
+  if (!isNil(email) && !isEmail.validate(email)) {
+    throw new ValidationError('Email format invalid.');
+  }
+
+  if (!isNil(email) && email !== user.email) {
+    const existingUserWithEmail = await prisma.user.findUnique({
+      where: { email },
     });
 
-    return {
-      message: 'User was updated successfully.',
-      success: true,
-      user: updatedUser,
-    };
+    if (existingUserWithEmail) {
+      throw new ValidationError('User with that email already exists.');
+    }
   }
-);
+
+  const updatedUser = await prisma.user.update({
+    data: omitBy(isNil, {
+      email,
+      firstName,
+      lastName,
+    }),
+    where: { id },
+  });
+
+  return {
+    message: 'User was updated successfully.',
+    success: true,
+    user: updatedUser,
+  };
+};
