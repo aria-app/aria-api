@@ -5,7 +5,7 @@ import {
   ForbiddenError,
 } from 'apollo-server';
 
-import { Resolver } from '../../../../models';
+import { Resolver } from '../../../../types';
 
 interface DeleteTrackResponse {
   message: string;

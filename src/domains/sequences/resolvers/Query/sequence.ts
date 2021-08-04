@@ -1,36 +1,34 @@
 import { Sequence } from '@prisma/client';
 import { AuthenticationError } from 'apollo-server';
 
-import { ApiContext } from '../../../../types';
+import { Resolver } from '../../../../types';
 
-type SequenceResolver = (
-  parent: Record<string, never>,
-  args: {
-    id: number;
-  },
-  context: ApiContext,
-) => Promise<Sequence>;
+interface SequenceVariables {
+  id: number;
+}
 
-export default <SequenceResolver>(
-  async function sequence(parent, { id }, { currentUser, prisma }) {
-    if (!currentUser) {
-      throw new AuthenticationError('You are not authenticated.');
-    }
+export const sequence: Resolver<Sequence | null, SequenceVariables> = async (
+  parent,
+  { id },
+  { currentUser, prisma },
+) => {
+  if (!currentUser) {
+    throw new AuthenticationError('You are not authenticated.');
+  }
 
-    return prisma.sequence.findUnique({
-      include: {
-        notes: {
-          include: {
-            sequence: {
-              select: {
-                id: true,
-              },
+  return prisma.sequence.findUnique({
+    include: {
+      notes: {
+        include: {
+          sequence: {
+            select: {
+              id: true,
             },
           },
         },
-        track: true,
       },
-      where: { id },
-    });
-  }
-);
+      track: true,
+    },
+    where: { id },
+  });
+};

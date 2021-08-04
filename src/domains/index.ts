@@ -2,7 +2,7 @@ import { gql } from 'apollo-server';
 import merge from 'lodash/merge';
 
 import * as note from './notes';
-import sequence from './sequences';
+import * as sequence from './sequences';
 import song from './songs';
 import track from './tracks';
 import user from './users';
