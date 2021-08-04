@@ -3,9 +3,8 @@ import { ApolloError, ForbiddenError, ValidationError } from 'apollo-server';
 import isEmail from 'isemail';
 import jwtDecode from 'jwt-decode';
 
-import createToken from '../../../../helpers/createToken';
-import verifyPassword from '../../../../helpers/verifyPassword';
 import { ApiContext, DecodedAuthToken } from '../../../../types';
+import { createToken, verifyPassword } from '../../helpers';
 
 interface LoginResponse {
   expiresAt: string;

@@ -3,5 +3,5 @@ export default {
   DEFAULT_MEASURE_COUNT: 4,
   DEFAULT_VOICE_ID: 1,
   MAX_BPM: 400,
-  MIN_BPM: 60,
+  MIN_BPM: 40,
 };

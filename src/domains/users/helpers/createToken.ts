@@ -1,6 +1,6 @@
 import jwt from 'jsonwebtoken';
 
-export default function createToken(
+export function createToken(
   payload: Record<string, number | string>,
 ): Promise<string> {
   return new Promise((resolve, reject) => {

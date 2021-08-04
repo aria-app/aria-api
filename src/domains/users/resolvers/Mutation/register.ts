@@ -3,9 +3,8 @@ import { ApolloError, ValidationError } from 'apollo-server';
 import isEmail from 'isemail';
 import jwtDecode from 'jwt-decode';
 
-import createToken from '../../../../helpers/createToken';
-import hashPassword from '../../../../helpers/hashPassword';
 import { ApiContext, DecodedAuthToken } from '../../../../types';
+import { createToken, hashPassword } from '../../helpers';
 
 interface RegisterResponse {
   expiresAt: string;

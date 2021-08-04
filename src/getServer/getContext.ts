@@ -3,8 +3,8 @@ import { ExpressContext } from 'apollo-server-express';
 import cookie from 'cookie';
 import parseISO from 'date-fns/parseISO';
 
-import verifyToken from '../helpers/verifyToken';
 import { ApiContext } from '../types';
+import { verifyToken } from './helpers';
 
 interface GetContextArgs {
   prisma: PrismaClient;

@@ -1,8 +1,8 @@
 import jwt from 'jsonwebtoken';
 
-import { DecodedAuthToken } from '../types';
+import { DecodedAuthToken } from '../../types';
 
-export default function verifyToken(
+export function verifyToken(
   token: string,
 ): Promise<DecodedAuthToken | undefined> {
   return new Promise((resolve, reject) => {

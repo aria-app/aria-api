@@ -1,6 +1,6 @@
 import bcrypt from 'bcrypt';
 
-export default function verifyPassword({
+export function verifyPassword({
   attemptedPassword,
   hashedPassword,
 }: Record<string, string>): Promise<boolean> {
