@@ -1,7 +1,7 @@
 import { Sequence } from '@prisma/client';
 import { AuthenticationError } from 'apollo-server';
 
-import ApiContext from '../../../../models/ApiContext';
+import { ApiContext } from '../../../../types';
 
 type SequenceResolver = (
   parent: Record<string, never>,

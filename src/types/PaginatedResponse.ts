@@ -4,7 +4,7 @@ interface PaginatedResponseMetadata {
   totalItemCount: number;
 }
 
-export default interface PaginatedResponse<T> {
+export interface PaginatedResponse<T> {
   data: T[];
   meta: PaginatedResponseMetadata;
 }

@@ -1,4 +1,4 @@
-import ApiContext from './ApiContext';
+import { ApiContext } from './ApiContext';
 
 export type Resolver<
   TResponse,

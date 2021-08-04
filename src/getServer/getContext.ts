@@ -4,7 +4,7 @@ import cookie from 'cookie';
 import parseISO from 'date-fns/parseISO';
 
 import verifyToken from '../helpers/verifyToken';
-import ApiContext from '../models/ApiContext';
+import { ApiContext } from '../types';
 
 interface GetContextArgs {
   prisma: PrismaClient;

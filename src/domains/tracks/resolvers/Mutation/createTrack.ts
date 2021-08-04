@@ -7,7 +7,7 @@ import {
 import max from 'lodash/fp/max';
 
 import constants from '../../../../constants';
-import ApiContext from '../../../../models/ApiContext';
+import { ApiContext } from '../../../../types';
 
 const { DEFAULT_VOICE_ID } = constants;
 

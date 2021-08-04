@@ -1,7 +1,7 @@
 import { Track } from '@prisma/client';
 import { AuthenticationError } from 'apollo-server';
 
-import ApiContext from '../../../../models/ApiContext';
+import { ApiContext } from '../../../../types';
 
 type TrackResolver = (
   parent: Record<string, never>,

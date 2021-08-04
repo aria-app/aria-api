@@ -1,7 +1,7 @@
 import { Song } from '@prisma/client';
 import { AuthenticationError } from 'apollo-server';
 
-import ApiContext from '../../../../models/ApiContext';
+import { ApiContext } from '../../../../types';
 
 const DEFAULT_BPM = 120;
 const DEFAULT_MEASURE_COUNT = 4;

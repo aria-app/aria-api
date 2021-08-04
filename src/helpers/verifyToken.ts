@@ -1,6 +1,6 @@
 import jwt from 'jsonwebtoken';
 
-import DecodedAuthToken from '../models/DecodedAuthToken';
+import { DecodedAuthToken } from '../types';
 
 export default function verifyToken(
   token: string,

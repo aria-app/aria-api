@@ -5,8 +5,7 @@ import jwtDecode from 'jwt-decode';
 
 import createToken from '../../../../helpers/createToken';
 import verifyPassword from '../../../../helpers/verifyPassword';
-import ApiContext from '../../../../models/ApiContext';
-import DecodedAuthToken from '../../../../models/DecodedAuthToken';
+import { ApiContext, DecodedAuthToken } from '../../../../types';
 
 interface LoginResponse {
   expiresAt: string;

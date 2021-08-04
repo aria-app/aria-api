@@ -5,7 +5,7 @@ import {
   ForbiddenError,
 } from 'apollo-server';
 
-import ApiContext from '../../../../models/ApiContext';
+import { ApiContext } from '../../../../types';
 
 interface DuplicateSequenceResponse {
   message: string;

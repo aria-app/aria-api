@@ -7,7 +7,7 @@ import {
 } from 'apollo-server';
 import isEmpty from 'lodash/fp/isEmpty';
 
-import ApiContext from '../../../../models/ApiContext';
+import { ApiContext } from '../../../../types';
 
 interface DuplicateNotesResponse {
   message: string;

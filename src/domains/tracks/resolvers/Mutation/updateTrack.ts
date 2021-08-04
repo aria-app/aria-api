@@ -7,7 +7,7 @@ import {
 import isNil from 'lodash/fp/isNil';
 import omitBy from 'lodash/fp/omitBy';
 
-import ApiContext from '../../../../models/ApiContext';
+import { ApiContext } from '../../../../types';
 
 interface UpdateTrackInput {
   id: number;

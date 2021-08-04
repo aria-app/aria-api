@@ -6,8 +6,7 @@ import {
 } from 'apollo-server';
 import isNil from 'lodash/fp/isNil';
 
-import ApiContext from '../../../../models/ApiContext';
-import PaginatedResponse from '../../../../models/PaginatedResponse';
+import { ApiContext, PaginatedResponse } from '../../../../types';
 
 type SongResolver = (
   parent: Record<string, never>,

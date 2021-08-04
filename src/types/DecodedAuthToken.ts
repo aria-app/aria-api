@@ -1,4 +1,4 @@
-export default interface DecodedAuthToken {
+export interface DecodedAuthToken {
   aud: string;
   email: string;
   exp: string;

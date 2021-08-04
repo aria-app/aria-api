@@ -1,6 +1,6 @@
 import { User } from '@prisma/client';
 
-import ApiContext from '../../../../models/ApiContext';
+import { ApiContext } from '../../../../types';
 
 type MeResolver = (
   parent: Record<string, never>,

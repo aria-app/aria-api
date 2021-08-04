@@ -1,7 +1,7 @@
 import { Role, User } from '@prisma/client';
 import { AuthenticationError, ForbiddenError } from 'apollo-server';
 
-import ApiContext from '../../../../models/ApiContext';
+import { ApiContext } from '../../../../types';
 
 type UserResolver = (
   parent: Record<string, never>,

@@ -1,6 +1,6 @@
 import { Voice } from '@prisma/client';
 
-import ApiContext from '../../../../models/ApiContext';
+import { ApiContext } from '../../../../types';
 
 type VoiceResolver = (
   parent: Record<string, never>,

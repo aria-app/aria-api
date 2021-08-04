@@ -1,4 +1,4 @@
-import ApiContext from '../../../../models/ApiContext';
+import { ApiContext } from '../../../../types';
 
 interface LogoutResponse {
   success: boolean;

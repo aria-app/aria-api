@@ -5,8 +5,7 @@ import jwtDecode from 'jwt-decode';
 
 import createToken from '../../../../helpers/createToken';
 import hashPassword from '../../../../helpers/hashPassword';
-import ApiContext from '../../../../models/ApiContext';
-import DecodedAuthToken from '../../../../models/DecodedAuthToken';
+import { ApiContext, DecodedAuthToken } from '../../../../types';
 
 interface RegisterResponse {
   expiresAt: string;

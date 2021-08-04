@@ -2,8 +2,7 @@ import { Role, User } from '@prisma/client';
 import { AuthenticationError, ForbiddenError } from 'apollo-server';
 import isNil from 'lodash/fp/isNil';
 
-import ApiContext from '../../../../models/ApiContext';
-import PaginatedResponse from '../../../../models/PaginatedResponse';
+import { ApiContext, PaginatedResponse } from '../../../../types';
 
 type UsersResolver = (
   parent: Record<string, never>,
