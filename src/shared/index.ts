@@ -1,5 +1,1 @@
-import typeDef from './typeDef';
-
-export default {
-  typeDef,
-};
+export * from './typeDefs';

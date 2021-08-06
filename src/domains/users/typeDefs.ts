@@ -1,6 +1,6 @@
 import { gql } from 'apollo-server';
 
-export const typeDef = gql`
+export const typeDefs = gql`
   extend type Query {
     currentUser: User
     me: User @deprecated(reason: "Use the currentUser query instead.")

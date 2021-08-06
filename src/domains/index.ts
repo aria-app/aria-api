@@ -17,11 +17,11 @@ export const resolvers = merge(
   users.resolvers,
 );
 
-export const typeDef = gql`
-  ${notes.typeDef}
-  ${sequences.typeDef}
-  ${songs.typeDef}
-  ${voices.typeDef}
-  ${tracks.typeDef}
-  ${users.typeDef}
+export const typeDefs = gql`
+  ${notes.typeDefs}
+  ${sequences.typeDefs}
+  ${songs.typeDefs}
+  ${voices.typeDefs}
+  ${tracks.typeDefs}
+  ${users.typeDefs}
 `;

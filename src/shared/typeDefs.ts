@@ -1,6 +1,6 @@
 import { gql } from 'apollo-server';
 
-export default gql`
+export const typeDefs = gql`
   type Query {
     _empty: String
   }
