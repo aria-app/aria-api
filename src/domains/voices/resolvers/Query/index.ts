@@ -1,2 +1,2 @@
-export { default as voice } from './voice';
-export { default as voices } from './voices';
+export * from './voice';
+export * from './voices';

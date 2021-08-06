@@ -1,13 +1,13 @@
 import { Voice } from '@prisma/client';
 
-import { ApiContext } from '../../../../types';
+import { Resolver } from '../../../../types';
 
-type VoicesResolver = (
-  parent: Record<string, never>,
-  args: Record<string, never>,
-  context: ApiContext,
-) => Promise<Voice[] | null>;
+type VoicesResponse = Voice[];
 
-export default <VoicesResolver>function voices(parent, args, { prisma }) {
-  return prisma.voice.findMany({ orderBy: { name: 'asc' } });
-};
+type VoicesVariables = Record<string, never>;
+
+export const voices: Resolver<VoicesResponse, VoicesVariables> = (
+  parent,
+  args,
+  { prisma },
+) => prisma.voice.findMany({ orderBy: { name: 'asc' } });

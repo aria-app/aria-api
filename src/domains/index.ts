@@ -6,7 +6,7 @@ import * as sequences from './sequences';
 import * as songs from './songs';
 import * as tracks from './tracks';
 import * as users from './users';
-import voices from './voices';
+import * as voices from './voices';
 
 export const resolvers = merge(
   notes.resolvers,

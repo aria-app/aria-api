@@ -1,15 +1,15 @@
 import { Voice } from '@prisma/client';
 
-import { ApiContext } from '../../../../types';
+import { Resolver } from '../../../../types';
 
-type VoiceResolver = (
-  parent: Record<string, never>,
-  args: {
-    id: number;
-  },
-  context: ApiContext,
-) => Promise<Voice | null>;
+type VoiceResponse = Voice | null;
 
-export default <VoiceResolver>function voice(parent, { id }, { prisma }) {
-  return prisma.voice.findUnique({ where: { id } });
-};
+interface VoiceVariables {
+  id: number;
+}
+
+export const voice: Resolver<VoiceResponse, VoiceVariables> = (
+  parent,
+  { id },
+  { prisma },
+) => prisma.voice.findUnique({ where: { id } });

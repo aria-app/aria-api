@@ -1,19 +1,21 @@
 import { Song, Track } from '@prisma/client';
 
-type CreatedAtResolver = (parent: Song & { tracks: Track[] }) => string;
+import { Resolver } from '../../../../types';
 
-export const createdAt: CreatedAtResolver = (parent) => {
-  return parent.createdAt.toISOString();
-};
+export const createdAt: Resolver<
+  string,
+  Record<string, never>,
+  Song & { tracks: Track[] }
+> = async (parent) => parent.createdAt.toISOString();
 
-type TrackCountResolver = (parent: Song & { tracks: Track[] }) => number;
+export const trackCount: Resolver<
+  number,
+  Record<string, never>,
+  Song & { tracks: Track[] }
+> = async (parent) => parent.tracks.length;
 
-export const trackCount: TrackCountResolver = (parent) => {
-  return parent.tracks.length;
-};
-
-type UpdatedAtResolver = (parent: Song & { tracks: Track[] }) => string;
-
-export const updatedAt: UpdatedAtResolver = (parent) => {
-  return parent.updatedAt.toISOString();
-};
+export const updatedAt: Resolver<
+  string,
+  Record<string, never>,
+  Song & { tracks: Track[] }
+> = async (parent) => parent.updatedAt.toISOString();
