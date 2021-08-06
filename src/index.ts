@@ -1,4 +1,4 @@
-import getServer from './getServer';
+import { getServer } from './server';
 
 require('dotenv').config();
 

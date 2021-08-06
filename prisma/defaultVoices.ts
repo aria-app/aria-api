@@ -1,4 +1,4 @@
-export default [
+export const defaultVoices = [
   { name: 'Pulse', toneOscillatorType: 'pulse' },
   { name: 'PWM', toneOscillatorType: 'pwm' },
   { name: 'Sawtooth (Fat)', toneOscillatorType: 'fatsawtooth' },
