@@ -3,7 +3,7 @@ import merge from 'lodash/merge';
 
 import * as notes from './notes';
 import * as sequences from './sequences';
-import songs from './songs';
+import * as songs from './songs';
 import * as tracks from './tracks';
 import * as users from './users';
 import voices from './voices';

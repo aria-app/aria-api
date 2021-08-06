@@ -5,7 +5,7 @@ import {
   ForbiddenError,
 } from 'apollo-server';
 
-import { ApiContext } from '../../../../types';
+import { Resolver } from '../../../../types';
 
 interface DeleteSongResponse {
   message: string;
@@ -13,19 +13,14 @@ interface DeleteSongResponse {
   success: boolean;
 }
 
-type DeleteSongResolver = (
-  parent: Record<string, never>,
-  args: {
-    id: number;
-  },
-  context: ApiContext,
-) => Promise<DeleteSongResponse>;
+interface DeleteSongVariables {
+  id: number;
+}
 
-export const deleteSong: DeleteSongResolver = async (
-  _,
-  { id },
-  { currentUser, prisma },
-) => {
+export const deleteSong: Resolver<
+  DeleteSongResponse,
+  DeleteSongVariables
+> = async (_, { id }, { currentUser, prisma }) => {
   if (!currentUser) {
     throw new AuthenticationError('You are not authenticated.');
   }
