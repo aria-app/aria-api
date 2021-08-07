@@ -28,6 +28,7 @@ export const typeDefs = gql`
 
   type DeleteSequenceResponse {
     message: String!
+    sequence: Sequence
     success: Boolean!
       @deprecated(
         reason: "Success fields are deprecated in favor of returning meaningful data."
