@@ -1,11 +1,13 @@
 import { PrismaClient } from '@prisma/client';
+import { inject, injectable } from 'inversify';
 
 import { ID, Result, Song } from '../../../types';
 import { prismaSongToSongEntity } from '../mappers';
 import { SongRepository } from './SongRepository';
 
+@injectable()
 export class PrismaSongRepository implements SongRepository {
-  constructor(private prismaClient: PrismaClient) {}
+  constructor(@inject('PrismaClient') private prismaClient: PrismaClient) {}
 
   async getSongById(id: ID): Promise<Result<Song>> {
     const prismaSong = await this.prismaClient.song.findUnique({

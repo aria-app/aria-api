@@ -1,6 +1,7 @@
 import { AuthenticationError, ForbiddenError } from 'apollo-server';
 
 import { Resolver, Role, Song } from '../../../../types';
+import { SongRepository } from '../../repositories';
 
 interface SongVariables {
   id: number;
@@ -9,24 +10,25 @@ interface SongVariables {
 export const song: Resolver<Song | null, SongVariables> = async (
   _,
   { id },
-  { currentUser, repositories: { songRepository } },
+  { container, currentUser },
 ) => {
   if (!currentUser) {
     throw new AuthenticationError('You are not authenticated.');
   }
 
-  const getSongByIdResult = await songRepository.getSongById(id);
+  const songRepository = container.get<SongRepository>(SongRepository);
+  const songOrError = await songRepository.getSongById(id);
 
-  if (getSongByIdResult instanceof Error) {
-    throw getSongByIdResult;
+  if (songOrError instanceof Error) {
+    throw songOrError;
   }
 
   if (
     currentUser.role !== Role.ADMIN &&
-    String(currentUser.id) !== String(getSongByIdResult.user.id)
+    currentUser.id !== songOrError.user.id
   ) {
     throw new ForbiddenError('You are not authorized to view this data.');
   }
 
-  return getSongByIdResult;
+  return songOrError;
 };

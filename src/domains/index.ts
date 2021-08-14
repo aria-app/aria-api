@@ -8,7 +8,7 @@ import * as tracks from './tracks';
 import * as users from './users';
 import * as voices from './voices';
 
-export * from './Repositories';
+export * from './songs';
 
 export const resolvers = merge(
   notes.resolvers,

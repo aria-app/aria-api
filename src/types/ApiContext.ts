@@ -1,11 +1,10 @@
 import { PrismaClient, User } from '@prisma/client';
 import { ExpressContext } from 'apollo-server-express';
-
-import { Repositories } from '../domains';
+import { Container } from 'inversify';
 
 export interface ApiContext extends ExpressContext {
+  container: Container;
   currentUser: User | null;
   isAuthenticated: boolean;
   prisma: PrismaClient;
-  repositories: Repositories;
 }

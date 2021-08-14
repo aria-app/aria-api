@@ -2,24 +2,26 @@ import { PrismaClient, Role, User } from '@prisma/client';
 import { ExpressContext } from 'apollo-server-express';
 import cookie from 'cookie';
 import parseISO from 'date-fns/parseISO';
+import { Container } from 'inversify';
 
 import { ApiContext } from '../types';
 import { verifyToken } from './helpers';
 
 type GetContext = (options: {
-  repositories: ApiContext['repositories'];
+  container: Container;
   prisma: PrismaClient;
   skipAuth: boolean;
 }) => (expressContext: ExpressContext) => Promise<ApiContext>;
 
 export const getContext: GetContext = ({
+  container,
   prisma,
-  repositories,
   skipAuth,
 }) => async ({ req, ...rest }) => {
   if (skipAuth) {
     return {
       ...rest,
+      container,
       currentUser: {
         createdAt: parseISO('2021-02-04 16:44:50.667491'),
         email: 'admin@ariaapp.io',
@@ -31,7 +33,6 @@ export const getContext: GetContext = ({
       },
       isAuthenticated: true,
       prisma,
-      repositories,
       req,
     };
   }
@@ -64,5 +65,12 @@ export const getContext: GetContext = ({
     }
   }
 
-  return { ...rest, currentUser, isAuthenticated, prisma, repositories, req };
+  return {
+    ...rest,
+    container,
+    currentUser,
+    isAuthenticated,
+    prisma,
+    req,
+  };
 };
