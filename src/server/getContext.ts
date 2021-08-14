@@ -7,14 +7,16 @@ import { ApiContext } from '../types';
 import { verifyToken } from './helpers';
 
 type GetContext = (options: {
+  repositories: ApiContext['repositories'];
   prisma: PrismaClient;
   skipAuth: boolean;
 }) => (expressContext: ExpressContext) => Promise<ApiContext>;
 
-export const getContext: GetContext = ({ prisma, skipAuth }) => async ({
-  req,
-  ...rest
-}) => {
+export const getContext: GetContext = ({
+  prisma,
+  repositories,
+  skipAuth,
+}) => async ({ req, ...rest }) => {
   if (skipAuth) {
     return {
       ...rest,
@@ -29,6 +31,7 @@ export const getContext: GetContext = ({ prisma, skipAuth }) => async ({
       },
       isAuthenticated: true,
       prisma,
+      repositories,
       req,
     };
   }
@@ -61,5 +64,5 @@ export const getContext: GetContext = ({ prisma, skipAuth }) => async ({
     }
   }
 
-  return { ...rest, currentUser, isAuthenticated, prisma, req };
+  return { ...rest, currentUser, isAuthenticated, prisma, repositories, req };
 };

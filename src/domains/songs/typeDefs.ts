@@ -41,6 +41,27 @@ export const typeDefs = gql`
       )
   }
 
+  type Song {
+    bpm: Int!
+    createdAt: String!
+    id: Int!
+    measureCount: Int!
+    name: String!
+    trackCount: Int!
+    tracks: [Track]!
+    updatedAt: String!
+    user: SongUser!
+  }
+
+  type SongUser {
+    id: Int!
+  }
+
+  type SongsResponse {
+    data: [Song]!
+    meta: PaginationMetadata
+  }
+
   input UpdateSongInput {
     bpm: Int
     id: Int!
@@ -55,22 +76,5 @@ export const typeDefs = gql`
       @deprecated(
         reason: "Success fields are deprecated in favor of returning meaningful data."
       )
-  }
-
-  type Song {
-    bpm: Int!
-    createdAt: String!
-    id: Int!
-    measureCount: Int!
-    name: String!
-    trackCount: Int!
-    tracks: [Track]!
-    updatedAt: String!
-    user: User!
-  }
-
-  type SongsResponse {
-    data: [Song]!
-    meta: PaginationMetadata
   }
 `;
