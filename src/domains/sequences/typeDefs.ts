@@ -1,10 +1,6 @@
 import { gql } from 'apollo-server';
 
 export const typeDefs = gql`
-  extend type Query {
-    sequence(id: Int!): Sequence
-  }
-
   extend type Mutation {
     createSequence(input: CreateSequenceInput!): CreateSequenceResponse
     deleteSequence(id: Int!): DeleteSequenceResponse
@@ -20,28 +16,16 @@ export const typeDefs = gql`
   type CreateSequenceResponse {
     message: String!
     sequence: Sequence
-    success: Boolean!
-      @deprecated(
-        reason: "Success fields are deprecated in favor of returning meaningful data."
-      )
   }
 
   type DeleteSequenceResponse {
     message: String!
     sequence: Sequence
-    success: Boolean!
-      @deprecated(
-        reason: "Success fields are deprecated in favor of returning meaningful data."
-      )
   }
 
   type DuplicateSequenceResponse {
     message: String!
     sequence: Sequence
-    success: Boolean!
-      @deprecated(
-        reason: "Success fields are deprecated in favor of returning meaningful data."
-      )
   }
 
   type Sequence {
@@ -61,9 +45,5 @@ export const typeDefs = gql`
   type UpdateSequenceResponse {
     message: String!
     sequence: Sequence!
-    success: Boolean!
-      @deprecated(
-        reason: "Success fields are deprecated in favor of returning meaningful data."
-      )
   }
 `;

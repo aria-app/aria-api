@@ -21,28 +21,16 @@ export const typeDefs = gql`
   type CreateNoteResponse {
     message: String!
     note: Note!
-    success: Boolean!
-      @deprecated(
-        reason: "Success fields are deprecated in favor of returning meaningful data."
-      )
   }
 
   type DeleteNotesResponse {
     message: String!
     notes: [Note!]!
-    success: Boolean!
-      @deprecated(
-        reason: "Success fields are deprecated in favor of returning meaningful data."
-      )
   }
 
   type DuplicateNotesResponse {
     message: String!
     notes: [Note]!
-    success: Boolean!
-      @deprecated(
-        reason: "Success fields are deprecated in favor of returning meaningful data."
-      )
   }
 
   type Note {
@@ -73,9 +61,5 @@ export const typeDefs = gql`
   type UpdateNotesResponse {
     message: String!
     notes: [Note]!
-    success: Boolean!
-      @deprecated(
-        reason: "Success fields are deprecated in favor of returning meaningful data."
-      )
   }
 `;
