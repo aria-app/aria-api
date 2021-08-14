@@ -1,17 +1,26 @@
 import { isNil } from 'lodash';
 
-import { Result, Song } from '../../types';
+import { PrismaSong, Result, Song, Track } from '../../../types';
+import { mapPrismaTrackToTrackEntity } from '../../tracks';
 
-export function prismaSongToSongEntity({
-  bpm,
-  createdAt,
-  id,
-  measureCount,
-  name,
-  tracks,
-  updatedAt,
-  user,
-}: any = {}): Result<Song> {
+export function mapPrismaSongToSongEntity(
+  prismaSong: PrismaSong,
+): Result<Song> {
+  if (!prismaSong) {
+    return new Error('Prisma song was null or undefined');
+  }
+
+  const {
+    bpm,
+    createdAt,
+    id,
+    measureCount,
+    name,
+    tracks,
+    updatedAt,
+    user,
+  } = prismaSong;
+
   if (isNil(bpm)) {
     return new Error('Prisma song bpm was null or undefined');
   }
@@ -44,13 +53,22 @@ export function prismaSongToSongEntity({
     return new Error('Prisma song user was null or undefined');
   }
 
+  const tracksMapResults = tracks.map(mapPrismaTrackToTrackEntity);
+  const mappedTrackError = tracksMapResults.find(
+    (tracksMapResult) => tracksMapResult instanceof Error,
+  );
+
+  if (mappedTrackError instanceof Error) {
+    return mappedTrackError;
+  }
+
   return {
     bpm,
     createdAt,
     id,
     measureCount,
     name,
-    tracks,
+    tracks: tracksMapResults as Track[],
     updatedAt,
     user: {
       id: user.id,

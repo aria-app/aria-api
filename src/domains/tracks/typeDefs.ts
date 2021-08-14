@@ -40,9 +40,13 @@ export const typeDefs = gql`
     isSoloing: Boolean!
     position: Int!
     sequences: [Sequence]!
-    song: Song!
+    song: TrackSong!
     voice: Voice!
     volume: Int!
+  }
+
+  type TrackSong {
+    id: Int!
   }
 
   input UpdateTrackInput {

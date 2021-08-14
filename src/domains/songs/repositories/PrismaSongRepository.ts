@@ -2,14 +2,14 @@ import { PrismaClient } from '@prisma/client';
 import { inject, injectable } from 'inversify';
 
 import { ID, Result, Song } from '../../../types';
-import { prismaSongToSongEntity } from '../mappers';
+import { mapPrismaSongToSongEntity } from '../mappers';
 import { SongRepository } from './SongRepository';
 
 @injectable()
 export class PrismaSongRepository implements SongRepository {
   constructor(@inject('PrismaClient') private prismaClient: PrismaClient) {}
 
-  async getSongById(id: ID): Promise<Result<Song>> {
+  public async getSongById(id: ID): Promise<Result<Song>> {
     const prismaSong = await this.prismaClient.song.findUnique({
       include: {
         tracks: {
@@ -49,6 +49,6 @@ export class PrismaSongRepository implements SongRepository {
       return new Error('Song not found');
     }
 
-    return prismaSongToSongEntity(prismaSong);
+    return mapPrismaSongToSongEntity(prismaSong);
   }
 }
