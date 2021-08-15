@@ -1,4 +1,4 @@
-import { Role } from '../domain/Role';
+import { Role } from '@prisma/client';
 
 export interface PrismaUser {
   createdAt: Date;

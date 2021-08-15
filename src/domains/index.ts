@@ -6,6 +6,7 @@ import * as users from './users';
 import * as voices from './voices';
 
 export * from './songs';
+export * from './users';
 
 export const resolvers = merge(
   songs.resolvers,

@@ -2,15 +2,16 @@ import { Role, User } from '@prisma/client';
 import { AuthenticationError, ForbiddenError } from 'apollo-server';
 
 import { Resolver } from '../../../../types';
+import { UserRepository } from '../../repositories';
 
 interface UserVariables {
   id: number;
 }
 
-export const user: Resolver<User | null, UserVariables> = (
-  parent,
+export const user: Resolver<User | null, UserVariables> = async (
+  _,
   { id },
-  { currentUser, prisma },
+  { container, currentUser },
 ) => {
   if (!currentUser) {
     throw new AuthenticationError('You are not authenticated.');
@@ -20,5 +21,13 @@ export const user: Resolver<User | null, UserVariables> = (
     throw new ForbiddenError('You are not authorized to view this data.');
   }
 
-  return prisma.user.findUnique({ where: { id } });
+  const userRepository = container.get<UserRepository>(UserRepository);
+
+  const userOrError = await userRepository.getUserById(id);
+
+  if (userOrError instanceof Error) {
+    throw userOrError;
+  }
+
+  return userOrError;
 };
