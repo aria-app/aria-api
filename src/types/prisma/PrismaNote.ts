@@ -8,6 +8,6 @@ interface PrismaNoteSequence {
 
 export interface PrismaNote {
   id: ID;
-  points: Prisma.JsonArray;
+  points: Prisma.JsonValue;
   sequence: PrismaNoteSequence | null;
 }

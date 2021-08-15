@@ -36,7 +36,11 @@ export const typeDefs = gql`
   type Note {
     id: Int!
     points: [Point]!
-    sequence: Sequence!
+    sequence: NoteSequence!
+  }
+
+  type NoteSequence {
+    id: Int!
   }
 
   type Point {

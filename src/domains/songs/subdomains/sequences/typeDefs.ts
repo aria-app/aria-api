@@ -33,7 +33,11 @@ export const typeDefs = gql`
     measureCount: Int!
     notes: [Note]!
     position: Int!
-    track: Track!
+    track: SequenceTrack!
+  }
+
+  type SequenceTrack {
+    id: Int!
   }
 
   input UpdateSequenceInput {

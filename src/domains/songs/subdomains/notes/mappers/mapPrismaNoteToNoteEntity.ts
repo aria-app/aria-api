@@ -1,35 +1,7 @@
-import { Prisma } from '@prisma/client';
-import { isError, isNil, isNumber } from 'lodash';
+import { isArray, isError, isNil } from 'lodash';
 
 import { Note, Point, PrismaNote, Result } from '../../../../../types';
-
-function mapPrismaPointToPointEntity(
-  prismaPoint: Prisma.JsonValue,
-): Result<Point> {
-  if (isNil(prismaPoint)) {
-    return new Error('Prisma point was null or undefined');
-  }
-
-  const { x, y } = prismaPoint as Prisma.JsonObject;
-
-  if (isNil(x)) {
-    return new Error('Prisma point x coordinate was null or undefined');
-  }
-
-  if (!isNumber(x)) {
-    return new Error('Prisma point x coordinate must be a number');
-  }
-
-  if (isNil(y)) {
-    return new Error('Prisma point y coordinate was null or undefined');
-  }
-
-  if (!isNumber(y)) {
-    return new Error('Prisma point y coordinate must be a number');
-  }
-
-  return { x, y };
-}
+import { mapPrismaPointToPointEntity } from './mapPrismaPointToPointEntity';
 
 export function mapPrismaNoteToNoteEntity(
   prismaNote: PrismaNote,
@@ -46,6 +18,10 @@ export function mapPrismaNoteToNoteEntity(
 
   if (isNil(points)) {
     return new Error('Prisma note points was null or undefined');
+  }
+
+  if (!isArray(points)) {
+    return new Error('Prisma note points were not an array');
   }
 
   if (isNil(sequence)) {

@@ -38,15 +38,40 @@ export const songs: Resolver<PaginatedResponse<Song>, SongsVariables> = async (
   const songsPage = await prisma.song.findMany({
     include: {
       tracks: {
-        select: {
-          id: true,
+        include: {
+          sequences: {
+            include: {
+              notes: {
+                include: {
+                  sequence: {
+                    select: {
+                      id: true,
+                    },
+                  },
+                },
+              },
+              track: {
+                select: {
+                  id: true,
+                },
+              },
+            },
+          },
+          song: {
+            select: {
+              id: true,
+            },
+          },
+          voice: true,
         },
       },
       user: true,
     },
-    orderBy: {
-      [sort]: sortDirection,
-    },
+    orderBy: sort
+      ? {
+          [sort]: sortDirection,
+        }
+      : undefined,
     ...(!isNil(limit)
       ? {
           skip: (page - 1) * limit,
@@ -55,7 +80,7 @@ export const songs: Resolver<PaginatedResponse<Song>, SongsVariables> = async (
       : {}),
     where: {
       name: {
-        contains: search,
+        contains: search || '',
         mode: 'insensitive',
       },
       userId: filteredUserId,
@@ -65,7 +90,7 @@ export const songs: Resolver<PaginatedResponse<Song>, SongsVariables> = async (
   const totalItemCount = await prisma.song.count({
     where: {
       name: {
-        contains: search,
+        contains: search || '',
         mode: 'insensitive',
       },
       userId: filteredUserId,
@@ -75,7 +100,7 @@ export const songs: Resolver<PaginatedResponse<Song>, SongsVariables> = async (
   return {
     data: songsPage,
     meta: {
-      currentPage: page,
+      currentPage: page || 1,
       itemsPerPage: isNil(limit) ? totalItemCount : limit,
       totalItemCount,
     },
