@@ -1,8 +1,9 @@
-import { Role, Song } from '@prisma/client';
 import { AuthenticationError, ForbiddenError } from 'apollo-server';
-import isNil from 'lodash/fp/isNil';
+import { isError, isNumber } from 'lodash';
 
-import { PaginatedResponse, Resolver } from '../../../../types';
+import { getPaginatedResponseMetadata } from '../../../../shared';
+import { PaginatedResponse, Resolver, Role, Song } from '../../../../types';
+import { SongRepository } from '../../repositories';
 
 interface SongsVariables {
   limit?: number;
@@ -15,8 +16,8 @@ interface SongsVariables {
 
 export const songs: Resolver<PaginatedResponse<Song>, SongsVariables> = async (
   _,
-  { limit, page = 1, search, sort = 'name', sortDirection = 'asc', userId },
-  { currentUser, prisma },
+  { limit, page, search, sort, sortDirection, userId },
+  { container, currentUser },
 ) => {
   if (!currentUser) {
     throw new AuthenticationError('You are not authenticated.');
@@ -24,60 +25,41 @@ export const songs: Resolver<PaginatedResponse<Song>, SongsVariables> = async (
 
   if (
     currentUser.role !== Role.ADMIN &&
-    userId &&
-    String(currentUser.id) !== String(userId)
+    (!isNumber(userId) || currentUser.id !== userId)
   ) {
     throw new ForbiddenError('You are not authorized to view this data.');
   }
 
-  const filteredUserId =
-    currentUser.role !== Role.ADMIN || userId
-      ? userId || currentUser.id
-      : undefined;
+  const songRepository = container.get<SongRepository>(SongRepository);
 
-  const songsPage = await prisma.song.findMany({
-    include: {
-      tracks: {
-        select: {
-          id: true,
-        },
-      },
-      user: true,
-    },
-    orderBy: {
-      [sort]: sortDirection,
-    },
-    ...(!isNil(limit)
-      ? {
-          skip: (page - 1) * limit,
-          take: limit,
-        }
-      : {}),
-    where: {
-      name: {
-        contains: search,
-        mode: 'insensitive',
-      },
-      userId: filteredUserId,
-    },
+  const getSongsResult = await songRepository.getSongs({
+    limit,
+    page,
+    search,
+    sort,
+    sortDirection,
+    userId,
   });
 
-  const totalItemCount = await prisma.song.count({
-    where: {
-      name: {
-        contains: search,
-        mode: 'insensitive',
-      },
-      userId: filteredUserId,
-    },
+  if (isError(getSongsResult)) {
+    throw getSongsResult;
+  }
+
+  const getSongsCountResult = await songRepository.getSongsCount({
+    search,
+    userId,
   });
+
+  if (isError(getSongsCountResult)) {
+    throw getSongsCountResult;
+  }
 
   return {
-    data: songsPage,
-    meta: {
-      currentPage: page,
-      itemsPerPage: isNil(limit) ? totalItemCount : limit,
-      totalItemCount,
-    },
+    data: getSongsResult,
+    meta: getPaginatedResponseMetadata({
+      limit,
+      page,
+      totalItemCount: getSongsCountResult,
+    }),
   };
 };

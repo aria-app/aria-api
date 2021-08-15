@@ -1,6 +1,13 @@
 import { gql } from 'apollo-server';
 
+import * as notes from './subdomains/notes';
+import * as sequences from './subdomains/sequences';
+import * as tracks from './subdomains/tracks';
+
 export const typeDefs = gql`
+  ${notes.typeDefs}
+  ${sequences.typeDefs}
+  ${tracks.typeDefs}
   extend type Query {
     song(id: Int!): Song
     songs(
@@ -26,19 +33,32 @@ export const typeDefs = gql`
   type CreateSongResponse {
     message: String!
     song: Song!
-    success: Boolean!
-      @deprecated(
-        reason: "Success fields are deprecated in favor of returning meaningful data."
-      )
   }
 
   type DeleteSongResponse {
     message: String!
     song: Song!
-    success: Boolean!
-      @deprecated(
-        reason: "Success fields are deprecated in favor of returning meaningful data."
-      )
+  }
+
+  type Song {
+    bpm: Int!
+    createdAt: String!
+    id: Int!
+    measureCount: Int!
+    name: String!
+    trackCount: Int!
+    tracks: [Track]!
+    updatedAt: String!
+    user: SongUser!
+  }
+
+  type SongUser {
+    id: Int!
+  }
+
+  type SongsResponse {
+    data: [Song]!
+    meta: PaginationMetadata
   }
 
   input UpdateSongInput {
@@ -51,26 +71,5 @@ export const typeDefs = gql`
   type UpdateSongResponse {
     message: String!
     song: Song!
-    success: Boolean!
-      @deprecated(
-        reason: "Success fields are deprecated in favor of returning meaningful data."
-      )
-  }
-
-  type Song {
-    bpm: Int!
-    createdAt: String!
-    id: Int!
-    measureCount: Int!
-    name: String!
-    trackCount: Int!
-    tracks: [Track]!
-    updatedAt: String!
-    user: User!
-  }
-
-  type SongsResponse {
-    data: [Song]!
-    meta: PaginationMetadata
   }
 `;

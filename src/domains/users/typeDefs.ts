@@ -3,7 +3,6 @@ import { gql } from 'apollo-server';
 export const typeDefs = gql`
   extend type Query {
     currentUser: User
-    me: User @deprecated(reason: "Use the currentUser query instead.")
     user(id: Int!): User
     users(
       limit: Int
@@ -28,10 +27,6 @@ export const typeDefs = gql`
 
   type LoginResponse {
     expiresAt: Int
-    success: Boolean!
-      @deprecated(
-        reason: "Success fields are deprecated in favor of returning meaningful data."
-      )
     token: String
     user: User
   }
@@ -42,10 +37,6 @@ export const typeDefs = gql`
 
   type RegisterResponse {
     expiresAt: Int
-    success: Boolean!
-      @deprecated(
-        reason: "Success fields are deprecated in favor of returning meaningful data."
-      )
     token: String
     user: User
   }
@@ -64,10 +55,6 @@ export const typeDefs = gql`
 
   type UpdateUserResponse {
     message: String!
-    success: Boolean!
-      @deprecated(
-        reason: "Success fields are deprecated in favor of returning meaningful data."
-      )
     user: User
   }
 

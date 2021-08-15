@@ -1,19 +1,19 @@
-import { PrismaClient } from '@prisma/client';
 import { ApolloServer } from 'apollo-server';
+import { ApolloServerExpressConfig } from 'apollo-server-express';
 
-import { getContext } from './getContext';
 import { resolvers } from './resolvers';
 import { typeDefs } from './typeDefs';
 
-export function getServer({ skipAuth } = { skipAuth: false }): ApolloServer {
+type GetServer = (
+  context: ApolloServerExpressConfig['context'],
+) => ApolloServer;
+
+export const getServer: GetServer = (context) => {
   return new ApolloServer({
-    context: getContext({
-      prisma: new PrismaClient(),
-      skipAuth,
-    }),
+    context,
     introspection: true,
     playground: true,
     resolvers,
     typeDefs,
   });
-}
+};

@@ -23,6 +23,8 @@ module.exports = {
     'new-cap': 0,
     'no-console': 1,
     'no-underscore-dangle': 0,
+    'no-use-before-define': ['error', { classes: false, functions: false }],
+    'no-useless-constructor': 0,
     'simple-import-sort/exports': 'error',
     'simple-import-sort/imports': 'error',
     'sort-imports': 0,

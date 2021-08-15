@@ -1,11 +1,8 @@
-import { Role, Song } from '@prisma/client';
-import {
-  ApolloError,
-  AuthenticationError,
-  ForbiddenError,
-} from 'apollo-server';
+import { AuthenticationError, ForbiddenError } from 'apollo-server';
+import { isError } from 'lodash';
 
-import { Resolver } from '../../../../types';
+import { Resolver, Role, Song } from '../../../../types';
+import { SongRepository } from '../../repositories';
 
 interface SongVariables {
   id: number;
@@ -14,57 +11,25 @@ interface SongVariables {
 export const song: Resolver<Song | null, SongVariables> = async (
   _,
   { id },
-  { currentUser, prisma },
+  { container, currentUser },
 ) => {
   if (!currentUser) {
     throw new AuthenticationError('You are not authenticated.');
   }
 
-  const foundSong = await prisma.song.findUnique({
-    include: {
-      tracks: {
-        include: {
-          sequences: {
-            include: {
-              notes: {
-                include: {
-                  sequence: {
-                    select: {
-                      id: true,
-                    },
-                  },
-                },
-              },
-              track: {
-                select: {
-                  id: true,
-                },
-              },
-            },
-          },
-          song: {
-            select: {
-              id: true,
-            },
-          },
-          voice: true,
-        },
-      },
-      user: true,
-    },
-    where: { id },
-  });
+  const songRepository = container.get<SongRepository>(SongRepository);
+  const songOrError = await songRepository.getSongById(id);
 
-  if (!foundSong) {
-    throw new ApolloError('Song was not found', 'NOT_FOUND');
+  if (isError(songOrError)) {
+    throw songOrError;
   }
 
   if (
     currentUser.role !== Role.ADMIN &&
-    String(currentUser.id) !== String(foundSong.userId)
+    currentUser.id !== songOrError.user.id
   ) {
     throw new ForbiddenError('You are not authorized to view this data.');
   }
 
-  return foundSong;
+  return songOrError;
 };
