@@ -1,9 +1,10 @@
-import { PrismaClient } from '@prisma/client';
+import { Prisma, PrismaClient } from '@prisma/client';
 import { inject, injectable } from 'inversify';
+import { isNumber, isString } from 'lodash';
 
 import { ID, Result, User } from '../../../types';
 import { mapPrismaUserToUserEntity } from '../mappers';
-import { UserRepository } from './UserRepository';
+import { UserRepository, UsersQueryOptions } from './UserRepository';
 
 @injectable()
 export class PrismaUserRepository implements UserRepository {
@@ -19,5 +20,58 @@ export class PrismaUserRepository implements UserRepository {
     }
 
     return mapPrismaUserToUserEntity(prismaUser);
+  }
+
+  public async getUsers({
+    limit,
+    page = 1,
+    search,
+    sort,
+    sortDirection,
+  }: UsersQueryOptions): Promise<Result<User[]>> {
+    try {
+      const where: Prisma.UserWhereInput = isString(search)
+        ? {
+            OR: [
+              {
+                firstName: {
+                  contains: search,
+                  mode: 'insensitive',
+                },
+              },
+              {
+                lastName: {
+                  contains: search,
+                  mode: 'insensitive',
+                },
+              },
+            ],
+          }
+        : {};
+      const orderBy = sort ? { [sort]: sortDirection } : undefined;
+      const skip =
+        isNumber(limit) && isNumber(page) ? (page - 1) * limit : undefined;
+      const take = isNumber(limit) ? limit : undefined;
+
+      const prismaUsers = await this.prismaClient.user.findMany({
+        orderBy,
+        skip,
+        take,
+        where,
+      });
+
+      const usersMapResults = prismaUsers.map(mapPrismaUserToUserEntity);
+      const mappedUserError = usersMapResults.find(
+        (usersMapResult) => usersMapResult instanceof Error,
+      );
+
+      if (mappedUserError instanceof Error) {
+        return mappedUserError;
+      }
+
+      return usersMapResults as User[];
+    } catch (error) {
+      return error;
+    }
   }
 }
