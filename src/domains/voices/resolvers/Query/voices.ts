@@ -1,13 +1,55 @@
 import { Voice } from '@prisma/client';
+import { AuthenticationError } from 'apollo-server';
+import { isError } from 'lodash';
 
-import { Resolver } from '../../../../types';
+import { getPaginatedResponseMetadata } from '../../../../shared';
+import { PaginatedResponse, Resolver } from '../../../../types';
+import { VoiceRepository } from '../../repositories';
 
-type VoicesResponse = Voice[];
+interface VoicesVariables {
+  limit?: number;
+  page: number;
+  sort: string;
+  sortDirection: string;
+}
 
-type VoicesVariables = Record<string, never>;
-
-export const voices: Resolver<VoicesResponse, VoicesVariables> = (
+export const voices: Resolver<
+  PaginatedResponse<Voice>,
+  VoicesVariables
+> = async (
   parent,
-  args,
-  { prisma },
-) => prisma.voice.findMany({ orderBy: { name: 'asc' } });
+  { limit, page, sort, sortDirection },
+  { container, currentUser },
+) => {
+  if (!currentUser) {
+    throw new AuthenticationError('You are not authenticated.');
+  }
+
+  const voiceRepository = container.get<VoiceRepository>(VoiceRepository);
+
+  const getVoicesResult = await voiceRepository.getVoices({
+    limit,
+    page,
+    sort,
+    sortDirection,
+  });
+
+  if (isError(getVoicesResult)) {
+    throw getVoicesResult;
+  }
+
+  const getVoicesCountResult = await voiceRepository.getVoicesCount();
+
+  if (isError(getVoicesCountResult)) {
+    throw getVoicesCountResult;
+  }
+
+  return {
+    data: getVoicesResult,
+    meta: getPaginatedResponseMetadata({
+      limit,
+      page,
+      totalItemCount: getVoicesCountResult,
+    }),
+  };
+};

@@ -34,17 +34,12 @@ export class PrismaSongRepository implements SongRepository {
     userId,
   }: GetSongsOptions): Promise<Result<Song[]>> {
     try {
-      const orderBy = getOrderBy(sort, sortDirection);
-      const skip = getSkip(limit, page);
-      const take = getTake(limit);
-      const where = getSongWhereInput(userId, search);
-
       const prismaSongs = await this.prismaClient.song.findMany({
         include: getSongInclude(),
-        orderBy,
-        skip,
-        take,
-        where,
+        orderBy: getOrderBy(sort, sortDirection),
+        skip: getSkip(limit, page),
+        take: getTake(limit),
+        where: getSongWhereInput(userId, search),
       });
 
       const songsMapResults = prismaSongs.map(mapPrismaSongToSongEntity);
