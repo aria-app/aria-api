@@ -41,12 +41,12 @@ export const users: Resolver<PaginatedResponse<User>, UsersVariables> = async (
     throw getUsersResult;
   }
 
-  const getUsersTotalCountResult = await userRepository.getUsersTotalCount({
+  const getUsersCountResult = await userRepository.getUsersCount({
     search,
   });
 
-  if (isError(getUsersTotalCountResult)) {
-    throw getUsersTotalCountResult;
+  if (isError(getUsersCountResult)) {
+    throw getUsersCountResult;
   }
 
   return {
@@ -54,7 +54,7 @@ export const users: Resolver<PaginatedResponse<User>, UsersVariables> = async (
     meta: getPaginatedResponseMetadata({
       limit,
       page,
-      totalItemCount: getUsersTotalCountResult,
+      totalItemCount: getUsersCountResult,
     }),
   };
 };

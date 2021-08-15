@@ -1,5 +1,6 @@
 import { Role, Song } from '@prisma/client';
 import { AuthenticationError, ForbiddenError } from 'apollo-server';
+import { isNumber } from 'lodash';
 import isNil from 'lodash/fp/isNil';
 
 import { PaginatedResponse, Resolver } from '../../../../types';
@@ -22,6 +23,10 @@ export const songs: Resolver<PaginatedResponse<Song>, SongsVariables> = async (
     throw new AuthenticationError('You are not authenticated.');
   }
 
+  if (currentUser.role !== Role.ADMIN && !isNumber(userId)) {
+    throw new ForbiddenError('You are not authorized to view this data.');
+  }
+
   if (
     currentUser.role !== Role.ADMIN &&
     userId &&
@@ -29,11 +34,6 @@ export const songs: Resolver<PaginatedResponse<Song>, SongsVariables> = async (
   ) {
     throw new ForbiddenError('You are not authorized to view this data.');
   }
-
-  const filteredUserId =
-    currentUser.role !== Role.ADMIN || userId
-      ? userId || currentUser.id
-      : undefined;
 
   const songsPage = await prisma.song.findMany({
     include: {
@@ -83,7 +83,7 @@ export const songs: Resolver<PaginatedResponse<Song>, SongsVariables> = async (
         contains: search || '',
         mode: 'insensitive',
       },
-      userId: filteredUserId,
+      ...(isNumber(userId) ? { userId } : {}),
     },
   });
 
@@ -93,7 +93,7 @@ export const songs: Resolver<PaginatedResponse<Song>, SongsVariables> = async (
         contains: search || '',
         mode: 'insensitive',
       },
-      userId: filteredUserId,
+      ...(isNumber(userId) ? { userId } : {}),
     },
   });
 

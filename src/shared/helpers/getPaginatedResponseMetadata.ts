@@ -1,4 +1,5 @@
 import { isNumber } from 'lodash';
+
 import { PaginatedResponseMetadata } from '../../types';
 
 export interface PaginatedResponseMetadataOptions {

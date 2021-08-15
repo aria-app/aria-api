@@ -4,11 +4,7 @@ import { isError, isNumber, isString } from 'lodash';
 
 import { ID, Result, User } from '../../../types';
 import { mapPrismaUserToUserEntity } from '../mappers';
-import {
-  GetUsersOptions,
-  GetUsersTotalCountOptions,
-  UserRepository,
-} from './UserRepository';
+import { GetUsersOptions, UserRepository } from './UserRepository';
 
 @injectable()
 export class PrismaUserRepository implements UserRepository {
@@ -62,9 +58,9 @@ export class PrismaUserRepository implements UserRepository {
     }
   }
 
-  public async getUsersTotalCount({
+  public async getUsersCount({
     search,
-  }: GetUsersTotalCountOptions): Promise<Result<number>> {
+  }: GetUsersOptions): Promise<Result<number>> {
     try {
       const where = getUserWhereInput(search);
 
