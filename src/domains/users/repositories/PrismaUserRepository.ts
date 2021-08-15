@@ -1,10 +1,14 @@
 import { Prisma, PrismaClient } from '@prisma/client';
 import { inject, injectable } from 'inversify';
-import { isNumber, isString } from 'lodash';
+import { isError, isNumber, isString } from 'lodash';
 
 import { ID, Result, User } from '../../../types';
 import { mapPrismaUserToUserEntity } from '../mappers';
-import { UserRepository, UsersQueryOptions } from './UserRepository';
+import {
+  GetUsersOptions,
+  GetUsersTotalCountOptions,
+  UserRepository,
+} from './UserRepository';
 
 @injectable()
 export class PrismaUserRepository implements UserRepository {
@@ -28,26 +32,9 @@ export class PrismaUserRepository implements UserRepository {
     search,
     sort,
     sortDirection,
-  }: UsersQueryOptions): Promise<Result<User[]>> {
+  }: GetUsersOptions): Promise<Result<User[]>> {
     try {
-      const where: Prisma.UserWhereInput = isString(search)
-        ? {
-            OR: [
-              {
-                firstName: {
-                  contains: search,
-                  mode: 'insensitive',
-                },
-              },
-              {
-                lastName: {
-                  contains: search,
-                  mode: 'insensitive',
-                },
-              },
-            ],
-          }
-        : {};
+      const where = getUserWhereInput(search);
       const orderBy = sort ? { [sort]: sortDirection } : undefined;
       const skip =
         isNumber(limit) && isNumber(page) ? (page - 1) * limit : undefined;
@@ -61,11 +48,11 @@ export class PrismaUserRepository implements UserRepository {
       });
 
       const usersMapResults = prismaUsers.map(mapPrismaUserToUserEntity);
-      const mappedUserError = usersMapResults.find(
-        (usersMapResult) => usersMapResult instanceof Error,
+      const mappedUserError = usersMapResults.find((usersMapResult) =>
+        isError(usersMapResult),
       );
 
-      if (mappedUserError instanceof Error) {
+      if (isError(mappedUserError)) {
         return mappedUserError;
       }
 
@@ -74,4 +61,37 @@ export class PrismaUserRepository implements UserRepository {
       return error;
     }
   }
+
+  public async getUsersTotalCount({
+    search,
+  }: GetUsersTotalCountOptions): Promise<Result<number>> {
+    try {
+      const where = getUserWhereInput(search);
+
+      return this.prismaClient.user.count({ where });
+    } catch (error) {
+      return error;
+    }
+  }
+}
+
+function getUserWhereInput(search?: string): Prisma.UserWhereInput | undefined {
+  return isString(search)
+    ? {
+        OR: [
+          {
+            firstName: {
+              contains: search,
+              mode: 'insensitive',
+            },
+          },
+          {
+            lastName: {
+              contains: search,
+              mode: 'insensitive',
+            },
+          },
+        ],
+      }
+    : undefined;
 }

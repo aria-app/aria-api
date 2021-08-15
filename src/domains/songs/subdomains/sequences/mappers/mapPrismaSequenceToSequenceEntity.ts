@@ -1,4 +1,4 @@
-import { isNil } from 'lodash';
+import { isError, isNil } from 'lodash';
 
 import { Note, PrismaSequence, Result, Sequence } from '../../../../../types';
 import { mapPrismaNoteToNoteEntity } from '../../notes';
@@ -33,11 +33,11 @@ export function mapPrismaSequenceToSequenceEntity(
   }
 
   const notesMapResults = notes.map(mapPrismaNoteToNoteEntity);
-  const mappedNoteError = notesMapResults.find(
-    (notesMapResult) => notesMapResult instanceof Error,
+  const mappedNoteError = notesMapResults.find((notesMapResult) =>
+    isError(notesMapResult),
   );
 
-  if (mappedNoteError instanceof Error) {
+  if (isError(mappedNoteError)) {
     return mappedNoteError;
   }
 

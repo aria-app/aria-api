@@ -1,7 +1,8 @@
 import { Role, User } from '@prisma/client';
 import { AuthenticationError, ForbiddenError } from 'apollo-server';
-import isNil from 'lodash/fp/isNil';
+import { isError } from 'lodash';
 
+import { getPaginatedResponseMetadata } from '../../../../shared';
 import { PaginatedResponse, Resolver } from '../../../../types';
 import { UserRepository } from '../../repositories';
 
@@ -16,7 +17,7 @@ interface UsersVariables {
 export const users: Resolver<PaginatedResponse<User>, UsersVariables> = async (
   _,
   { limit, page, search, sort, sortDirection },
-  { container, currentUser, prisma },
+  { container, currentUser },
 ) => {
   if (!currentUser) {
     throw new AuthenticationError('You are not authenticated.');
@@ -36,35 +37,24 @@ export const users: Resolver<PaginatedResponse<User>, UsersVariables> = async (
     sortDirection,
   });
 
-  if (getUsersResult instanceof Error) {
+  if (isError(getUsersResult)) {
     throw getUsersResult;
   }
 
-  const totalItemCount = await prisma.user.count({
-    where: {
-      OR: [
-        {
-          firstName: {
-            contains: search || '',
-            mode: 'insensitive' as const,
-          },
-        },
-        {
-          lastName: {
-            contains: search || '',
-            mode: 'insensitive' as const,
-          },
-        },
-      ],
-    },
+  const getUsersTotalCountResult = await userRepository.getUsersTotalCount({
+    search,
   });
+
+  if (isError(getUsersTotalCountResult)) {
+    throw getUsersTotalCountResult;
+  }
 
   return {
     data: getUsersResult,
-    meta: {
-      currentPage: page || 1,
-      itemsPerPage: isNil(limit) ? totalItemCount : limit,
-      totalItemCount,
-    },
+    meta: getPaginatedResponseMetadata({
+      limit,
+      page,
+      totalItemCount: getUsersTotalCountResult,
+    }),
   };
 };

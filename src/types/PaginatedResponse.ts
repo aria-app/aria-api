@@ -1,4 +1,4 @@
-interface PaginatedResponseMetadata {
+export interface PaginatedResponseMetadata {
   currentPage: number;
   itemsPerPage: number;
   totalItemCount: number;

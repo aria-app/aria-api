@@ -1,5 +1,5 @@
 import { Prisma } from '@prisma/client';
-import { isNil, isNumber } from 'lodash';
+import { isError, isNil, isNumber } from 'lodash';
 
 import { Note, Point, PrismaNote, Result } from '../../../../../types';
 
@@ -53,11 +53,11 @@ export function mapPrismaNoteToNoteEntity(
   }
 
   const pointsMapResults = points.map(mapPrismaPointToPointEntity);
-  const mappedPointError = pointsMapResults.find(
-    (pointsMapResult) => pointsMapResult instanceof Error,
+  const mappedPointError = pointsMapResults.find((pointsMapResult) =>
+    isError(pointsMapResult),
   );
 
-  if (mappedPointError instanceof Error) {
+  if (isError(mappedPointError)) {
     return mappedPointError;
   }
 

@@ -1,4 +1,4 @@
-import { isNil } from 'lodash';
+import { isError, isNil } from 'lodash';
 
 import { PrismaTrack, Result, Sequence, Track } from '../../../../../types';
 import { mapPrismaSequenceToSequenceEntity } from '../../sequences';
@@ -54,11 +54,11 @@ export function mapPrismaTrackToTrackEntity(
   }
 
   const sequencesMapResults = sequences.map(mapPrismaSequenceToSequenceEntity);
-  const mappedSequenceError = sequencesMapResults.find(
-    (sequencesMapResult) => sequencesMapResult instanceof Error,
+  const mappedSequenceError = sequencesMapResults.find((sequencesMapResult) =>
+    isError(sequencesMapResult),
   );
 
-  if (mappedSequenceError instanceof Error) {
+  if (isError(mappedSequenceError)) {
     return mappedSequenceError;
   }
 

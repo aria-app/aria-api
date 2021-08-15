@@ -1,6 +1,6 @@
 import { ID, Result, User } from '../../../types';
 
-export interface UsersQueryOptions {
+export interface GetUsersOptions {
   limit?: number;
   page: number;
   search: string;
@@ -8,8 +8,15 @@ export interface UsersQueryOptions {
   sortDirection: string;
 }
 
+export interface GetUsersTotalCountOptions {
+  search: string;
+}
+
 export const UserRepository = Symbol('UserRepository');
 export interface UserRepository {
   getUserById(id: ID): Promise<Result<User>>;
-  getUsers(usersQueryOptions: UsersQueryOptions): Promise<Result<User[]>>;
+  getUsers(getUsersOptions: GetUsersOptions): Promise<Result<User[]>>;
+  getUsersTotalCount(
+    getUsersTotalCountOptions: GetUsersTotalCountOptions,
+  ): Promise<Result<number>>;
 }

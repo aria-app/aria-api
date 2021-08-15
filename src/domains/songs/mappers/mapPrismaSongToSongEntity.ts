@@ -1,4 +1,4 @@
-import { isNil } from 'lodash';
+import { isError, isNil } from 'lodash';
 
 import { PrismaSong, Result, Song, Track } from '../../../types';
 import { mapPrismaTrackToTrackEntity } from '../subdomains/tracks';
@@ -54,11 +54,11 @@ export function mapPrismaSongToSongEntity(
   }
 
   const tracksMapResults = tracks.map(mapPrismaTrackToTrackEntity);
-  const mappedTrackError = tracksMapResults.find(
-    (tracksMapResult) => tracksMapResult instanceof Error,
+  const mappedTrackError = tracksMapResults.find((tracksMapResult) =>
+    isError(tracksMapResult),
   );
 
-  if (mappedTrackError instanceof Error) {
+  if (isError(mappedTrackError)) {
     return mappedTrackError;
   }
 

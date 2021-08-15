@@ -1,4 +1,5 @@
 import { AuthenticationError, ForbiddenError } from 'apollo-server';
+import { isError } from 'lodash';
 
 import { Resolver, Role, Song } from '../../../../types';
 import { SongRepository } from '../../repositories';
@@ -19,7 +20,7 @@ export const song: Resolver<Song | null, SongVariables> = async (
   const songRepository = container.get<SongRepository>(SongRepository);
   const songOrError = await songRepository.getSongById(id);
 
-  if (songOrError instanceof Error) {
+  if (isError(songOrError)) {
     throw songOrError;
   }
 

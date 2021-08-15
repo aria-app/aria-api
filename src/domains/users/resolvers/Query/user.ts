@@ -1,5 +1,6 @@
 import { Role, User } from '@prisma/client';
 import { AuthenticationError, ForbiddenError } from 'apollo-server';
+import { isError } from 'lodash';
 
 import { Resolver } from '../../../../types';
 import { UserRepository } from '../../repositories';
@@ -25,7 +26,7 @@ export const user: Resolver<User | null, UserVariables> = async (
 
   const userOrError = await userRepository.getUserById(id);
 
-  if (userOrError instanceof Error) {
+  if (isError(userOrError)) {
     throw userOrError;
   }
 
