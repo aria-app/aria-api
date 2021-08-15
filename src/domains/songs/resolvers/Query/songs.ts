@@ -17,20 +17,15 @@ interface SongsVariables {
 export const songs: Resolver<PaginatedResponse<Song>, SongsVariables> = async (
   _,
   { limit, page, search, sort, sortDirection, userId },
-  { container, currentUser, prisma },
+  { container, currentUser },
 ) => {
   if (!currentUser) {
     throw new AuthenticationError('You are not authenticated.');
   }
 
-  if (currentUser.role !== Role.ADMIN && !isNumber(userId)) {
-    throw new ForbiddenError('You are not authorized to view this data.');
-  }
-
   if (
     currentUser.role !== Role.ADMIN &&
-    userId &&
-    String(currentUser.id) !== String(userId)
+    (!isNumber(userId) || currentUser.id !== userId)
   ) {
     throw new ForbiddenError('You are not authorized to view this data.');
   }
@@ -50,18 +45,21 @@ export const songs: Resolver<PaginatedResponse<Song>, SongsVariables> = async (
     throw getSongsResult;
   }
 
-  const totalItemCount = await prisma.song.count({
-    where: {
-      name: {
-        contains: search || '',
-        mode: 'insensitive',
-      },
-      ...(isNumber(userId) ? { userId } : {}),
-    },
+  const getSongsCountResult = await songRepository.getSongsCount({
+    search,
+    userId,
   });
+
+  if (isError(getSongsCountResult)) {
+    throw getSongsCountResult;
+  }
 
   return {
     data: getSongsResult,
-    meta: getPaginatedResponseMetadata({ limit, page, totalItemCount }),
+    meta: getPaginatedResponseMetadata({
+      limit,
+      page,
+      totalItemCount: getSongsCountResult,
+    }),
   };
 };

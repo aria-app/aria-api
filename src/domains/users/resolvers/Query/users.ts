@@ -1,9 +1,8 @@
-import { Role, User } from '@prisma/client';
 import { AuthenticationError, ForbiddenError } from 'apollo-server';
 import { isError } from 'lodash';
 
 import { getPaginatedResponseMetadata } from '../../../../shared';
-import { PaginatedResponse, Resolver } from '../../../../types';
+import { PaginatedResponse, Resolver, Role, User } from '../../../../types';
 import { UserRepository } from '../../repositories';
 
 interface UsersVariables {
@@ -41,9 +40,7 @@ export const users: Resolver<PaginatedResponse<User>, UsersVariables> = async (
     throw getUsersResult;
   }
 
-  const getUsersCountResult = await userRepository.getUsersCount({
-    search,
-  });
+  const getUsersCountResult = await userRepository.getUsersCount({ search });
 
   if (isError(getUsersCountResult)) {
     throw getUsersCountResult;

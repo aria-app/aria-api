@@ -62,9 +62,18 @@ export class PrismaSongRepository implements SongRepository {
     }
   }
 
-  // public async getSongsCount({}: GetSongsOptions): Promise<Result<number>> {
-  //   return 2;
-  // }
+  public async getSongsCount({
+    search,
+    userId,
+  }: GetSongsOptions): Promise<Result<number>> {
+    try {
+      return this.prismaClient.song.count({
+        where: getSongWhereInput(userId, search),
+      });
+    } catch (error) {
+      return error;
+    }
+  }
 }
 
 function getSongInclude() {

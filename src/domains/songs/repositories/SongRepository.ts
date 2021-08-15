@@ -13,5 +13,5 @@ export const SongRepository = Symbol('SongRepository');
 export interface SongRepository {
   getSongById(id: ID): Promise<Result<Song>>;
   getSongs(options: GetSongsOptions): Promise<Result<Song[]>>;
-  // getSongsCount(options: GetSongsOptions): Promise<Result<number>>;
+  getSongsCount(options: GetSongsOptions): Promise<Result<number>>;
 }
