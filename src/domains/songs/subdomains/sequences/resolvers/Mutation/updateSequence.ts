@@ -4,33 +4,39 @@ import {
   AuthenticationError,
   ForbiddenError,
 } from 'apollo-server';
+import isNil from 'lodash/fp/isNil';
+import omitBy from 'lodash/fp/omitBy';
 
-import { Resolver } from '../../../../types';
+import { Resolver } from '../../../../../../types';
 
-interface CreateSequenceResponse {
+interface UpdateSequenceResponse {
   message: string;
   sequence: Sequence;
   success: boolean;
 }
 
-interface CreateSequenceVariables {
+interface UpdateSequenceVariables {
   input: {
-    position: number;
-    trackId: number;
+    id: number;
+    measureCount?: number;
+    position?: number;
   };
 }
 
-export const createSequence: Resolver<
-  CreateSequenceResponse,
-  CreateSequenceVariables
+export const updateSequence: Resolver<
+  UpdateSequenceResponse,
+  UpdateSequenceVariables
 > = async (_, { input }, { currentUser, prisma }) => {
-  const { position, trackId } = input;
+  const { id, measureCount, position } = input;
 
   if (!currentUser) {
     throw new AuthenticationError('You are not authenticated.');
   }
 
-  const song = await prisma.track.findUnique({ where: { id: trackId } }).song();
+  const song = await prisma.sequence
+    .findUnique({ where: { id } })
+    .track()
+    .song();
 
   if (!song) {
     throw new ApolloError('Could not find corresponding song.');
@@ -42,16 +48,11 @@ export const createSequence: Resolver<
     );
   }
 
-  const newSequence = await prisma.sequence.create({
-    data: {
-      measureCount: 1,
+  const updatedSequence = await prisma.sequence.update({
+    data: omitBy(isNil, {
+      measureCount,
       position,
-      track: {
-        connect: {
-          id: trackId,
-        },
-      },
-    },
+    }),
     include: {
       notes: {
         include: {
@@ -64,6 +65,9 @@ export const createSequence: Resolver<
       },
       track: true,
     },
+    where: {
+      id,
+    },
   });
 
   await prisma.song.update({
@@ -72,8 +76,8 @@ export const createSequence: Resolver<
   });
 
   return {
-    message: 'Sequence was created successfully.',
-    sequence: newSequence,
+    message: 'Sequence was updated successfully.',
+    sequence: updatedSequence,
     success: true,
   };
 };

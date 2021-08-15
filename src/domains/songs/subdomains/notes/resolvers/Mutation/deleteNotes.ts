@@ -7,7 +7,7 @@ import {
 } from 'apollo-server';
 import isEmpty from 'lodash/fp/isEmpty';
 
-import { Resolver } from '../../../../types';
+import { Resolver } from '../../../../../../types';
 
 interface DeleteNotesResponse {
   message: string;

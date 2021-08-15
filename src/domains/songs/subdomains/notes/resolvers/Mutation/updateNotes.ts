@@ -7,36 +7,36 @@ import {
 } from 'apollo-server';
 import isEmpty from 'lodash/fp/isEmpty';
 
-import { Resolver } from '../../../../types';
+import { Resolver } from '../../../../../../types';
 
-interface DuplicateNotesResponse {
+interface UpdateNotesResponse {
   message: string;
   notes: Note[];
   success: boolean;
 }
 
-interface DuplicateNotesVariables {
-  ids: number[];
+interface UpdateNotesVariables {
+  input: {
+    notes: Note[];
+  };
 }
 
-export const duplicateNotes: Resolver<
-  DuplicateNotesResponse,
-  DuplicateNotesVariables
-> = async (_, { ids }, { currentUser, prisma }) => {
+export const updateNotes: Resolver<
+  UpdateNotesResponse,
+  UpdateNotesVariables
+> = async (_, { input }, { currentUser, prisma }) => {
+  const { notes } = input;
+
   if (!currentUser) {
     throw new AuthenticationError('You are not authenticated.');
   }
 
-  if (isEmpty(ids)) {
-    throw new ValidationError('Note IDs to duplicate must be provided.');
+  if (isEmpty(notes)) {
+    throw new ValidationError('Notes to update must be provided.');
   }
 
   const song = await prisma.note
-    .findUnique({
-      where: {
-        id: ids[0],
-      },
-    })
+    .findUnique({ where: { id: notes[0].id } })
     .sequence()
     .track()
     .song();
@@ -51,18 +51,11 @@ export const duplicateNotes: Resolver<
     );
   }
 
-  const notes = await prisma.note.findMany({ where: { id: { in: ids } } });
-
-  const newNotes = await Promise.all(
+  const updatedNotes = await Promise.all(
     notes.map((note) =>
-      prisma.note.create({
+      prisma.note.update({
         data: {
           points: note.points,
-          sequence: {
-            connect: {
-              id: note.sequenceId || 0,
-            },
-          },
         },
         include: {
           sequence: {
@@ -70,6 +63,9 @@ export const duplicateNotes: Resolver<
               id: true,
             },
           },
+        },
+        where: {
+          id: note.id,
         },
       }),
     ),
@@ -81,8 +77,8 @@ export const duplicateNotes: Resolver<
   });
 
   return {
-    message: 'Notes were duplicated successfully.',
-    notes: newNotes,
+    message: 'Notes were updated successfully.',
+    notes: updatedNotes,
     success: true,
   };
 };

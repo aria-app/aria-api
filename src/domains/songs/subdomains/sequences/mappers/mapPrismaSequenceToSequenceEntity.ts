@@ -1,6 +1,6 @@
 import { isNil } from 'lodash';
 
-import { Note, PrismaSequence, Result, Sequence } from '../../../types';
+import { Note, PrismaSequence, Result, Sequence } from '../../../../../types';
 import { mapPrismaNoteToNoteEntity } from '../../notes';
 
 export function mapPrismaSequenceToSequenceEntity(

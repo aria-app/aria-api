@@ -7,7 +7,7 @@ import {
 import isNil from 'lodash/fp/isNil';
 import omitBy from 'lodash/fp/omitBy';
 
-import { Resolver } from '../../../../types';
+import { Resolver } from '../../../../../../types';
 
 interface UpdateTrackResponse {
   message: string;

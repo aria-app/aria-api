@@ -1,7 +1,7 @@
 import { Prisma } from '@prisma/client';
 import { isNil, isNumber } from 'lodash';
 
-import { Note, Point, PrismaNote, Result } from '../../../types';
+import { Note, Point, PrismaNote, Result } from '../../../../../types';
 
 function mapPrismaPointToPointEntity(
   prismaPoint: Prisma.JsonValue,

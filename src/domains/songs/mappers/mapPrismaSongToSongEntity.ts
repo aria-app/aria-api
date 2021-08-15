@@ -1,7 +1,7 @@
 import { isNil } from 'lodash';
 
 import { PrismaSong, Result, Song, Track } from '../../../types';
-import { mapPrismaTrackToTrackEntity } from '../../tracks';
+import { mapPrismaTrackToTrackEntity } from '../subdomains/tracks';
 
 export function mapPrismaSongToSongEntity(
   prismaSong: PrismaSong,

@@ -6,8 +6,8 @@ import {
 } from 'apollo-server';
 import max from 'lodash/fp/max';
 
-import { DEFAULT_VOICE_ID } from '../../../../constants';
-import { Resolver } from '../../../../types';
+import { DEFAULT_VOICE_ID } from '../../../../../../constants';
+import { Resolver } from '../../../../../../types';
 
 interface CreateTrackResponse {
   message: string;

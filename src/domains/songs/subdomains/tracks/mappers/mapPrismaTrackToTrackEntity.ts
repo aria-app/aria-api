@@ -1,6 +1,6 @@
 import { isNil } from 'lodash';
 
-import { PrismaTrack, Result, Sequence, Track } from '../../../types';
+import { PrismaTrack, Result, Sequence, Track } from '../../../../../types';
 import { mapPrismaSequenceToSequenceEntity } from '../../sequences';
 
 export function mapPrismaTrackToTrackEntity(

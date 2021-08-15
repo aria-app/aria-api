@@ -1,6 +1,13 @@
 import { gql } from 'apollo-server';
 
+import * as notes from './subdomains/notes';
+import * as sequences from './subdomains/sequences';
+import * as tracks from './subdomains/tracks';
+
 export const typeDefs = gql`
+  ${notes.typeDefs}
+  ${sequences.typeDefs}
+  ${tracks.typeDefs}
   extend type Query {
     song(id: Int!): Song
     songs(
