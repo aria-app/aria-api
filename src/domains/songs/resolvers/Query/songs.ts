@@ -1,9 +1,9 @@
-import { Role, Song } from '@prisma/client';
 import { AuthenticationError, ForbiddenError } from 'apollo-server';
-import { isNumber } from 'lodash';
-import isNil from 'lodash/fp/isNil';
+import { isError, isNumber } from 'lodash';
 
-import { PaginatedResponse, Resolver } from '../../../../types';
+import { getPaginatedResponseMetadata } from '../../../../shared';
+import { PaginatedResponse, Resolver, Role, Song } from '../../../../types';
+import { SongRepository } from '../../repositories';
 
 interface SongsVariables {
   limit?: number;
@@ -16,8 +16,8 @@ interface SongsVariables {
 
 export const songs: Resolver<PaginatedResponse<Song>, SongsVariables> = async (
   _,
-  { limit, page = 1, search, sort = 'name', sortDirection = 'asc', userId },
-  { currentUser, prisma },
+  { limit, page, search, sort, sortDirection, userId },
+  { container, currentUser, prisma },
 ) => {
   if (!currentUser) {
     throw new AuthenticationError('You are not authenticated.');
@@ -35,57 +35,20 @@ export const songs: Resolver<PaginatedResponse<Song>, SongsVariables> = async (
     throw new ForbiddenError('You are not authorized to view this data.');
   }
 
-  const songsPage = await prisma.song.findMany({
-    include: {
-      tracks: {
-        include: {
-          sequences: {
-            include: {
-              notes: {
-                include: {
-                  sequence: {
-                    select: {
-                      id: true,
-                    },
-                  },
-                },
-              },
-              track: {
-                select: {
-                  id: true,
-                },
-              },
-            },
-          },
-          song: {
-            select: {
-              id: true,
-            },
-          },
-          voice: true,
-        },
-      },
-      user: true,
-    },
-    orderBy: sort
-      ? {
-          [sort]: sortDirection,
-        }
-      : undefined,
-    ...(!isNil(limit)
-      ? {
-          skip: (page - 1) * limit,
-          take: limit,
-        }
-      : {}),
-    where: {
-      name: {
-        contains: search || '',
-        mode: 'insensitive',
-      },
-      ...(isNumber(userId) ? { userId } : {}),
-    },
+  const songRepository = container.get<SongRepository>(SongRepository);
+
+  const getSongsResult = await songRepository.getSongs({
+    limit,
+    page,
+    search,
+    sort,
+    sortDirection,
+    userId,
   });
+
+  if (isError(getSongsResult)) {
+    throw getSongsResult;
+  }
 
   const totalItemCount = await prisma.song.count({
     where: {
@@ -98,11 +61,7 @@ export const songs: Resolver<PaginatedResponse<Song>, SongsVariables> = async (
   });
 
   return {
-    data: songsPage,
-    meta: {
-      currentPage: page || 1,
-      itemsPerPage: isNil(limit) ? totalItemCount : limit,
-      totalItemCount,
-    },
+    data: getSongsResult,
+    meta: getPaginatedResponseMetadata({ limit, page, totalItemCount }),
   };
 };

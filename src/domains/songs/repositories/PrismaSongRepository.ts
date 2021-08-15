@@ -2,7 +2,7 @@ import { Prisma, PrismaClient } from '@prisma/client';
 import { inject, injectable } from 'inversify';
 import { isError, isNumber, isString } from 'lodash';
 
-import { getSkip } from '../../../shared';
+import { getOrderBy, getSkip, getTake } from '../../../shared';
 import { ID, Result, Song } from '../../../types';
 import { makeSongInclude } from '../helpers';
 import { mapPrismaSongToSongEntity } from '../mappers';
@@ -27,16 +27,16 @@ export class PrismaSongRepository implements SongRepository {
 
   public async getSongs({
     limit,
-    page = 1,
+    page,
     search,
-    sort = 'name',
-    sortDirection = 'asc',
+    sort,
+    sortDirection,
     userId,
   }: GetSongsOptions): Promise<Result<Song[]>> {
     try {
-      const orderBy = sort ? { [sort]: sortDirection } : undefined;
+      const orderBy = getOrderBy(sort, sortDirection);
       const skip = getSkip(limit, page);
-      const take = limit;
+      const take = getTake(limit);
       const where = getSongWhereInput(userId, search);
 
       const prismaSongs = await this.prismaClient.song.findMany({

@@ -1,7 +1,8 @@
 import { Prisma, PrismaClient } from '@prisma/client';
 import { inject, injectable } from 'inversify';
-import { isError, isNumber, isString } from 'lodash';
+import { isError, isString } from 'lodash';
 
+import { getOrderBy, getSkip, getTake } from '../../../shared';
 import { ID, Result, User } from '../../../types';
 import { mapPrismaUserToUserEntity } from '../mappers';
 import { GetUsersOptions, UserRepository } from './UserRepository';
@@ -24,23 +25,17 @@ export class PrismaUserRepository implements UserRepository {
 
   public async getUsers({
     limit,
-    page = 1,
+    page,
     search,
     sort,
     sortDirection,
   }: GetUsersOptions): Promise<Result<User[]>> {
     try {
-      const where = getUserWhereInput(search);
-      const orderBy = sort ? { [sort]: sortDirection } : undefined;
-      const skip =
-        isNumber(limit) && isNumber(page) ? (page - 1) * limit : undefined;
-      const take = isNumber(limit) ? limit : undefined;
-
       const prismaUsers = await this.prismaClient.user.findMany({
-        orderBy,
-        skip,
-        take,
-        where,
+        orderBy: getOrderBy(sort, sortDirection),
+        skip: getSkip(limit, page),
+        take: getTake(limit),
+        where: getUserWhereInput(search),
       });
 
       const usersMapResults = prismaUsers.map(mapPrismaUserToUserEntity);
@@ -62,9 +57,7 @@ export class PrismaUserRepository implements UserRepository {
     search,
   }: GetUsersOptions): Promise<Result<number>> {
     try {
-      const where = getUserWhereInput(search);
-
-      return this.prismaClient.user.count({ where });
+      return this.prismaClient.user.count({ where: getUserWhereInput(search) });
     } catch (error) {
       return error;
     }
