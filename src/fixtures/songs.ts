@@ -1,6 +1,6 @@
 import { parseISO } from 'date-fns';
 
-import { Song } from '../src/types';
+import { Song } from '../types';
 
 export const songs: Song[] = [
   {
