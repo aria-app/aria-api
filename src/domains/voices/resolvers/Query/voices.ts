@@ -1,5 +1,4 @@
 import { Voice } from '@prisma/client';
-import { AuthenticationError } from 'apollo-server';
 import { isError } from 'lodash';
 
 import { getPaginatedResponseMetadata } from '../../../../shared';
@@ -16,15 +15,7 @@ interface VoicesVariables {
 export const voices: Resolver<
   PaginatedResponse<Voice>,
   VoicesVariables
-> = async (
-  parent,
-  { limit, page, sort, sortDirection },
-  { container, currentUser },
-) => {
-  if (!currentUser) {
-    throw new AuthenticationError('You are not authenticated.');
-  }
-
+> = async (parent, { limit, page, sort, sortDirection }, { container }) => {
   const voiceRepository = container.get<VoiceRepository>(VoiceRepository);
 
   const getVoicesResult = await voiceRepository.getVoices({
